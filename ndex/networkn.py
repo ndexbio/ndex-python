@@ -1,17 +1,12 @@
 import networkx as nx
 from networkx.classes.multidigraph import MultiDiGraph
 import copy
-import matplotlib.pyplot as plt
 import pandas as pd
 import create_aspect
 import io
 import json
 import numpy as np
 import ndex.client as nc
-
-
-
-
 
 class NdexGraph (MultiDiGraph):
     '''A graph compatible with NDEx'''
@@ -161,11 +156,6 @@ class NdexGraph (MultiDiGraph):
             else:
                 self.unknown_cx.append(aspect)
 
-    def show_stats(self):
-        '''Show the number of nodes and edges.'''
-        print "Nodes: %d" % self.number_of_nodes()
-        print "Edges: %d" % self.number_of_edges()
-
     def clear(self):
         '''Eliminate all graph data and start from scratch.'''
         super(NdexGraph, self).clear()
@@ -218,9 +208,17 @@ class NdexGraph (MultiDiGraph):
                 self.add_edge(s, t, self.max_edge_id, data)
                 self.max_edge_id +=1
 
-
     def load(self, filename, source=1, target=2, edge_attributes=None, sep='\t', header=False):
-        '''Load NdexGraph from file.'''
+        '''Load NdexGraph from file.
+
+            The parameters are:
+            filename = The name of the file to load. Could include an absolute or relative path.
+            source = The source node column. (An integer; start counting at 1.)
+            target = The target node column. (An integer; start counting at 1.)
+            edge_attributes = A list of names for other columns which are edge attributes.
+            sep = The cell separator, often a tab (\t), but possibly a comma or other character.
+            header = Whether the first row should be interpreted as column headers.
+        '''
         G = nx.MultiDiGraph()
         if edge_attributes != None:
             if not header and not all(type(i) is int for i in edge_attributes):
@@ -272,7 +270,12 @@ class NdexGraph (MultiDiGraph):
         self._set_nice(G)
 
     def annotate_network(self, filename, sep='\t'):
-        '''Annotate an NdexGraph with attributes from file'''
+        '''Annotate this NdexGraph with attributes from file
+
+            The parameters are:
+            filename = The name of the file to load. Could include an absolute or relative path.
+            sep = The cell separator, often a tab (\t), but possibly a comma or other character.
+        '''
         G = self._get_nice()
         df = pd.read_csv(filename, sep=sep)
         num_attributes = df.shape[1] - 1
@@ -292,37 +295,6 @@ class NdexGraph (MultiDiGraph):
         if 'name' in self.graph:
             return self.graph['name']
         return None
-
-    def show(self):
-        '''Show information about the graph and its data.'''
-        print 'Graph Data:'
-        print str(self.graph)
-        print str(self.nodes(data=True))
-        print str(self.edges(data=True, keys=True))
-
-    def _get_labels(self):
-        return {n:data['name'] if 'name' in data else n for n, data in self.nodes_iter(data=True)}
-
-    def draw(self):
-        '''Draw the graph to get a sense of its topology.'''
-        G = self
-        if self.pos:
-            pos = self.pos
-        else:
-            pos = nx.spring_layout(G)
-        labels = self._get_labels()
-        nx.draw_networkx_labels(G, pos, labels=labels)
-        node_size = 1600
-        node_color = 'green'
-        node_alpha = 0.5
-        nx.draw_networkx_nodes(G, pos, node_size=node_size,
-                               alpha=node_alpha, node_color=node_color)
-        edge_thickness = 1
-        edge_alpha = 0.3
-        edge_color = 'green'
-        nx.draw_networkx_edges(G, pos, width=edge_thickness,
-                               alpha=edge_alpha, edge_color=edge_color)
-        plt.show()
 
     def to_cx(self):
         '''Convert the graph to a CX dictionary'''
@@ -348,12 +320,8 @@ class NdexGraph (MultiDiGraph):
 
         return cx
 
-    def add_next_node(self):
-        '''Add a node with an appropriate cx id'''
-        return self.add_named_node(None)
-
-    def add_named_node(self, name):
-        '''Add a node with a particular name to the graph.'''
+    def add_cx_node(self, name=None):
+        '''Add a cx node, possibly with a particular name, to the graph.'''
         if self.max_node_id == None:
             if self.number_of_nodes() > 0:
                 self.max_node_id = max(self.nodes())
@@ -367,13 +335,25 @@ class NdexGraph (MultiDiGraph):
         return self.max_node_id
 
 
-    def get_node_ids(self, value, attribute='name'):
-        '''Get the node ids of all nodes having an attribute equal to a particular value.'''
-        nodes = [n[0] for n in self.nodes_iter(data=True) if attribute in n[1] and n[1][attribute] == value]
+    def get_node_ids(self, value, attribute_key='name'):
+        '''Returns a list of node ids of all nodes where a particular attribute has a particular value.
+
+            The parameters are:
+            value = The value we want.
+            attribute_key = The name of the attribute where we should look for the value.
+        '''
+        nodes = [n[0] for n in self.nodes_iter(data=True) if attribute_key in n[1] and n[1][attribute_key] == value]
         return nodes
 
 
-    def _get_edge_ids_by_node_attribute(self, source_node_value, target_node_value, attribute_key='name'):
+    def get_edge_ids_by_node_attribute(self, source_node_value, target_node_value, attribute_key='name'):
+        '''Returns a list of edge ids of all edges where the source node and target node has a particular value for particular attribute.
+
+                The parameters are:
+                source_node_value = The value we want in the source node.
+                target_node_value = The value we want in the target node.
+                attribute_key = The name of the attribute where we should look for the value.
+            '''
         source_node_ids = self.get_node_ids(source_node_value, attribute_key)
         target_node_ids = self.get_node_ids(target_node_value, attribute_key)
         edge_keys = []
@@ -384,16 +364,28 @@ class NdexGraph (MultiDiGraph):
         return edge_keys
 
 
-    def add_edge_between(self, n1, n2, interaction=None):
-        '''Add edges between to nodes with the specified ids.'''
-        if type(n1) != type(n2):
+    # Need to document n1 and n2 options.
+    # Document if node names are used, they must be unqiue.
+    def add_edge_between(self, source_node, target_node, interaction=None):
+        '''Add edges between two nodes in this NdexGraph, optionally specifying a type of interaction
+
+        The parameters are:
+        source_node_value = The source node, specified by either an id or name. If a name, it must be a string.
+        target_node_value = The target node, specified by either an id or name. If a name, it must be a string.
+        interaction = The type of interaction specified by the newly added edge.
+
+        Notes:
+        The source_node_value and target_node_value must be the same type (either both id or both name). If name
+        is used, then all names on the network must be unique.
+        '''
+        if type(source_node) != type(target_node):
             raise ValueError("The node parameters must be the same type.")
-        if isinstance(n1, basestring):
+        if isinstance(source_node, basestring):
             if not self._all_node_names_are_unique():
                 raise ValueError(
                     "Names are not unique in this network. Therefore, node parameters must be integer node ids.")
             G = self._get_nice()
-        elif type(n1) is int:
+        elif type(source_node) is int:
             G = self
         else:
             raise ValueError("Node parameters must be either int or string.")
@@ -406,14 +398,20 @@ class NdexGraph (MultiDiGraph):
             else:
                 self.max_edge_id = 0
         self.max_edge_id += 1
-        G.add_edge(n1, n2, self.max_edge_id, interaction=interaction)
-        self.edgemap[self.max_edge_id] = (n1, n2)
+        G.add_edge(source_node, target_node, self.max_edge_id, interaction=interaction)
+        self.edgemap[self.max_edge_id] = (source_node, target_node)
         if G != self:
             self._set_nice(G)
         return self.max_edge_id
 
-    def _get_edge_attribute_value_by_id(self, id, attribute_key):
-        '''Get the value of a particular edge attribute based on the id.'''
+    def get_edge_attribute_value_by_id(self, id, attribute_key):
+        '''Get the value of a particular edge attribute based on the id.
+
+        The parameters are:
+            id = The id of the edge.
+            attribute_key = The name of the attribute whose value should be retrieved.
+
+        '''
         edge_keys = {key: (s, t) for s, t, key in self.edges_iter(keys=True)}
         if id not in edge_keys:
             raise ValueError("Your ID is not in the network")
@@ -426,7 +424,13 @@ class NdexGraph (MultiDiGraph):
 
 
     def get_edge_attribute_values_by_id_list(self, id_list, attribute_key):
-        '''Given a list of edge ids and particular attribute key, return a list of attribute values.'''
+        '''Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.'
+
+        The parameters are:
+            id_list = A list of edge ids whose attribute values we wish to retrieve
+            attribute_key = The name of the attribute whose corresponding values should be retrieved.
+        '''
+
         edge_keys = {key: (s, t) for s, t, key in self.edges_iter(keys=True)}
         for id in id_list:
             if id not in edge_keys:
@@ -438,7 +442,8 @@ class NdexGraph (MultiDiGraph):
         return [self[v[0]][v[1]][k][attribute_key] if attribute_key in self[v[0]][v[1]][k] else None for k, v in
                 edge_keys.iteritems()]
 
-    def _get_node_attribute_value_by_id(self, id, attribute_key='name'):
+    def get_node_attribute_value_by_id(self, id, attribute_key='name'):
+        '''Get the value of a particular node attribute based on the id.'''
         if id not in self.node:
             raise ValueError("Your ID is not in the network")
         node_attributes = nx.get_node_attributes(self, attribute_key)
@@ -447,7 +452,13 @@ class NdexGraph (MultiDiGraph):
         return self.node[id][attribute_key] if attribute_key in self.node[id] else None
 
     def get_node_attribute_values_by_id_list(self, id_list, attribute_key='name'):
-        '''Returns a list of attribute values that correspond with the attribute key using the nodes in id_list.'''
+        '''Returns a list of attribute values that correspond with the attribute key using the nodes in id_list.
+
+        The parameters are:
+            id_list = A list of node ids whose attribute values we wish to retrieve.
+            attribute_key = The name of the attribute whose corresponding values should be retrieved.
+
+        '''
         for id in id_list:
             if id not in self.node:
                 raise ValueError("Your ID list has IDs that are not in the network")
@@ -457,38 +468,36 @@ class NdexGraph (MultiDiGraph):
         return [self.node[id][attribute_key] if attribute_key in self.node[id] else None for id in id_list]
 
     def get_node_names_by_id_list(self, id_list):
-        '''Given a list of node ids, return a list of node names.'''
+        '''Given a list of node ids, return a list of node names.
+
+        The parameters are:
+            id_list = A list of node ids whose attribute values we wish to retrieve.
+        '''
         return self.get_node_attribute_values_by_id_list(id_list)
 
     def get_node_name_by_id(self, id):
         '''Given a node id, return the name of the node.'''
-        return self._get_node_attribute_value_by_id(id)
-
-    def set_node_attribute(self, id, key, value):
-        '''Set the value of a particular node attribute.'''
-        if id in self.node:
-            self.node[id][key] = value
-        else:
-            node_ids = self.get_node_ids(id)
-            if len(node_ids) != 1:
-                raise ValueError("The node ID is not unique.")
-            node_id = node_ids[0]
-            self.node[node_id][key] = value
+        return self.get_node_attribute_value_by_id(id)
 
     def get_node_attribute_keys(self):
-        '''Get all of the attribute keys that are on some node in the graph.'''
+        '''Get a list of all of the attribute keys that are on at least one node in the graph.'''
         keys = set()
         for _, attributes in self.nodes_iter(data=True):
             for key, value in attributes.iteritems():
                 keys.add(key)
         return list(keys)
 
+    def set_edge_attribute(self, id, attribute_key, attribute_value):
+        '''Set the value of a particular edge attribute.
 
-    def set_edge_attribute(self, id, key, value):
-        '''Set the value of a particular edge attribute.'''
+        The parameters are:
+            id = The edge id we wish to set an attribute on.
+            attribute_key = The name of the attribute we wish to set.
+            attribute_value = The value we wish to set the attribute to.
+
+        '''
         s, t = self.edgemap[id]
-        self.edge[s][t][id][key] = value
-
+        self.edge[s][t][id][attribute_key] = attribute_value
 
     def get_edge_attribute_keys(self):
         '''Get all of the attribute keys that are on some edge in the graph.'''
@@ -503,174 +512,17 @@ class NdexGraph (MultiDiGraph):
         cx = self.to_cx()
         return io.BytesIO(json.dumps(cx))
 
-    def _rename(self, name_map):
-        names = {}
-        for n in self.nodes_iter(data=True):
-            if n[1]['name']:
-                name = n[1]['name']
-                if name in names:
-                    names[name].append(n[0])
-                else:
-                    names[name] = [n[0]]
-        for old_name in name_map:
-            if old_name in names:
-                new_name = name_map[old_name]
-                for id in names[old_name]:
-                    self.node[id]['name'] = new_name
-
-    def _generate_new_key_for_merge(self, key, matts):
-        key_postfix = 2
-        new_key = key + str(key_postfix)
-        while new_key in matts:
-            key_postfix += 1
-            new_key = key + str(key_postfix)
-        return new_key
-
-    def _merge_nodes_for_expand(self, node_id_list, secondary_network_name, expand_key, preserve_id=None, preserve_list=None):
-        if not preserve_list:
-            preserve_list = []
-        G = self
-        # matts is short for merged attributes.
-        matts = {}
-        for node_id in node_id_list:
-            # atts is short for attributes
-            atts = G.node[node_id]
-            for key in atts:
-                if key in matts:
-                    #Don't make two columns for the expand key.
-                    if key == expand_key:
-                        continue
-                    new_key = key + ' from ' + secondary_network_name
-                    if new_key in matts:
-                        new_key = self._generate_new_key_for_merge(new_key, matts)
-                    matts[new_key] = atts[key]
-                else:
-                    matts[key] = atts[key]
-
-        max_node_id = max(G.nodes())
-        new_node_id = max_node_id + 1
-        G.add_node(new_node_id, matts)
-
-        max_edge_id = 0
-        if G.number_of_edges() > 0:
-            max_edge_id = max([e[2] for e in G.edges(keys=True)])
-
-        for n1, n2, data in G.edges(data=True):
-            # If both nodes are in the list, we don't want a new edge.
-            if n1 in node_id_list and n2 in node_id_list:
-                continue
-
-            if n1 in node_id_list:
-                max_edge_id += 1
-                G.add_edge(new_node_id, n2, max_edge_id, data)
-
-            elif n2 in node_id_list:
-                max_edge_id += 1
-                G.add_edge(n1, new_node_id, max_edge_id, data)
-
-
-        for id in node_id_list:  # remove the merged nodes and adjacent edges
-            if id not in preserve_list:
-                G.remove_node(id)
-
-        if preserve_id:
-            G.add_node(preserve_id, matts)
-            for n1, _, key, data in self.in_edges([new_node_id], keys=True, data=True):
-                G.add_edge(n1, preserve_id, key, data)
-            for _, n2, key, data in self.out_edges([new_node_id], keys=True, data=True):
-                G.add_edge(preserve_id, n2, key, data)
-            G.remove_node(new_node_id)
-
-    def _make_attribute_node_map(self, G, attribute_key):
-        map = {}
-
-        for n in G.nodes():
-            if attribute_key in G.node[n]:
-                v = G.node[n][attribute_key]
-                if v not in map:
-                    map[v] = [n]
-                else:
-                    map[v].append(n)
-
-        return map
-
-
-    def expand(self, secondary_network, expand_key='name'):
-        '''Expand this network using a secondary reference network based on the identity of a particular attribute value.'''
-        primary_network_name = self.graph['name'] if 'name' in self.graph else 'Unknown Network'
-        secondary_network_name = secondary_network.graph['name'] if 'name' in secondary_network.graph else 'Unknown Network'
-
-        self.graph['name'] = primary_network_name + ' expanded with data from ' + secondary_network_name
-
-
-        primary_map = self._make_attribute_node_map(self, expand_key)
-        secondary_map = self._make_attribute_node_map(secondary_network, expand_key)
-
-        # 1st: Add Matching Nodes
-        added_node_map_secondary_to_primary = {}
-        added_secondary_node_ids = set()
-        merge_lists = {}
-        for primary_key in primary_map.keys():
-            if primary_key in secondary_map:
-                for secondary_node_id in secondary_map[primary_key]:
-                    new_node_id = self.add_next_node()
-                    self.node[new_node_id] = copy.deepcopy(secondary_network.node[secondary_node_id])
-                    if primary_key in merge_lists:
-                        merge_lists[primary_key].append(new_node_id)
-                    else:
-                        merge_lists[primary_key] = [new_node_id]
-                    added_node_map_secondary_to_primary[secondary_node_id] = new_node_id
-                    added_secondary_node_ids.add(secondary_node_id)
-
-        #2nd Add Connected Nodes
-        for secondary_node_id in list(added_secondary_node_ids):
-
-            for _, c, secondary_edge_key in secondary_network.out_edges([secondary_node_id], keys=True):
-                if c not in added_secondary_node_ids:
-                    new_connected_node_id = self.add_next_node()
-                    self.node[new_connected_node_id] = copy.deepcopy(secondary_network.node[c])
-                    added_node_map_secondary_to_primary[c] = new_connected_node_id
-                    added_secondary_node_ids.add(c)
-
-
-            for c, _, secondary_edge_key in secondary_network.in_edges([secondary_node_id], keys=True):
-                if c not in added_secondary_node_ids:
-                    new_connected_node_id = self.add_next_node()
-                    self.node[new_connected_node_id] = copy.deepcopy(secondary_network.node[c])
-                    added_node_map_secondary_to_primary[c] = new_connected_node_id
-                    added_secondary_node_ids.add(c)
-
-        # Add Edges from Matching Nodes to Connecting Nodes
-        # t is the id from the secondary network
-        for t in added_node_map_secondary_to_primary:
-            # s is the id from the primary network
-            s = added_node_map_secondary_to_primary[t]
-            # c is the id of the connected node in the target network
-            for _, c, secondary_edge_key in secondary_network.out_edges([t], keys=True):
-                if c in added_node_map_secondary_to_primary:
-                    # n2 is the id of the node we want to connect to s in the source network
-                    n2 = added_node_map_secondary_to_primary[c]
-                    # e is the id of the newly created edge between s and n2 in the source network.
-                    e = self.add_edge_between(s, n2)
-                    self[s][n2][e] = copy.deepcopy(secondary_network[t][c][secondary_edge_key])
-
-        # Now Merge
-        for key, merge_list in merge_lists.iteritems():
-            if key in primary_map:
-                for i in range(len(primary_map[key]) - 1):
-                    preserve_id = primary_map[key][i]
-                    self._merge_nodes_for_expand([preserve_id] + merge_list, secondary_network_name, expand_key, preserve_id, preserve_list=merge_list)
-                preserve_id = primary_map[key][-1]
-                self._merge_nodes_for_expand([preserve_id] + merge_list, secondary_network_name, expand_key, preserve_id)
-
     def write_to(self, filename):
         '''Write this graph as a CX file to the specified filename.'''
         with open(filename, 'w') as outfile:
             json.dump(self.to_cx(), outfile, indent=4)
 
     def upload_to(self, server, username, password):
-        '''Upload this graph to the specified server using the specified username and password.'''
+        '''Uploads this graph to the specified server using the specified username and password.
+
+        Example:
+            ndexGraph.upload_to('http://test.ndexbio.org', 'myusername', 'mypassword')
+        '''
+
         ndex = nc.Ndex(server,username,password)
         ndex.save_cx_stream_as_new_network(self.to_cx_stream())
-
-
