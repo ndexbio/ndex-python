@@ -1,0 +1,561 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ndex package &mdash; NDEx Python 1.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="NDEx Python 1.1.0 documentation" href="index.html" />
+    <link rel="up" title="ndex" href="modules.html" />
+    <link rel="prev" title="ndex" href="modules.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ndex-package">
+<h1>ndex package<a class="headerlink" href="#ndex-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ndex.client">
+<span id="ndex-client-module"></span><h2>ndex.client module<a class="headerlink" href="#module-ndex.client" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ndex.client.Ndex">
+<em class="property">class </em><code class="descclassname">ndex.client.</code><code class="descname">Ndex</code><span class="sig-paren">(</span><em>host='http://www.ndexbio.org'</em>, <em>username=None</em>, <em>password=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="ndex.client.Ndex.debug_response">
+<code class="descname">debug_response</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.debug_response" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>route</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.delete_network">
+<code class="descname">delete_network</code><span class="sig-paren">(</span><em>network_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.delete_network" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.find_networks">
+<code class="descname">find_networks</code><span class="sig-paren">(</span><em>search_string=''</em>, <em>account_name=None</em>, <em>skip_blocks=0</em>, <em>block_size=100</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.find_networks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>route</em>, <em>get_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_complete_network">
+<code class="descname">get_complete_network</code><span class="sig-paren">(</span><em>network_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_complete_network" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_neighborhood">
+<code class="descname">get_neighborhood</code><span class="sig-paren">(</span><em>network_id</em>, <em>search_string</em>, <em>search_depth=1</em>, <em>edge_limit=2500</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_neighborhood" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_neighborhood_as_cx_stream">
+<code class="descname">get_neighborhood_as_cx_stream</code><span class="sig-paren">(</span><em>network_id</em>, <em>search_string</em>, <em>search_depth=1</em>, <em>edge_limit=2500</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_neighborhood_as_cx_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_network_api">
+<code class="descname">get_network_api</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_network_api" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_network_as_cx_stream">
+<code class="descname">get_network_as_cx_stream</code><span class="sig-paren">(</span><em>network_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_network_as_cx_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_network_by_edges">
+<code class="descname">get_network_by_edges</code><span class="sig-paren">(</span><em>network_id</em>, <em>skip_blocks=0</em>, <em>block_size=100</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_network_by_edges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_network_summary">
+<code class="descname">get_network_summary</code><span class="sig-paren">(</span><em>network_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_network_summary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_provenance">
+<code class="descname">get_provenance</code><span class="sig-paren">(</span><em>network_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_provenance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_stream">
+<code class="descname">get_stream</code><span class="sig-paren">(</span><em>route</em>, <em>get_params=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.post">
+<code class="descname">post</code><span class="sig-paren">(</span><em>route</em>, <em>post_json</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.post" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.post_multipart">
+<code class="descname">post_multipart</code><span class="sig-paren">(</span><em>route</em>, <em>fields</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.post_multipart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.post_stream">
+<code class="descname">post_stream</code><span class="sig-paren">(</span><em>route</em>, <em>post_json</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.post_stream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.put">
+<code class="descname">put</code><span class="sig-paren">(</span><em>route</em>, <em>put_json</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.put" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.put_multipart">
+<code class="descname">put_multipart</code><span class="sig-paren">(</span><em>route</em>, <em>fields</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.put_multipart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.query_network_by_edge_filter">
+<code class="descname">query_network_by_edge_filter</code><span class="sig-paren">(</span><em>network_id</em>, <em>edge_filter</em>, <em>node_filter</em>, <em>edge_limit</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.query_network_by_edge_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.require_auth">
+<code class="descname">require_auth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.require_auth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.save_cx_stream_as_new_network">
+<code class="descname">save_cx_stream_as_new_network</code><span class="sig-paren">(</span><em>cx_stream</em>, <em>provenance=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.save_cx_stream_as_new_network" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.save_new_network">
+<code class="descname">save_new_network</code><span class="sig-paren">(</span><em>network</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.save_new_network" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.save_new_network_for_group">
+<code class="descname">save_new_network_for_group</code><span class="sig-paren">(</span><em>network</em>, <em>group_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.save_new_network_for_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.search_networks">
+<code class="descname">search_networks</code><span class="sig-paren">(</span><em>search_string=''</em>, <em>account_name=None</em>, <em>skip_blocks=0</em>, <em>block_size=100</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.search_networks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.search_networks_by_property_filter">
+<code class="descname">search_networks_by_property_filter</code><span class="sig-paren">(</span><em>search_parameter_dict=''</em>, <em>account_name=None</em>, <em>limit=100</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.search_networks_by_property_filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.set_debug_mode">
+<code class="descname">set_debug_mode</code><span class="sig-paren">(</span><em>debug</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.set_debug_mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.set_network_flag">
+<code class="descname">set_network_flag</code><span class="sig-paren">(</span><em>network_id</em>, <em>parameter</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.set_network_flag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.set_network_properties">
+<code class="descname">set_network_properties</code><span class="sig-paren">(</span><em>network_id</em>, <em>network_properties</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.set_network_properties" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.set_provenance">
+<code class="descname">set_provenance</code><span class="sig-paren">(</span><em>network_id</em>, <em>provenance</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.set_provenance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.set_read_only">
+<code class="descname">set_read_only</code><span class="sig-paren">(</span><em>network_id</em>, <em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.set_read_only" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.update_cx_network">
+<code class="descname">update_cx_network</code><span class="sig-paren">(</span><em>cx_stream</em>, <em>network_id</em>, <em>provenance=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.update_cx_network" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.update_network">
+<code class="descname">update_network</code><span class="sig-paren">(</span><em>network</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.update_network" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.update_network_profile">
+<code class="descname">update_network_profile</code><span class="sig-paren">(</span><em>network_id</em>, <em>network_profile</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.update_network_profile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.upload_file">
+<code class="descname">upload_file</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.upload_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ndex.create_aspect">
+<span id="ndex-create-aspect-module"></span><h2>ndex.create_aspect module<a class="headerlink" href="#module-ndex.create_aspect" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="ndex.create_aspect.cartesian">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">cartesian</code><span class="sig-paren">(</span><em>G</em>, <em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.cartesian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.cv">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">cv</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.cv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.domain">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">domain</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.domain" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.edge_attributes">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">edge_attributes</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.edge_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.edges">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">edges</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.edges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.metadata">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">metadata</code><span class="sig-paren">(</span><em>max_node_id=0</em>, <em>max_edge_id=0</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.network_attributes">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">network_attributes</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.network_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.node_attributes">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">node_attributes</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.node_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.nodes">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">nodes</code><span class="sig-paren">(</span><em>G</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.nodes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.number_verification">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">number_verification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.number_verification" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ndex.create_aspect.subnetworks">
+<code class="descclassname">ndex.create_aspect.</code><code class="descname">subnetworks</code><span class="sig-paren">(</span><em>G</em>, <em>id</em>, <em>view_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.create_aspect.subnetworks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ndex.networkn">
+<span id="ndex-networkn-module"></span><h2>ndex.networkn module<a class="headerlink" href="#module-ndex.networkn" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ndex.networkn.NdexGraph">
+<em class="property">class </em><code class="descclassname">ndex.networkn.</code><code class="descname">NdexGraph</code><span class="sig-paren">(</span><em>cx=None</em>, <em>server=None</em>, <em>username=None</em>, <em>password=None</em>, <em>uuid=None</em>, <em>data=None</em>, <em>**attr</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></code></p>
+<p>A graph compatible with NDEx</p>
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.add_cx_node">
+<code class="descname">add_cx_node</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.add_cx_node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a cx node, possibly with a particular name, to the graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.add_edge_between">
+<code class="descname">add_edge_between</code><span class="sig-paren">(</span><em>source_node</em>, <em>target_node</em>, <em>interaction=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.add_edge_between" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add edges between two nodes in this NdexGraph, optionally specifying a type of interaction</p>
+<p>The parameters are:
+source_node_value = The source node, specified by either an id or name. If a name, it must be a string.
+target_node_value = The target node, specified by either an id or name. If a name, it must be a string.
+interaction = The type of interaction specified by the newly added edge.</p>
+<p>Notes:
+The source_node_value and target_node_value must be the same type (either both id or both name). If name
+is used, then all names on the network must be unique.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.annotate_network">
+<code class="descname">annotate_network</code><span class="sig-paren">(</span><em>filename</em>, <em>sep='\t'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.annotate_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate this NdexGraph with attributes from file</p>
+<p>The parameters are:
+filename = The name of the file to load. Could include an absolute or relative path.
+sep = The cell separator, often a tab (     ), but possibly a comma or other character.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Eliminate all graph data and start from scratch.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_edge_attribute_keys">
+<code class="descname">get_edge_attribute_keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all of the attribute keys that are on some edge in the graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_edge_attribute_value_by_id">
+<code class="descname">get_edge_attribute_value_by_id</code><span class="sig-paren">(</span><em>id</em>, <em>attribute_key</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_value_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value of a particular edge attribute based on the id.</p>
+<dl class="docutils">
+<dt>The parameters are:</dt>
+<dd>id = The id of the edge.
+attribute_key = The name of the attribute whose value should be retrieved.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_edge_attribute_values_by_id_list">
+<code class="descname">get_edge_attribute_values_by_id_list</code><span class="sig-paren">(</span><em>id_list</em>, <em>attribute_key</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_values_by_id_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.&#8217;</p>
+<dl class="docutils">
+<dt>The parameters are:</dt>
+<dd>id_list = A list of edge ids whose attribute values we wish to retrieve
+attribute_key = The name of the attribute whose corresponding values should be retrieved.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_edge_ids_by_node_attribute">
+<code class="descname">get_edge_ids_by_node_attribute</code><span class="sig-paren">(</span><em>source_node_value</em>, <em>target_node_value</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_ids_by_node_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of edge ids of all edges where the source node and target node has a particular value for particular attribute.</p>
+<p>The parameters are:
+source_node_value = The value we want in the source node.
+target_node_value = The value we want in the target node.
+attribute_key = The name of the attribute where we should look for the value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_name">
+<code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the name of this graph</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_node_attribute_keys">
+<code class="descname">get_node_attribute_keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of all of the attribute keys that are on at least one node in the graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_node_attribute_value_by_id">
+<code class="descname">get_node_attribute_value_by_id</code><span class="sig-paren">(</span><em>id</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_value_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value of a particular node attribute based on the id.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_node_attribute_values_by_id_list">
+<code class="descname">get_node_attribute_values_by_id_list</code><span class="sig-paren">(</span><em>id_list</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_values_by_id_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of attribute values that correspond with the attribute key using the nodes in id_list.</p>
+<dl class="docutils">
+<dt>The parameters are:</dt>
+<dd>id_list = A list of node ids whose attribute values we wish to retrieve.
+attribute_key = The name of the attribute whose corresponding values should be retrieved.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_node_ids">
+<code class="descname">get_node_ids</code><span class="sig-paren">(</span><em>value</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of node ids of all nodes where a particular attribute has a particular value.</p>
+<p>The parameters are:
+value = The value we want.
+attribute_key = The name of the attribute where we should look for the value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_node_name_by_id">
+<code class="descname">get_node_name_by_id</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_name_by_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a node id, return the name of the node.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_node_names_by_id_list">
+<code class="descname">get_node_names_by_id_list</code><span class="sig-paren">(</span><em>id_list</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_names_by_id_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a list of node ids, return a list of node names.</p>
+<dl class="docutils">
+<dt>The parameters are:</dt>
+<dd>id_list = A list of node ids whose attribute values we wish to retrieve.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>filename</em>, <em>source=1</em>, <em>target=2</em>, <em>edge_attributes=None</em>, <em>sep='\t'</em>, <em>header=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load NdexGraph from file.</p>
+<p>The parameters are:
+filename = The name of the file to load. Could include an absolute or relative path.
+source = The source node column. (An integer; start counting at 1.)
+target = The target node column. (An integer; start counting at 1.)
+edge_attributes = A list of names for other columns which are edge attributes.
+sep = The cell separator, often a tab (     ), but possibly a comma or other character.
+header = Whether the first row should be interpreted as column headers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.set_edge_attribute">
+<code class="descname">set_edge_attribute</code><span class="sig-paren">(</span><em>id</em>, <em>attribute_key</em>, <em>attribute_value</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.set_edge_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the value of a particular edge attribute.</p>
+<dl class="docutils">
+<dt>The parameters are:</dt>
+<dd>id = The edge id we wish to set an attribute on.
+attribute_key = The name of the attribute we wish to set.
+attribute_value = The value we wish to set the attribute to.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.set_name">
+<code class="descname">set_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.set_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the name of this graph</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.to_cx">
+<code class="descname">to_cx</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.to_cx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the graph to a CX dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.to_cx_stream">
+<code class="descname">to_cx_stream</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.to_cx_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert this graph to a CX stream</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.upload_to">
+<code class="descname">upload_to</code><span class="sig-paren">(</span><em>server</em>, <em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.upload_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uploads this graph to the specified server using the specified username and password.</p>
+<dl class="docutils">
+<dt>Example:</dt>
+<dd>ndexGraph.upload_to(&#8216;<a class="reference external" href="http://test.ndexbio.org">http://test.ndexbio.org</a>&#8216;, &#8216;myusername&#8217;, &#8216;mypassword&#8217;)</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.write_to">
+<code class="descname">write_to</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.write_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write this graph as a CX file to the specified filename.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ndex">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ndex" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ndex package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-ndex.client">ndex.client module</a></li>
+<li><a class="reference internal" href="#module-ndex.create_aspect">ndex.create_aspect module</a></li>
+<li><a class="reference internal" href="#module-ndex.networkn">ndex.networkn module</a></li>
+<li><a class="reference internal" href="#module-ndex">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">ndex</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">ndex</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ndex.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Dexter Pratt and David Welker.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/ndex.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
