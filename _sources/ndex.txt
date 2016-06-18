@@ -1,16 +1,6 @@
 ndex package
 ============
 
-Subpackages
------------
-
-.. toctree::
-
-    ndex.test
-
-Submodules
-----------
-
 ndex.client module
 ------------------
 
@@ -22,15 +12,6 @@ ndex.networkn module
 --------------------
 
 .. automodule:: ndex.networkn
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: ndex
     :members:
     :undoc-members:
     :show-inheritance:
