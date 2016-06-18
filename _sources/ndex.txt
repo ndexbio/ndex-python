@@ -19,14 +19,6 @@ ndex.client module
     :undoc-members:
     :show-inheritance:
 
-ndex.create_aspect module
--------------------------
-
-.. automodule:: ndex.create_aspect
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 ndex.networkn module
 --------------------
 
