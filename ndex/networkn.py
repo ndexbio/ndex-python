@@ -211,13 +211,12 @@ class NdexGraph (MultiDiGraph):
     def load(self, filename, source=1, target=2, edge_attributes=None, sep='\t', header=False):
         '''Load NdexGraph from file.
 
-            The parameters are:
-            filename = The name of the file to load. Could include an absolute or relative path.
-            source = The source node column. (An integer; start counting at 1.)
-            target = The target node column. (An integer; start counting at 1.)
-            edge_attributes = A list of names for other columns which are edge attributes.
-            sep = The cell separator, often a tab (\t), but possibly a comma or other character.
-            header = Whether the first row should be interpreted as column headers.
+            :param filename: The name of the file to load. Could include an absolute or relative path.
+            :param source: The source node column. (An integer; start counting at 1.)
+            :param target: The target node column. (An integer; start counting at 1.)
+            :param edge_attributes: A list of names for other columns which are edge attributes.
+            :param sep: The cell separator, often a tab (\t), but possibly a comma or other character.
+            :param header: Whether the first row should be interpreted as column headers.
         '''
         G = nx.MultiDiGraph()
         if edge_attributes != None:
@@ -272,9 +271,8 @@ class NdexGraph (MultiDiGraph):
     def annotate_network(self, filename, sep='\t'):
         '''Annotate this NdexGraph with attributes from file
 
-            The parameters are:
-            filename = The name of the file to load. Could include an absolute or relative path.
-            sep = The cell separator, often a tab (\t), but possibly a comma or other character.
+            :param filename: The name of the file to load. Could include an absolute or relative path.
+            :param sep: The cell separator, often a tab (\t), but possibly a comma or other character.
         '''
         G = self._get_nice()
         df = pd.read_csv(filename, sep=sep)
@@ -338,9 +336,8 @@ class NdexGraph (MultiDiGraph):
     def get_node_ids(self, value, attribute_key='name'):
         '''Returns a list of node ids of all nodes where a particular attribute has a particular value.
 
-            The parameters are:
-            value = The value we want.
-            attribute_key = The name of the attribute where we should look for the value.
+            :param value: The value we want.
+            :param attribute_key: The name of the attribute where we should look for the value.
         '''
         nodes = [n[0] for n in self.nodes_iter(data=True) if attribute_key in n[1] and n[1][attribute_key] == value]
         return nodes
@@ -349,10 +346,9 @@ class NdexGraph (MultiDiGraph):
     def get_edge_ids_by_node_attribute(self, source_node_value, target_node_value, attribute_key='name'):
         '''Returns a list of edge ids of all edges where the source node and target node has a particular value for particular attribute.
 
-                The parameters are:
-                source_node_value = The value we want in the source node.
-                target_node_value = The value we want in the target node.
-                attribute_key = The name of the attribute where we should look for the value.
+                :param source_node_value: The value we want in the source node.
+                :param target_node_value: The value we want in the target node.
+                :param attribute_key: The name of the attribute where we should look for the value.
             '''
         source_node_ids = self.get_node_ids(source_node_value, attribute_key)
         target_node_ids = self.get_node_ids(target_node_value, attribute_key)
@@ -369,10 +365,9 @@ class NdexGraph (MultiDiGraph):
     def add_edge_between(self, source_node, target_node, interaction=None):
         '''Add edges between two nodes in this NdexGraph, optionally specifying a type of interaction
 
-        The parameters are:
-        source_node_value = The source node, specified by either an id or name. If a name, it must be a string.
-        target_node_value = The target node, specified by either an id or name. If a name, it must be a string.
-        interaction = The type of interaction specified by the newly added edge.
+            :param source_node_value: The source node, specified by either an id or name. If a name, it must be a string.
+            :param target_node_value: The target node, specified by either an id or name. If a name, it must be a string.
+            :param interaction: The type of interaction specified by the newly added edge.
 
         Notes:
         The source_node_value and target_node_value must be the same type (either both id or both name). If name
@@ -407,9 +402,8 @@ class NdexGraph (MultiDiGraph):
     def get_edge_attribute_value_by_id(self, id, attribute_key):
         '''Get the value of a particular edge attribute based on the id.
 
-        The parameters are:
-            id = The id of the edge.
-            attribute_key = The name of the attribute whose value should be retrieved.
+            :param id: The id of the edge.
+            :param attribute_key: The name of the attribute whose value should be retrieved.
 
         '''
         edge_keys = {key: (s, t) for s, t, key in self.edges_iter(keys=True)}
@@ -426,9 +420,8 @@ class NdexGraph (MultiDiGraph):
     def get_edge_attribute_values_by_id_list(self, id_list, attribute_key):
         '''Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.'
 
-        The parameters are:
-            id_list = A list of edge ids whose attribute values we wish to retrieve
-            attribute_key = The name of the attribute whose corresponding values should be retrieved.
+            :param id_list: A list of edge ids whose attribute values we wish to retrieve
+            :param attribute_key: The name of the attribute whose corresponding values should be retrieved.
         '''
 
         edge_keys = {key: (s, t) for s, t, key in self.edges_iter(keys=True)}
@@ -454,9 +447,8 @@ class NdexGraph (MultiDiGraph):
     def get_node_attribute_values_by_id_list(self, id_list, attribute_key='name'):
         '''Returns a list of attribute values that correspond with the attribute key using the nodes in id_list.
 
-        The parameters are:
-            id_list = A list of node ids whose attribute values we wish to retrieve.
-            attribute_key = The name of the attribute whose corresponding values should be retrieved.
+            :param id_list: A list of node ids whose attribute values we wish to retrieve.
+            :param attribute_key: The name of the attribute whose corresponding values should be retrieved.
 
         '''
         for id in id_list:
@@ -470,8 +462,8 @@ class NdexGraph (MultiDiGraph):
     def get_node_names_by_id_list(self, id_list):
         '''Given a list of node ids, return a list of node names.
 
-        The parameters are:
-            id_list = A list of node ids whose attribute values we wish to retrieve.
+            :param id_list: A list of node ids whose attribute values we wish to retrieve.
+
         '''
         return self.get_node_attribute_values_by_id_list(id_list)
 
@@ -490,10 +482,9 @@ class NdexGraph (MultiDiGraph):
     def set_edge_attribute(self, id, attribute_key, attribute_value):
         '''Set the value of a particular edge attribute.
 
-        The parameters are:
-            id = The edge id we wish to set an attribute on.
-            attribute_key = The name of the attribute we wish to set.
-            attribute_value = The value we wish to set the attribute to.
+            :param id: The edge id we wish to set an attribute on.
+            :param attribute_key: The name of the attribute we wish to set.
+            :param attribute_value: The value we wish to set the attribute to.
 
         '''
         s, t = self.edgemap[id]
