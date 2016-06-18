@@ -310,10 +310,23 @@
 <dt id="ndex.networkn.NdexGraph.add_edge_between">
 <code class="descname">add_edge_between</code><span class="sig-paren">(</span><em>source_node</em>, <em>target_node</em>, <em>interaction=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.add_edge_between" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add edges between two nodes in this NdexGraph, optionally specifying a type of interaction</p>
-<p>The parameters are:
-source_node_value = The source node, specified by either an id or name. If a name, it must be a string.
-target_node_value = The target node, specified by either an id or name. If a name, it must be a string.
-interaction = The type of interaction specified by the newly added edge.</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">param source_node_value:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">The source node, specified by either an id or name. If a name, it must be a string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">param target_node_value:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">The target node, specified by either an id or name. If a name, it must be a string.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">param interaction:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">The type of interaction specified by the newly added edge.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
 <p>Notes:
 The source_node_value and target_node_value must be the same type (either both id or both name). If name
 is used, then all names on the network must be unique.</p>
@@ -323,9 +336,18 @@ is used, then all names on the network must be unique.</p>
 <dt id="ndex.networkn.NdexGraph.annotate_network">
 <code class="descname">annotate_network</code><span class="sig-paren">(</span><em>filename</em>, <em>sep='\t'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.annotate_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Annotate this NdexGraph with attributes from file</p>
-<p>The parameters are:
-filename = The name of the file to load. Could include an absolute or relative path.
-sep = The cell separator, often a tab (     ), but possibly a comma or other character.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> &#8211; The name of the file to load. Could include an absolute or relative path.</li>
+<li><strong>sep</strong> &#8211; The cell separator, often a tab (       ), but possibly a comma or other character.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -344,32 +366,55 @@ sep = The cell separator, often a tab (     ), but possibly a comma or other cha
 <dt id="ndex.networkn.NdexGraph.get_edge_attribute_value_by_id">
 <code class="descname">get_edge_attribute_value_by_id</code><span class="sig-paren">(</span><em>id</em>, <em>attribute_key</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_value_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value of a particular edge attribute based on the id.</p>
-<dl class="docutils">
-<dt>The parameters are:</dt>
-<dd>id = The id of the edge.
-attribute_key = The name of the attribute whose value should be retrieved.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; The id of the edge.</li>
+<li><strong>attribute_key</strong> &#8211; The name of the attribute whose value should be retrieved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_edge_attribute_values_by_id_list">
 <code class="descname">get_edge_attribute_values_by_id_list</code><span class="sig-paren">(</span><em>id_list</em>, <em>attribute_key</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_values_by_id_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.&#8217;</p>
-<dl class="docutils">
-<dt>The parameters are:</dt>
-<dd>id_list = A list of edge ids whose attribute values we wish to retrieve
-attribute_key = The name of the attribute whose corresponding values should be retrieved.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id_list</strong> &#8211; A list of edge ids whose attribute values we wish to retrieve</li>
+<li><strong>attribute_key</strong> &#8211; The name of the attribute whose corresponding values should be retrieved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_edge_ids_by_node_attribute">
 <code class="descname">get_edge_ids_by_node_attribute</code><span class="sig-paren">(</span><em>source_node_value</em>, <em>target_node_value</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_ids_by_node_attribute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of edge ids of all edges where the source node and target node has a particular value for particular attribute.</p>
-<p>The parameters are:
-source_node_value = The value we want in the source node.
-target_node_value = The value we want in the target node.
-attribute_key = The name of the attribute where we should look for the value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>source_node_value</strong> &#8211; The value we want in the source node.</li>
+<li><strong>target_node_value</strong> &#8211; The value we want in the target node.</li>
+<li><strong>attribute_key</strong> &#8211; The name of the attribute where we should look for the value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -394,20 +439,36 @@ attribute_key = The name of the attribute where we should look for the value.</p
 <dt id="ndex.networkn.NdexGraph.get_node_attribute_values_by_id_list">
 <code class="descname">get_node_attribute_values_by_id_list</code><span class="sig-paren">(</span><em>id_list</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_values_by_id_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of attribute values that correspond with the attribute key using the nodes in id_list.</p>
-<dl class="docutils">
-<dt>The parameters are:</dt>
-<dd>id_list = A list of node ids whose attribute values we wish to retrieve.
-attribute_key = The name of the attribute whose corresponding values should be retrieved.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id_list</strong> &#8211; A list of node ids whose attribute values we wish to retrieve.</li>
+<li><strong>attribute_key</strong> &#8211; The name of the attribute whose corresponding values should be retrieved.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_node_ids">
 <code class="descname">get_node_ids</code><span class="sig-paren">(</span><em>value</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_ids" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of node ids of all nodes where a particular attribute has a particular value.</p>
-<p>The parameters are:
-value = The value we want.
-attribute_key = The name of the attribute where we should look for the value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; The value we want.</li>
+<li><strong>attribute_key</strong> &#8211; The name of the attribute where we should look for the value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -420,35 +481,55 @@ attribute_key = The name of the attribute where we should look for the value.</p
 <dt id="ndex.networkn.NdexGraph.get_node_names_by_id_list">
 <code class="descname">get_node_names_by_id_list</code><span class="sig-paren">(</span><em>id_list</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_names_by_id_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a list of node ids, return a list of node names.</p>
-<dl class="docutils">
-<dt>The parameters are:</dt>
-<dd>id_list = A list of node ids whose attribute values we wish to retrieve.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id_list</strong> &#8211; A list of node ids whose attribute values we wish to retrieve.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.load">
 <code class="descname">load</code><span class="sig-paren">(</span><em>filename</em>, <em>source=1</em>, <em>target=2</em>, <em>edge_attributes=None</em>, <em>sep='\t'</em>, <em>header=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.load" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load NdexGraph from file.</p>
-<p>The parameters are:
-filename = The name of the file to load. Could include an absolute or relative path.
-source = The source node column. (An integer; start counting at 1.)
-target = The target node column. (An integer; start counting at 1.)
-edge_attributes = A list of names for other columns which are edge attributes.
-sep = The cell separator, often a tab (     ), but possibly a comma or other character.
-header = Whether the first row should be interpreted as column headers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> &#8211; The name of the file to load. Could include an absolute or relative path.</li>
+<li><strong>source</strong> &#8211; The source node column. (An integer; start counting at 1.)</li>
+<li><strong>target</strong> &#8211; The target node column. (An integer; start counting at 1.)</li>
+<li><strong>edge_attributes</strong> &#8211; A list of names for other columns which are edge attributes.</li>
+<li><strong>sep</strong> &#8211; The cell separator, often a tab (       ), but possibly a comma or other character.</li>
+<li><strong>header</strong> &#8211; Whether the first row should be interpreted as column headers.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.set_edge_attribute">
 <code class="descname">set_edge_attribute</code><span class="sig-paren">(</span><em>id</em>, <em>attribute_key</em>, <em>attribute_value</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.set_edge_attribute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the value of a particular edge attribute.</p>
-<dl class="docutils">
-<dt>The parameters are:</dt>
-<dd>id = The edge id we wish to set an attribute on.
-attribute_key = The name of the attribute we wish to set.
-attribute_value = The value we wish to set the attribute to.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; The edge id we wish to set an attribute on.</li>
+<li><strong>attribute_key</strong> &#8211; The name of the attribute we wish to set.</li>
+<li><strong>attribute_value</strong> &#8211; The value we wish to set the attribute to.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
