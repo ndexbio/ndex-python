@@ -61,7 +61,8 @@
 <dl class="method">
 <dt id="ndex.client.Ndex.debug_response">
 <code class="descname">debug_response</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.debug_response" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
+<dd><p>Used to showing debug information about a response if you are having trouble.</p>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
@@ -72,13 +73,129 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="ndex.client.Ndex.get_neighborhood_as_cx_stream">
+<code class="descname">get_neighborhood_as_cx_stream</code><span class="sig-paren">(</span><em>network_id</em>, <em>search_string</em>, <em>search_depth=1</em>, <em>edge_limit=2500</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_neighborhood_as_cx_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a network stream that represents a neighborhood within an existing network on NDEx.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>network_id</strong> (<em>str</em>) &#8211; The UUID of the network.</li>
+<li><strong>search_string</strong> (<em>str</em>) &#8211; The search string used to identify the network neighborhood.</li>
+<li><strong>search_depth</strong> &#8211; The depth of the neighborhood from the core nodes identified.</li>
+<li><strong>search_depth</strong> &#8211; int</li>
+<li><strong>edge_limit</strong> (<em>int</em>) &#8211; The maximum size of the neighborhood.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The response.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><p><a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a></p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_network_as_cx_stream">
+<code class="descname">get_network_as_cx_stream</code><span class="sig-paren">(</span><em>network_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_network_as_cx_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an existing network from NDEx as a network stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>network_id</strong> (<em>str</em>) &#8211; The UUID of the network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The response.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.get_network_summary">
+<code class="descname">get_network_summary</code><span class="sig-paren">(</span><em>network_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_network_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets information about a network.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>network_id</strong> (<em>str</em>) &#8211; The UUID of the network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The response.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.save_cx_stream_as_new_network">
+<code class="descname">save_cx_stream_as_new_network</code><span class="sig-paren">(</span><em>cx_stream</em>, <em>provenance=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.save_cx_stream_as_new_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a network from a network stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cx_stream</strong> &#8211; The network stream.</li>
+<li><strong>provenance</strong> &#8211; The desired provenance history associated with the network.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The response.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><p><a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a></p>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="ndex.client.Ndex.set_debug_mode">
 <code class="descname">set_debug_mode</code><span class="sig-paren">(</span><em>debug</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.set_debug_mode" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
+<dd><p>Used to determine whether to show more information when performing operations.</p>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>debug</strong> (<em>bool</em>) &#8211; If set to true, debug information will be shown when performing tasks.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.update_cx_network">
+<code class="descname">update_cx_network</code><span class="sig-paren">(</span><em>cx_stream</em>, <em>network_id</em>, <em>provenance=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.update_cx_network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a network using a network stream.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cx_stream</strong> &#8211; The network stream.</li>
+<li><strong>network_id</strong> (<em>str</em>) &#8211; The UUID of the network.</li>
+<li><strong>provenance</strong> &#8211; The desired provenance history associated with the network.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The response.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><p><a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a></p>
+</p>
+</td>
 </tr>
 </tbody>
 </table>
