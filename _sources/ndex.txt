@@ -16,7 +16,6 @@ ndex.client module
 
 .. automodule:: ndex.client
     :members:
-    :undoc-members:
     :show-inheritance:
 
 ndex.networkn module
@@ -24,7 +23,6 @@ ndex.networkn module
 
 .. automodule:: ndex.networkn
     :members:
-    :undoc-members:
     :show-inheritance:
 
 
