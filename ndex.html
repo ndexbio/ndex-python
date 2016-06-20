@@ -188,7 +188,7 @@
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.add_edge_between">
-<code class="descname">add_edge_between</code><span class="sig-paren">(</span><em>source_cx_id</em>, <em>target_cx_id</em>, <em>interaction=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.add_edge_between" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_edge_between</code><span class="sig-paren">(</span><em>source_cx_id</em>, <em>target_cx_id</em>, <em>interaction='interacts with'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.add_edge_between" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add edges between two nodes in this NdexGraph, optionally specifying a type of interaction</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -227,6 +227,32 @@
 <dt id="ndex.networkn.NdexGraph.clear">
 <code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.clear" title="Permalink to this definition">¶</a></dt>
 <dd><p>Eliminate all graph data and start from scratch.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.create_from_edge_list">
+<code class="descname">create_from_edge_list</code><span class="sig-paren">(</span><em>edge_list</em>, <em>interaction='interacts with'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.create_from_edge_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a network from a list of tuples that represent edges. Each tuple consists of a two nodes names that
+are connected. This operation will clear any data already in the network.</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">param edge_list:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">A list of tuples containing node names that are connected.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">type edge_list:</th><td class="field-body">list</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">param interaction:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">Either a list of interactions that is the same length as the edge_list a single string with an interaction to be applied to all edges.</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">type interaction:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">str or list</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
 </dd></dl>
 
 <dl class="method">
