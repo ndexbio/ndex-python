@@ -167,6 +167,36 @@ class NdexGraph (MultiDiGraph):
         self.edgemap = {}
         self.unknown_cx = []
 
+    def create_from_edge_list(self, edge_list, interaction='interacts with'):
+        ''' Creates a network from a list of tuples that represent edges. Each tuple consists of a two nodes names that
+        are connected. This operation will clear any data already in the network.
+
+            :param edge_list: A list of tuples containing node names that are connected.
+            :type edge_list: list
+            :param interaction: Either a list of interactions that is the same length as the edge_list a single string with an interaction to be applied to all edges.
+            :type interaction: str or list
+
+        '''
+        self.clear()
+        node_names_added = {}
+        for i, edge in enumerate(edge_list):
+            #name 1 and name 2 are the node names from the tuple.
+            name1 = edge[0]
+            name2 = edge[1]
+            if name1 in node_names_added:
+                n1 = node_names_added[name1]
+            else:
+                n1 = self.add_cx_node(name1)
+                node_names_added[name1] = n1
+            if name2 in node_names_added:
+                n2 = node_names_added[name2]
+            else:
+                n2 = self.add_cx_node(name2)
+                node_names_added[name2] = n2
+
+            edge_interaction = interaction if isinstance(interaction,basestring) else interaction[i]
+            self.add_edge_between(n1,n2,edge_interaction)
+
     def _all_nodes_are_named(self):
         return all('name' in self.node[n] for n in self.nodes_iter())
 
@@ -382,7 +412,7 @@ class NdexGraph (MultiDiGraph):
 
     # Need to document n1 and n2 options.
     # Document if node names are used, they must be unqiue.
-    def add_edge_between(self, source_cx_id, target_cx_id, interaction=None):
+    def add_edge_between(self, source_cx_id, target_cx_id, interaction='interacts with'):
         '''Add edges between two nodes in this NdexGraph, optionally specifying a type of interaction
 
             :param source_cx_id: The cx id of the source node.
@@ -391,8 +421,6 @@ class NdexGraph (MultiDiGraph):
 
         '''
 
-        if interaction == None:
-            interaction = 'interacts with'
         if self.max_edge_id == None:
             if self.number_of_edges() > 0:
                 self.max_edge_id = max([x[2] for x in self.edges(keys=True)])
@@ -540,6 +568,8 @@ class NdexGraph (MultiDiGraph):
             for key, value in attributes.iteritems():
                 keys.add(key)
         return list(keys)
+
+
 
     def to_cx_stream(self):
         '''Convert this graph to a CX stream
