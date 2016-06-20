@@ -5,8 +5,17 @@ import json
 from requests_toolbelt import MultipartEncoder
 
 class Ndex:
-        
+    '''A class to facilitate communication with an NDEx server.'''
     def __init__(self, host = "http://www.ndexbio.org", username = None, password = None):
+        '''Creates a connection to a particular NDEx server.
+
+        :param host: The URL of the server.
+        :type host: string
+        :param username: The username of the NDEx account to use. (Optional)
+        :type username: string
+        :param password: The account password. (Optional)
+        :type password: string
+        '''
         self.debug = False
         if "localhost" in host:
             self.host = "http://localhost:8080/ndexbio-rest"
@@ -159,8 +168,14 @@ class Ndex:
 # Network methods
 
     # CX Methods
-    # Create a network based on a stream from a source CX format
     def save_cx_stream_as_new_network (self, cx_stream, provenance=None):
+        ''' Create a network from a network stream.
+
+        :param cx_stream: The network stream.
+        :param provenance: The desired provenance history associated with the network.
+        :return: The response.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+        '''
         self.require_auth()
         fields = {
         'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
@@ -175,10 +190,17 @@ class Ndex:
 
         return self.post_multipart(route, fields)
 
-
-
-    # Create a network based on a JSON string or Dict in CX format
     def update_cx_network(self, cx_stream, network_id, provenance=None):
+        '''Update a network using a network stream.
+
+        :param cx_stream: The network stream.
+        :param network_id: The UUID of the network.
+        :type network_id: str
+        :param provenance: The desired provenance history associated with the network.
+        :return: The response.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+
+        '''
         self.require_auth()
         fields = {
             'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
@@ -194,12 +216,33 @@ class Ndex:
 
         return self.put_multipart(route, fields)
 
-    # Get a CX stream for a network
     def get_network_as_cx_stream(self, network_id):
+        '''Get an existing network from NDEx as a network stream.
+
+        :param network_id: The UUID of the network.
+        :type network_id: str
+        :return: The response.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+
+        '''
         route = "/network/%s/asCX" % (network_id)
         return self.get_stream(route)
 
     def get_neighborhood_as_cx_stream(self, network_id, search_string, search_depth=1, edge_limit=2500):
+        ''' Get a network stream that represents a neighborhood within an existing network on NDEx.
+
+        :param network_id: The UUID of the network.
+        :type network_id: str
+        :param search_string: The search string used to identify the network neighborhood.
+        :type search_string: str
+        :param search_depth: The depth of the neighborhood from the core nodes identified.
+        :param search_depth: int
+        :param edge_limit: The maximum size of the neighborhood.
+        :type edge_limit: int
+        :return: The response.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+
+        '''
         route = "/network/%s/asCX/query" % (network_id)
         post_data = {'searchString': search_string,
                    'searchDepth': search_depth,
@@ -259,6 +302,14 @@ class Ndex:
 
 #    network    GET    /network/{networkUUID}       NetworkSummary
     def get_network_summary(self, network_id):
+        ''' Gets information about a network.
+
+        :param network_id: The UUID of the network.
+        :type network_id: str
+        :return: The response.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+
+        '''
         route = "/network/%s" % (network_id)
         return self.get(route)
 
