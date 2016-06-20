@@ -49,20 +49,6 @@
 <em class="property">class </em><code class="descclassname">ndex.client.</code><code class="descname">Ndex</code><span class="sig-paren">(</span><em>host='http://www.ndexbio.org'</em>, <em>username=None</em>, <em>password=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class to facilitate communication with an NDEx server.</p>
 <dl class="method">
-<dt id="ndex.client.Ndex.debug_response">
-<code class="descname">debug_response</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.debug_response" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to showing debug information about a response if you are having trouble.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>response</strong> (<a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a>) &#8211; Show information about an NDEx server response.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="ndex.client.Ndex.get_neighborhood_as_cx_stream">
 <code class="descname">get_neighborhood_as_cx_stream</code><span class="sig-paren">(</span><em>network_id</em>, <em>search_string</em>, <em>search_depth=1</em>, <em>edge_limit=2500</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.get_neighborhood_as_cx_stream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a network stream that represents a neighborhood within an existing network on NDEx.</p>
@@ -82,8 +68,7 @@
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The response.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><p><a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a></p>
-</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a></p>
 </td>
 </tr>
 </tbody>
@@ -152,20 +137,6 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="ndex.client.Ndex.set_debug_mode">
-<code class="descname">set_debug_mode</code><span class="sig-paren">(</span><em>debug</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.set_debug_mode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to determine whether to show more information when performing operations.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>debug</strong> (<em>bool</em>) &#8211; If set to true, debug information will be shown when performing tasks.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="ndex.client.Ndex.update_cx_network">
 <code class="descname">update_cx_network</code><span class="sig-paren">(</span><em>cx_stream</em>, <em>network_id</em>, <em>provenance=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.update_cx_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update a network using a network stream.</p>
@@ -205,32 +176,33 @@
 <dt id="ndex.networkn.NdexGraph.add_cx_node">
 <code class="descname">add_cx_node</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.add_cx_node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a cx node, possibly with a particular name, to the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) &#8211; The name of the node to add. If it already exists, another node with that name is created.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.add_edge_between">
-<code class="descname">add_edge_between</code><span class="sig-paren">(</span><em>source_node</em>, <em>target_node</em>, <em>interaction=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.add_edge_between" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_edge_between</code><span class="sig-paren">(</span><em>source_cx_id</em>, <em>target_cx_id</em>, <em>interaction=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.add_edge_between" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add edges between two nodes in this NdexGraph, optionally specifying a type of interaction</p>
-<blockquote>
-<div><table class="docutils field-list" frame="void" rules="none">
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">param source_node_value:</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">The source node, specified by either an id or name. If a name, it must be a string.</td>
-</tr>
-<tr class="field-even field"><th class="field-name" colspan="2">param target_node_value:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body">The target node, specified by either an id or name. If a name, it must be a string.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name" colspan="2">param interaction:</th></tr>
-<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">The type of interaction specified by the newly added edge.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>source_cx_id</strong> &#8211; The cx id of the source node.</li>
+<li><strong>target_cx_id</strong> &#8211; The cx id of the target node.</li>
+<li><strong>interaction</strong> &#8211; The type of interaction specified by the newly added edge.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
-</div></blockquote>
-<p>Notes:
-The source_node_value and target_node_value must be the same type (either both id or both name). If name
-is used, then all names on the network must be unique.</p>
 </dd></dl>
 
 <dl class="method">
@@ -258,9 +230,35 @@ is used, then all names on the network must be unique.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="ndex.networkn.NdexGraph.get_edge_attribute_keys">
-<code class="descname">get_edge_attribute_keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_keys" title="Permalink to this definition">¶</a></dt>
+<dt id="ndex.networkn.NdexGraph.get_all_edge_attribute_keys">
+<code class="descname">get_all_edge_attribute_keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_all_edge_attribute_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all of the attribute keys that are on some edge in the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of edge attribute keys.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.get_all_node_attribute_keys">
+<code class="descname">get_all_node_attribute_keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_all_node_attribute_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of all of the attribute keys that are on at least one node in the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of attribute keys.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -271,10 +269,16 @@ is used, then all names on the network must be unique.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>id</strong> &#8211; The id of the edge.</li>
 <li><strong>attribute_key</strong> &#8211; The name of the attribute whose value should be retrieved.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The attribute value.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">any</p>
 </td>
 </tr>
 </tbody>
@@ -289,10 +293,16 @@ is used, then all names on the network must be unique.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>id_list</strong> &#8211; A list of edge ids whose attribute values we wish to retrieve</li>
 <li><strong>attribute_key</strong> &#8211; The name of the attribute whose corresponding values should be retrieved.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of attribute values corresponding to the edge keys input.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
 </tr>
 </tbody>
@@ -307,11 +317,17 @@ is used, then all names on the network must be unique.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>source_node_value</strong> &#8211; The value we want in the source node.</li>
 <li><strong>target_node_value</strong> &#8211; The value we want in the target node.</li>
 <li><strong>attribute_key</strong> &#8211; The name of the attribute where we should look for the value.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of edge ids.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
 </tr>
 </tbody>
@@ -322,18 +338,40 @@ is used, then all names on the network must be unique.</p>
 <dt id="ndex.networkn.NdexGraph.get_name">
 <code class="descname">get_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the name of this graph</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="ndex.networkn.NdexGraph.get_node_attribute_keys">
-<code class="descname">get_node_attribute_keys</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_keys" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a list of all of the attribute keys that are on at least one node in the graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The descriptive name for this network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_node_attribute_value_by_id">
 <code class="descname">get_node_attribute_value_by_id</code><span class="sig-paren">(</span><em>id</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_value_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value of a particular node attribute based on the id.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>id</strong> (<em>int</em>) &#8211; A node id.</li>
+<li><strong>attribute_key</strong> (<em>str</em>) &#8211; The name of the attribute whose value we desire.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The attribute value.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">any</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -344,10 +382,16 @@ is used, then all names on the network must be unique.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>id_list</strong> &#8211; A list of node ids whose attribute values we wish to retrieve.</li>
 <li><strong>attribute_key</strong> &#8211; The name of the attribute whose corresponding values should be retrieved.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of attribute values.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
 </tr>
 </tbody>
@@ -362,10 +406,16 @@ is used, then all names on the network must be unique.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>value</strong> &#8211; The value we want.</li>
 <li><strong>attribute_key</strong> &#8211; The name of the attribute where we should look for the value.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of node ids.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
 </td>
 </tr>
 </tbody>
@@ -376,6 +426,18 @@ is used, then all names on the network must be unique.</p>
 <dt id="ndex.networkn.NdexGraph.get_node_name_by_id">
 <code class="descname">get_node_name_by_id</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_name_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a node id, return the name of the node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> (<em>int</em>) &#8211; The cx id of the node.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The name of the node.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -386,7 +448,11 @@ is used, then all names on the network must be unique.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id_list</strong> &#8211; A list of node ids whose attribute values we wish to retrieve.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id_list</strong> (<em>list</em>) &#8211; A list of node ids whose attribute values we wish to retrieve.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of node names.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
 </tr>
 </tbody>
 </table>
@@ -423,9 +489,9 @@ is used, then all names on the network must be unique.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>id</strong> &#8211; The edge id we wish to set an attribute on.</li>
-<li><strong>attribute_key</strong> &#8211; The name of the attribute we wish to set.</li>
-<li><strong>attribute_value</strong> &#8211; The value we wish to set the attribute to.</li>
+<li><strong>id</strong> (<em>int</em>) &#8211; The edge id we wish to set an attribute on.</li>
+<li><strong>attribute_key</strong> (<em>string</em>) &#8211; The name of the attribute we wish to set.</li>
+<li><strong>attribute_value</strong> (<em>any</em>) &#8211; The value we wish to set the attribute to.</li>
 </ul>
 </td>
 </tr>
@@ -437,6 +503,14 @@ is used, then all names on the network must be unique.</p>
 <dt id="ndex.networkn.NdexGraph.set_name">
 <code class="descname">set_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.set_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the name of this graph</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) &#8211; A descriptive name for the network which will show up on NDEx.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -449,12 +523,35 @@ is used, then all names on the network must be unique.</p>
 <dt id="ndex.networkn.NdexGraph.to_cx_stream">
 <code class="descname">to_cx_stream</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.to_cx_stream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert this graph to a CX stream</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The CX stream representation of this network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">io.BytesIO</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.upload_to">
 <code class="descname">upload_to</code><span class="sig-paren">(</span><em>server</em>, <em>username</em>, <em>password</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.upload_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Uploads this graph to the specified server using the specified username and password.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>server</strong> (<em>str</em>) &#8211; The NDEx server to upload the network to.</li>
+<li><strong>username</strong> (<em>str</em>) &#8211; The username of the account to store the network.</li>
+<li><strong>password</strong> (<em>str</em>) &#8211; The password for the account.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="docutils">
 <dt>Example:</dt>
 <dd>ndexGraph.upload_to(&#8216;<a class="reference external" href="http://test.ndexbio.org">http://test.ndexbio.org</a>&#8216;, &#8216;myusername&#8217;, &#8216;mypassword&#8217;)</dd>
@@ -465,6 +562,14 @@ is used, then all names on the network must be unique.</p>
 <dt id="ndex.networkn.NdexGraph.write_to">
 <code class="descname">write_to</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.write_to" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write this graph as a CX file to the specified filename.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; The name of the file to write to.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
