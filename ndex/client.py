@@ -6,7 +6,7 @@ from requests_toolbelt import MultipartEncoder
 
 class Ndex:
     '''A class to facilitate communication with an NDEx server.'''
-    def __init__(self, host = "http://www.ndexbio.org", username = None, password = None):
+    def __init__(self, host = "http://public.ndexbio.org", username = None, password = None):
         '''Creates a connection to a particular NDEx server.
 
         :param host: The URL of the server.
@@ -26,7 +26,7 @@ class Ndex:
         if username and password:
             # add credentials to the session, if available
             self.s.auth = (username, password)
-    
+
 # Base methods for making requests to this NDEx
 
     def set_debug_mode(self, debug):
@@ -169,7 +169,7 @@ class Ndex:
 
     # CX Methods
     def save_cx_stream_as_new_network (self, cx_stream, provenance=None):
-        ''' Create a network from a network stream.
+        ''' Create a new network from a CX stream, optionally providing a provenance history object to be included in the new network.
 
         :param cx_stream: The network stream.
         :param provenance: The desired provenance history associated with the network.
@@ -191,7 +191,7 @@ class Ndex:
         return self.post_multipart(route, fields)
 
     def update_cx_network(self, cx_stream, network_id, provenance=None):
-        '''Update a network using a network stream.
+        '''Update the network specified by UUID network_id using the CX stream cx_stream.
 
         :param cx_stream: The network stream.
         :param network_id: The UUID of the network.
@@ -217,7 +217,7 @@ class Ndex:
         return self.put_multipart(route, fields)
 
     def get_network_as_cx_stream(self, network_id):
-        '''Get an existing network from NDEx as a network stream.
+        '''Get the existing network with UUID network_id from the NDEx connection as a CX stream.
 
         :param network_id: The UUID of the network.
         :type network_id: str
@@ -229,14 +229,14 @@ class Ndex:
         return self.get_stream(route)
 
     def get_neighborhood_as_cx_stream(self, network_id, search_string, search_depth=1, edge_limit=2500):
-        ''' Get a network stream that represents a neighborhood within an existing network on NDEx.
+        ''' Get a CX stream for a subnetwork of the network specified by UUID network_id and a traversal of search_depth steps around the nodes found by search_string.
 
         :param network_id: The UUID of the network.
         :type network_id: str
         :param search_string: The search string used to identify the network neighborhood.
         :type search_string: str
         :param search_depth: The depth of the neighborhood from the core nodes identified.
-        :param search_depth: int
+        :type search_depth: int
         :param edge_limit: The maximum size of the neighborhood.
         :type edge_limit: int
         :return: The response.
@@ -255,6 +255,20 @@ class Ndex:
 # Search for networks by keywords
 #    network    POST    /network/search/{skipBlocks}/{blockSize}    SimpleNetworkQuery    NetworkSummary[]
     def search_networks(self, search_string="", account_name=None, skip_blocks=0, block_size=100):
+        ''' Search for networks based on the search_text, optionally limited to networks owned by the specified account_name.
+
+        :param search_string: The text to search for.
+        :type search_string: str
+        :param account_name: The account to search
+        :type account_name: str
+        :param skip_blocks: The number of blocks to skip. Usually zero, but may be used to page results.
+        :type skip_blocks: int
+        :param block_size: The size of the block.
+        :type block_size: int
+        :return: The response.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+
+        '''
         route = "/network/search/%s/%s" % (skip_blocks, block_size)
         post_data = {"searchString" : search_string}
         if account_name:
