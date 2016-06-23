@@ -157,7 +157,10 @@ class NdexGraph (MultiDiGraph):
                 self.unknown_cx.append(aspect)
 
     def clear(self):
-        '''Eliminate all graph data in this network.  The network will then be empty and can be filled with data starting “from scratch”. '''
+        '''Eliminate all graph data in this network.  The network will then be empty and can be filled with data starting "from scratch".
+
+
+        '''
         super(NdexGraph, self).clear()
         self.subnetwork_id = None
         self.view_id = None

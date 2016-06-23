@@ -3,18 +3,19 @@
 import requests
 import json
 from requests_toolbelt import MultipartEncoder
+import os
 
 class Ndex:
     '''A class to facilitate communication with an NDEx server.'''
     def __init__(self, host = "http://public.ndexbio.org", username = None, password = None):
         '''Creates a connection to a particular NDEx server.
 
-        :param host: The URL of the server.
-        :type host: string
-        :param username: The username of the NDEx account to use. (Optional)
-        :type username: string
-        :param password: The account password. (Optional)
-        :type password: string
+                :param host: The URL of the server.
+                :type host: string
+                :param username: The username of the NDEx account to use. (Optional)
+                :type username: string
+                :param password: The account password. (Optional)
+                :type password: string
         '''
         self.debug = False
         if "localhost" in host:
@@ -41,7 +42,7 @@ class Ndex:
     def require_auth(self):
         if not self.s.auth:
             raise Exception("this method requires user authentication")
-    
+
     def put(self, route, put_json):
         url = self.host + route
         if self.debug:
@@ -74,7 +75,7 @@ class Ndex:
         if response.status_code == 204:
             return ""
         return response.json()
-        
+
     def delete(self, route):
         url = self.host + route
         if self.debug:
@@ -85,7 +86,7 @@ class Ndex:
         if response.status_code == 204:
             return ""
         return response.json()
-    
+
     def get(self, route, get_params = None):
         url = self.host + route
         if self.debug:
@@ -131,7 +132,6 @@ class Ndex:
         multipart_data = MultipartEncoder(fields=fields)
         if self.debug:
             print("PUT route: " + url)
-            print("PUT multipart data: " + multipart_data.to_string())
 
         headers = {'Content-Type' : multipart_data.content_type,
                    'Accept' : 'application/json',
@@ -142,7 +142,11 @@ class Ndex:
         response.raise_for_status()
         if response.status_code == 204:
             return ""
-        return response.json()
+        try:
+            result = response.json()
+        except ValueError:
+            result = response.text
+        return result
 
     # The Request is streamed, not the Response
     def post_multipart(self, route, fields):
@@ -168,6 +172,7 @@ class Ndex:
 # Network methods
 
     # CX Methods
+    # Create a network based on a stream from a source CX format
     def save_cx_stream_as_new_network (self, cx_stream, provenance=None):
         ''' Create a new network from a CX stream, optionally providing a provenance history object to be included in the new network.
 
@@ -190,6 +195,7 @@ class Ndex:
 
         return self.post_multipart(route, fields)
 
+    # Create a network based on a JSON string or Dict in CX format
     def update_cx_network(self, cx_stream, network_id, provenance=None):
         '''Update the network specified by UUID network_id using the CX stream cx_stream.
 
@@ -216,6 +222,7 @@ class Ndex:
 
         return self.put_multipart(route, fields)
 
+    # Get a CX stream for a network
     def get_network_as_cx_stream(self, network_id):
         '''Get the existing network with UUID network_id from the NDEx connection as a CX stream.
 
@@ -250,10 +257,9 @@ class Ndex:
         post_json = json.dumps(post_data)
         return self.post_stream(route, post_json=post_json)
 
-# Get a network as a Dict in CX format
 
-# Search for networks by keywords
-#    network    POST    /network/search/{skipBlocks}/{blockSize}    SimpleNetworkQuery    NetworkSummary[]
+    # Search for networks by keywords
+    #    network    POST    /network/search/{skipBlocks}/{blockSize}    SimpleNetworkQuery    NetworkSummary[]
     def search_networks(self, search_string="", account_name=None, skip_blocks=0, block_size=100):
         ''' Search for networks based on the search_text, optionally limited to networks owned by the specified account_name.
 
@@ -289,32 +295,7 @@ class Ndex:
         post_json = json.dumps(search_parameter_dict)
         return self.post(route, post_json)
 
-    def get_network_api(self):
-        route = "/network/api"
-        decoded_json = self.get(route)
-        return decoded_json
-
-#   called getEdges in java API
-#    network    POST    /network/{networkUUID}/edge/asNetwork/{skipBlocks}/{blockSize}        Network
-    def get_network_by_edges(self, network_id, skip_blocks=0, block_size=100):
-        route = "/network/%s/edge/asNetwork/%s/%s" % (network_id, skip_blocks, block_size)
-        return self.get(route)
-
-#    network    GET    /network/{networkUUID}/asNetwork       Network
-    def get_complete_network(self, network_id):
-        route = "/network/%s/asNetwork" % (network_id)
-        return self.get(route)
-
-    def update_network(self, network):
-        self.require_auth()
-        route = "/network/asNetwork"
-        if isinstance(network, dict):
-            putJson = json.dumps(network)
-        else:
-            putJson = network
-        return self.put(route, putJson)
-
-#    network    GET    /network/{networkUUID}       NetworkSummary
+    #    network    GET    /network/{networkUUID}       NetworkSummary
     def get_network_summary(self, network_id):
         ''' Gets information about a network.
 
@@ -327,46 +308,15 @@ class Ndex:
         route = "/network/%s" % (network_id)
         return self.get(route)
 
-# called createNetwork in java client
-#    network    POST    /network    Network    NetworkSummary
-    def save_new_network(self, network):
-        self.require_auth()
-        route = "/network/asNetwork"
-        if isinstance(network, dict):
-            postJson = json.dumps(network)
-        else:
-            postJson = network
-        return self.post(route, postJson)
-
-#    network    POST    /network/asNetwork/group/{group UUID}    Network    NetworkSummary
-    def save_new_network_for_group(self, network, group_id):
-        self.require_auth()
-        route = "/network/asNetwork/group/%s" % (group_id)
-        # self.removeUUIDFromNetwork(network)
-        return self.post(route, network)
+    def get_task_by_id (self, task_id):
+        route = "/task/%s" % (task_id)
+        return self.get(route)
 
     def delete_network(self, network_id):
         self.require_auth()
         route = "/network/%s" % (network_id)
         return self.delete(route)
 
-# called queryNetwork in java client
-    def get_neighborhood(self, network_id, search_string, search_depth=1, edge_limit=2500):
-        route = "/network/%s/asNetwork/query" % (network_id)
-        post_data = {'searchString': search_string,
-                   'searchDepth': search_depth,
-                   'edgeLimit': edge_limit}
-        post_json = json.dumps(post_data)
-        return self.post(route, post_json)
-
-    def query_network_by_edge_filter(self, network_id, edge_filter, node_filter, edge_limit):
-        route = "/network/%s/asNetwork/prototypeNetworkQuery" % (network_id)
-        search_parameter_dict = {'edgeFilter': edge_filter,
-                                 'nodeFilter': node_filter,
-                                 'edgeLimit': edge_limit
-                                 }
-        post_json = json.dumps(search_parameter_dict)
-        return self.post(route, post_json)
 
     def get_provenance(self, network_id):
         route = "/network/%s/provenance" % (network_id)
@@ -413,9 +363,7 @@ class Ndex:
         fields = {
 
             'fileUpload': (filename, open(filename, 'rb'), 'application/octet-stream'),
-            'filename': filename
+            'filename': os.path.basename(filename)#filename
         }
         route = '/network/upload'
         return self.post_multipart(route, fields)
-
-
