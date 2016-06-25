@@ -283,7 +283,11 @@ class NdexGraph (MultiDiGraph):
         n_id = {data['name'] : n for n, data in self.nodes_iter(data=True)}
         edges = df[[source_index, target_index]]
         edges.apply(lambda x: self.add_edge_between(n_id[x[0]], n_id[x[1]]), axis=1)
-        e_id = {s : {t : key} for s, t, key in self.edges_iter(keys=True) }
+        e_id = {}
+        for s, t, key in self.edges_iter(keys=True):
+            if s not in e_id:
+                e_id[s] = {}
+            e_id[s][t] = key
 
         for edge_attribute in edge_attributes:
             source_header = df.columns.values[source]
@@ -298,14 +302,9 @@ class NdexGraph (MultiDiGraph):
                 name = value_index
             else:
                 name = "Column %d" % value_index
-            print edge_attribute
-            print value_index
             edge_col.apply(
-                lambda x: out.pprint('edge:' + str(e_id) + ' source:'+str(n_id[x[source_header]]) + ' target:'+str(n_id[x[target_header]]) ),#+ ' key:'+str(e_id[n_id[x[source_header]]][n_id[x[target_header]]]) ),
-                # lambda x: nx.set_edge_attributes(self, name, {(n_id[x[source_header]], n_id[x[target_header]], e_id[n_id[x[source_header]]][n_id[x[target_header]]]): x[value_index]}),
+                lambda x: nx.set_edge_attributes(self, name, {(n_id[x[source_header]], n_id[x[target_header]], e_id[n_id[x[source_header]]][n_id[x[target_header]]]): x[value_index]}),
                 axis=1)
-        # print self.node
-        # print self.edge
 
     def annotate_network(self, filename, sep='\t'):
         ''' Annotate the nodes in this network with attributes specified in the delimited text file specified by filename. Each line in the file describes one node attribute and must specify the node name in the first column of the line. The network must therefore have a unique value for the name attribute for each node.
@@ -629,20 +628,3 @@ class NdexGraph (MultiDiGraph):
 
         ndex = nc.Ndex(server,username,password)
         ndex.save_cx_stream_as_new_network(self.to_cx_stream())
-
-
-
-
-G = NdexGraph()
-G.load('test1.txt', edge_attributes=['strength'], header=True)
-
-# print G.node
-# print G.edge
-
-
-# G2 = MultiDiGraph()
-#
-# G2.add_node(1, name='foo')
-# G2.add_node(2, name='bar')
-#
-# print G2.node
