@@ -628,3 +628,9 @@ class NdexGraph (MultiDiGraph):
 
         ndex = nc.Ndex(server,username,password)
         ndex.save_cx_stream_as_new_network(self.to_cx_stream())
+
+f='test.txt'
+net=NdexGraph()
+net.load(f,edge_attributes=['strength'],header=True)
+
+net.write_to('temptest.cx')

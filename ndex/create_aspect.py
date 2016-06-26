@@ -84,5 +84,7 @@ def domain(val):
         return 'boolean'
     elif type(val) is int:
         return 'integer'
+    elif type(val) is float:
+        return 'float'
     else:
         return 'unknown'
