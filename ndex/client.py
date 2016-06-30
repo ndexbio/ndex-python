@@ -317,7 +317,6 @@ class Ndex:
         route = "/network/%s" % (network_id)
         return self.delete(route)
 
-
     def get_provenance(self, network_id):
         route = "/network/%s/provenance" % (network_id)
         return self.get(route)

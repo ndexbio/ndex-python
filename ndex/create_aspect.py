@@ -58,16 +58,7 @@ def cartesian(G, id):
 
 # cv stands for convert value. This converts a type to a string representation for CX purposes.
 def cv(val):
-    if type(val) is list:
-        if type(val[0]) is bool:
-            new_val = [str(x).lower() for x in val]
-            return new_val
-        else:
-            return val
-    if type(val) is bool:
-        return str(val).lower()
-    else:
-        return val
+    return val
 
 
 def domain(val):
@@ -76,15 +67,24 @@ def domain(val):
             return 'list_of_string'
         elif type(val[0]) is bool:
             return 'list_of_boolean'
-        elif type(val[0]) is bool:
+        elif type(val[0]) is int:
             return 'list_of_integer'
+        elif type(val[0]) is long:
+            return 'list_of_long'
+        elif type(val[0]) is float:
+            return 'list_of_double'
         else:
             return 'list_of_unknown'
-    if type(val) is bool:
+
+    if isinstance(val, basestring):
+        return 'string'
+    elif type(val) is bool:
         return 'boolean'
     elif type(val) is int:
         return 'integer'
+    elif type(val) is long:
+        return 'long'
     elif type(val) is float:
-        return 'float'
+        return 'double'
     else:
         return 'unknown'

@@ -7,7 +7,7 @@ import io
 import json
 import numpy as np
 import ndex.client as nc
-import pprint as out
+import csv
 
 class NdexGraph (MultiDiGraph):
     '''A graph compatible with NDEx'''
@@ -199,130 +199,6 @@ class NdexGraph (MultiDiGraph):
 
             edge_interaction = interaction if isinstance(interaction,basestring) else interaction[i]
             self.add_edge_between(n1,n2,edge_interaction)
-
-    def _all_nodes_are_named(self):
-        return all('name' in self.node[n] for n in self.nodes_iter())
-
-    def _all_node_names_are_unique(self):
-        names = [self.node[n]['name'] for n in self.nodes_iter() if 'name' in self.node[n]]
-        return len(names) == len(set(names))
-
-    def _get_nice(self):
-        if not self._all_node_names_are_unique() or not self._all_nodes_are_named():
-            return None
-        G = copy.deepcopy(self)
-        mapping = {n: G.node[n]['name'] for n in G.nodes_iter()}
-        nx.relabel_nodes(G, mapping, copy=False)
-        return G
-
-    def _set_nice(self, G):
-        self.clear()
-        self.graph = copy.deepcopy(G.graph)
-        self.node = copy.deepcopy(G.node)
-        self.edge = copy.deepcopy(G.edge)
-        G = self
-        for n in G.nodes_iter():
-            G.node[n]['name'] = n
-        mapping = {n: i for i, n in enumerate(G.nodes_iter())}
-        nx.relabel_nodes(G, mapping, copy=False)
-        for i, e in enumerate(G.edges()):
-            if 0 in G[e[0]][e[1]]:
-                G[e[0]][e[1]][i] = G[e[0]][e[1]].pop(0)
-
-    def _create_from_networkx(self, G):
-        self.clear()
-        for node_id, data in G.nodes_iter(data=True):
-            self.add_node(node_id, data)
-        if isinstance(G, nx.MultiGraph):
-            for s, t, key, data in G.edges_iter(keys=True, data=True):
-                self.add_edge(s,t,key,data)
-        else:
-            for s, t, data in G.edges_iter(data=True):
-                self.add_edge(s, t, self.max_edge_id, data)
-                self.max_edge_id +=1
-
-    def load(self, filename, source=1, target=2, edge_attributes=None, sep='\t', header=False):
-        '''Load NdexGraph from file.
-
-            :param filename: The name of the file to load. Could include an absolute or relative path.
-            :param source: The source node column. (An integer; start counting at 1.)
-            :param target: The target node column. (An integer; start counting at 1.)
-            :param edge_attributes: A list of names for other columns which are edge attributes.
-            :param sep: The cell separator, often a tab (\t), but possibly a comma or other character.
-            :param header: Whether the first row should be interpreted as column headers.
-        '''
-        self.clear()
-        if edge_attributes != None:
-            if not header and not all(type(i) is int for i in edge_attributes):
-                raise ValueError(
-                    "If there is no header, all edge_attributes must be either a list of integers or None.")
-        header = 0 if header else None
-        df = pd.read_csv(filename, sep=sep, header=header)
-        if type(source) is int:
-            source = source - 1
-            source_index = df.columns.values[source]
-        else:
-            if header == False:
-                raise ValueError("If a string is used for source or target, then there must be a header.")
-            source_index = source
-        if type(target) is int:
-            target = target - 1
-            target_index = df.columns.values[target]
-        else:
-            if header == False:
-                raise ValueError("If a string is used for source or target, then there must be a header.")
-            target_index = target
-        if edge_attributes is None:
-            edge_attributes = []
-        edge_attributes = [c - 1 if type(c) is int else c for c in edge_attributes]
-
-        nodes = pd.concat([df.ix[:, source_index], df.ix[:, target_index]],
-                          ignore_index=True).drop_duplicates().reset_index(drop=True)
-        nodes.apply(lambda x: self.add_new_node(name=x))
-        #Map node names to ids
-        n_id = {data['name'] : n for n, data in self.nodes_iter(data=True)}
-        edges = df[[source_index, target_index]]
-        edges.apply(lambda x: self.add_edge_between(n_id[x[0]], n_id[x[1]]), axis=1)
-        e_id = {}
-        for s, t, key in self.edges_iter(keys=True):
-            if s not in e_id:
-                e_id[s] = {}
-            e_id[s][t] = key
-
-        for edge_attribute in edge_attributes:
-            source_header = df.columns.values[source]
-            target_header = df.columns.values[target]
-            if type(edge_attribute) is int:
-                edge_attribute = edge_attribute - 1
-                value_index = df.columns.values[edge_attribute]
-            else:
-                value_index = edge_attribute
-            edge_col = df[[source_index, target_index, value_index]]
-            if header is not None:
-                name = value_index
-            else:
-                name = "Column %d" % value_index
-            edge_col.apply(
-                lambda x: nx.set_edge_attributes(self, name, {(n_id[x[source_header]], n_id[x[target_header]], e_id[n_id[x[source_header]]][n_id[x[target_header]]]): x[value_index]}),
-                axis=1)
-
-    def annotate_network(self, filename, sep='\t'):
-        ''' Annotate the nodes in this network with attributes specified in the delimited text file specified by filename. Each line in the file describes one node attribute and must specify the node name in the first column of the line. The network must therefore have a unique value for the name attribute for each node.
-
-            :param filename: TThe name of the delimited text file to load. Could include an absolute or relative path.
-            :type filename: str
-            :param sep: The cell separator, often a tab (\t), but possibly a comma or other character.\
-            :type sep: str
-        '''
-        G = self._get_nice()
-        df = pd.read_csv(filename, sep=sep)
-        num_attributes = df.shape[1] - 1
-        node_header = df.columns.values[0]
-        for i in range(num_attributes):
-            attribute_header = df.columns.values[i + 1]
-            att_df = df[[node_header, attribute_header]]
-            att_df.apply((lambda x: nx.set_node_attributes(G, attribute_header, {x[0]: x[1]})), axis=1)
-        self._set_nice(G)
 
     def set_name(self, name):
         '''Set the name of this graph
@@ -590,8 +466,6 @@ class NdexGraph (MultiDiGraph):
                 keys.add(key)
         return list(keys)
 
-
-
     def to_cx_stream(self):
         '''Convert this network to a CX stream
 
@@ -628,9 +502,3 @@ class NdexGraph (MultiDiGraph):
 
         ndex = nc.Ndex(server,username,password)
         ndex.save_cx_stream_as_new_network(self.to_cx_stream())
-
-f='test.txt'
-net=NdexGraph()
-net.load(f,edge_attributes=['strength'],header=True)
-
-net.write_to('temptest.cx')
