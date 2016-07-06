@@ -111,6 +111,42 @@
 </dd></dl>
 
 <dl class="method">
+<dt id="ndex.client.Ndex.make_network_private">
+<code class="descname">make_network_private</code><span class="sig-paren">(</span><em>network_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.make_network_private" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes the network specified by the network_id private.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>network_id</strong> (<em>str</em>) &#8211; The UUID of the network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The response.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.client.Ndex.make_network_public">
+<code class="descname">make_network_public</code><span class="sig-paren">(</span><em>network_id</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.make_network_public" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes the network specified by the network_id public.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>network_id</strong> (<em>str</em>) &#8211; The UUID of the network.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The response.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="http://docs.python-requests.org/en/master/user/quickstart/#response-content">response object</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="ndex.client.Ndex.save_cx_stream_as_new_network">
 <code class="descname">save_cx_stream_as_new_network</code><span class="sig-paren">(</span><em>cx_stream</em>, <em>provenance=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.client.Ndex.save_cx_stream_as_new_network" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new network from a CX stream, optionally providing a provenance history object to be included in the new network.</p>
@@ -231,24 +267,6 @@
 <li><strong>name</strong> (<em>str</em>) &#8211; The name of the node. (Optional).</li>
 <li><strong>attr_dict</strong> (<em>dict</em>) &#8211; Dictionary of node attributes.  Key/value pairs will update existing data associated with the node.</li>
 <li><strong>attr</strong> &#8211; Set or change attributes using key=value.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="ndex.networkn.NdexGraph.annotate_network">
-<code class="descname">annotate_network</code><span class="sig-paren">(</span><em>filename</em>, <em>sep='\t'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.annotate_network" title="Permalink to this definition">¶</a></dt>
-<dd><p>Annotate the nodes in this network with attributes specified in the delimited text file specified by filename. Each line in the file describes one node attribute and must specify the node name in the first column of the line. The network must therefore have a unique value for the name attribute for each node.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<em>str</em>) &#8211; TThe name of the delimited text file to load. Could include an absolute or relative path.</li>
-<li><strong>sep</strong> &#8211; The cell separator, often a tab (       ), but possibly a comma or other character.            :type sep: str</li>
 </ul>
 </td>
 </tr>
@@ -510,28 +528,6 @@
 </dd></dl>
 
 <dl class="method">
-<dt id="ndex.networkn.NdexGraph.load">
-<code class="descname">load</code><span class="sig-paren">(</span><em>filename</em>, <em>source=1</em>, <em>target=2</em>, <em>edge_attributes=None</em>, <em>sep='\t'</em>, <em>header=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load NdexGraph from file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> &#8211; The name of the file to load. Could include an absolute or relative path.</li>
-<li><strong>source</strong> &#8211; The source node column. (An integer; start counting at 1.)</li>
-<li><strong>target</strong> &#8211; The target node column. (An integer; start counting at 1.)</li>
-<li><strong>edge_attributes</strong> &#8211; A list of names for other columns which are edge attributes.</li>
-<li><strong>sep</strong> &#8211; The cell separator, often a tab (       ), but possibly a comma or other character.</li>
-<li><strong>header</strong> &#8211; Whether the first row should be interpreted as column headers.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="ndex.networkn.NdexGraph.set_edge_attribute">
 <code class="descname">set_edge_attribute</code><span class="sig-paren">(</span><em>id</em>, <em>attribute_key</em>, <em>attribute_value</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.set_edge_attribute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the value of a particular edge attribute.</p>
@@ -562,6 +558,12 @@
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.show_stats">
+<code class="descname">show_stats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.show_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the number of nodes and edges.</p>
 </dd></dl>
 
 <dl class="method">
@@ -604,11 +606,17 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>server</strong> (<em>str</em>) &#8211; The NDEx server to upload the network to.</li>
 <li><strong>username</strong> (<em>str</em>) &#8211; The username of the account to store the network.</li>
 <li><strong>password</strong> (<em>str</em>) &#8211; The password for the account.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The UUID of the network on NDEx.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
 </td>
 </tr>
 </tbody>
