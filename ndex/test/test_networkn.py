@@ -25,7 +25,7 @@ def test_types():
 
     G.write_to('temp_test_type.cx')
 
-    G.upload_to('http://test.ndexbio.org', 'scratch', 'scratch')
+    # G.upload_to('http://test.ndexbio.org', 'scratch', 'scratch')
 
 
 

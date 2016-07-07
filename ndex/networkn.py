@@ -1,13 +1,9 @@
 import networkx as nx
 from networkx.classes.multidigraph import MultiDiGraph
-import copy
-import pandas as pd
 import create_aspect
 import io
 import json
-import numpy as np
 import ndex.client as nc
-import csv
 
 class NdexGraph (MultiDiGraph):
     '''A graph compatible with NDEx'''
@@ -153,7 +149,7 @@ class NdexGraph (MultiDiGraph):
                     id = nodeLayout['node']
                     x = nodeLayout['x']
                     y = nodeLayout['y']
-                    self.pos[id] = np.array([x,y], dtype='float32')
+                    self.pos[id] = [x,y]
             else:
                 self.unknown_cx.append(aspect)
 
@@ -495,10 +491,17 @@ class NdexGraph (MultiDiGraph):
         :type username: str
         :param password: The password for the account.
         :type password: str
+        :return: The UUID of the network on NDEx.
+        :rtype: str
 
         Example:
             ndexGraph.upload_to('http://test.ndexbio.org', 'myusername', 'mypassword')
         '''
 
         ndex = nc.Ndex(server,username,password)
-        ndex.save_cx_stream_as_new_network(self.to_cx_stream())
+        return ndex.save_cx_stream_as_new_network(self.to_cx_stream())
+
+    def show_stats(self):
+        '''Show the number of nodes and edges.'''
+        print "Nodes: %d" % self.number_of_nodes()
+        print "Edges: %d" % self.number_of_edges()

@@ -8,10 +8,24 @@ def test_create_from_edge_list():
 
     G.create_from_edge_list(edge_list, interaction=['A-B', 'B-C'])
 
-    print G.edge
-    print G.node
+    G.set_name('create_from_edge_list')
 
-    G.upload_to("http://test.ndexbio.org", "scratch", "scratch")
+    network_id = G.upload_to("http://test.ndexbio.org", "scratch", "scratch")
+    print network_id
+
+    ndex = Ndex("http://test.ndexbio.org", "scratch", "scratch")
+    ndex.make_network_public(network_id)
+    ndex.make_network_private(network_id)
+
+def test_cartesian():
+    G = NdexGraph(server="http://test.ndexbio.org",
+                  username='scratch', password='scratch',
+                  uuid='aa6e7426-3f14-11e6-a7fa-028f28cd6a5b')
+    G.write_to('cartesian2.cx')
 
 
-test_create_from_edge_list()
+
+if __name__ == "__main__":
+    test_create_from_edge_list()
+
+

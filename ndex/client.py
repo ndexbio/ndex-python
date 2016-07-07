@@ -308,6 +308,29 @@ class Ndex:
         route = "/network/%s" % (network_id)
         return self.get(route)
 
+    def make_network_public(self, network_id):
+        ''' Makes the network specified by the network_id public.
+
+        :param network_id: The UUID of the network.
+        :type network_id: str
+        :return: The response.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+
+        '''
+        return self.update_network_profile(network_id, {'visibility': 'PUBLIC'})
+
+    def make_network_private(self, network_id):
+        ''' Makes the network specified by the network_id private.
+
+        :param network_id: The UUID of the network.
+        :type network_id: str
+        :return: The response.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+
+        '''
+        return self.update_network_profile(network_id, {'visibility': 'PRIVATE'})
+
+
     def get_task_by_id (self, task_id):
         route = "/task/%s" % (task_id)
         return self.get(route)
