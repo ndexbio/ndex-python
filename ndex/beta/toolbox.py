@@ -1,5 +1,7 @@
 import pandas as pd
 import networkx as nx
+from ndex.networkn import NdexGraph
+import csv
 
 
 def load(G, filename, source=1, target=2, edge_attributes=None, sep='\t', header=False):
@@ -68,3 +70,102 @@ def load(G, filename, source=1, target=2, edge_attributes=None, sep='\t', header
                 (n_id[x[source_header]], n_id[x[target_header]], e_id[n_id[x[source_header]]][n_id[x[target_header]]]):
                     x[value_index]}),
             axis=1)
+
+def annotate(G, filename):
+    with open(filename, 'rb') as tsvfile:
+        dialect = csv.Sniffer().sniff(tsvfile.read(1024))
+        tsvfile.seek(0)
+        reader = csv.reader(tsvfile, dialect)
+        header = reader.next()
+        query_key = header[0]
+        header = header[1:]
+        #Trackes values that have been annotated to ensure that the same value
+        #is never annotated twice. If an annotation happens twice, an exception
+        #is thrown.
+        annotated = {}
+        for row in reader:
+            query_value = row[0]
+            row = row[1:]
+            nodes = G.get_node_ids(query_value, query_key)
+            for n in nodes:
+                if n not in annotated:
+                    annotated[n] = {}
+                for i in range( len(header) ):
+                    key = header[i]
+                    if key in annotated[n]:
+                        # This would not be expected to occur,
+                        # but could if the same node were specified twice in the same file.
+                        raise ValueError("ERROR: Attempting to annotate the same node attribute twice.")
+                    G.node[n][key] = row[i]
+                    annotated[n][key] = True
+
+def apply_template(G, template_id):
+    T = NdexGraph(uuid=template_id, server='http://public.ndexbio.org', username='scratch', password='scratch')
+    G.subnetwork_id = T.subnetwork_id
+    G.view_id = T.view_id
+
+    vp = []
+    for cx in T.unclassified_cx:
+        if 'visualProperties' in cx:
+            vp.append(cx)
+        if 'networkRelations' in cx:
+            vp.append(cx)
+
+
+    G.unclassified_cx = [cx for cx in G.unclassified_cx if 'visualProperties' not in cx and 'networkRelations' not in cx]
+    G.unclassified_cx = G.unclassified_cx + vp
+
+def _create_edge_tuples(attractor, target):
+    return [(a,t) for a in attractor for t in target]
+
+def apply_source_target_layout(G, category_name='st_layout'):
+    '''
+
+    :param G: The graph to layout.
+    :type G: NdexGraph
+    :param category_name: The attribute that specifies the category for the node. Valid categories are
+    'Source', 'Target', 'Forward', or 'Reverse'
+    :type category_name: str
+
+    '''
+    source = G.get_node_ids('Source', category_name)
+    target = G.get_node_ids('Target', category_name)
+    forward = G.get_node_ids('Forward', category_name)
+    reverse = G.get_node_ids('Reverse', category_name)
+
+    print G.node
+    fa = []
+    for i in range(1):
+        fa_n = G.add_new_node()
+        fa.append(fa_n)
+    forward_edge_tuples = _create_edge_tuples(fa, forward)
+    G.add_edges_from(forward_edge_tuples)
+
+    ra = []
+    for i in range(1):
+        ra_n = G.add_new_node()
+        ra.append(ra_n)
+    reverse_edge_tuples = _create_edge_tuples(ra, reverse)
+    G.add_edges_from(reverse_edge_tuples)
+
+    initial_pos = {}
+    source_incr = 1.0 / (len(source) + 1)
+    source_y_value = 0
+    for i in range(len(source)):
+        source_y_value += source_incr
+        initial_pos[source[i]] = (0.0, source_y_value)
+
+    target_incr = 1.0 / (len(target) + 1)
+    target_y_value = 0
+    for i in range(len(target)):
+        target_y_value += target_incr
+        initial_pos[target[i]] = (1.0, target_y_value)
+
+    initial_pos[fa[0]] = (0.5, 1.0)
+    initial_pos[ra[0]] = (0.5, 0.0)
+
+    fixed = source + target
+
+    G.pos = nx.spring_layout(G.to_undirected(), pos=initial_pos, fixed=fixed)
+    G.remove_nodes_from(fa)
+    G.remove_nodes_from(ra)

@@ -7,7 +7,7 @@ import ndex.client as nc
 
 class NdexGraph (MultiDiGraph):
     '''A graph compatible with NDEx'''
-    def __init__(self, cx=None, server=None, username=None, password=None, uuid=None, data=None, **attr):
+    def __init__(self, cx=None, server=None, username=None, password=None, uuid=None, networkx_G=None, data=None, **attr):
         '''There are generally four ways to create a graph.
 
             1. An empty graph. G = NdexGraph()
@@ -15,18 +15,31 @@ class NdexGraph (MultiDiGraph):
             3. Loading it from an NDEx server.
                 G = NdexGraph(server='http://test.ndexbio.org' uuid='983a2b93-2c55-11e6-a7c5-0630eb0972a1')
             4. Just like any other NetworkX MultiDiGraph().
+            5. From an existing networkx graph. G = NdexGraph(networkx_G=networkx_G)
 
         '''
         MultiDiGraph.__init__(self, data, **attr)
         self.subnetwork_id = None
         self.view_id = None
-        self.max_node_id = None
-        self.max_edge_id = None
+        self.max_node_id = 0
+        self.max_edge_id = 0
         self.pos = {}
-        self.unknown_cx = []
+        self.unclassified_cx = []
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
+
+        if networkx_G is not None:
+            for node_id, data in networkx_G.nodes_iter(data=True):
+                self.add_node(node_id, data)
+            if isinstance(networkx_G, nx.MultiGraph):
+                for s, t, key, data in networkx_G.edges_iter(keys=True, data=True):
+                    self.add_edge(s, t, key, data)
+            else:
+                for s, t, data in networkx_G.edges_iter(data=True):
+                    self.add_edge(s, t, self.max_edge_id, data)
+                    self.max_edge_id += 1
+            return
 
         if not cx and server and uuid:
             ndex = nc.Ndex(server,username,password)
@@ -56,11 +69,11 @@ class NdexGraph (MultiDiGraph):
                 # Strip metaData
                 continue
             else:
-                self.unknown_cx.append(aspect)
-            cx = self.unknown_cx
+                self.unclassified_cx.append(aspect)
+            cx = self.unclassified_cx
 
         # Second pass, just build basic graph.
-        self.unknown_cx = []
+        self.unclassified_cx = []
         for aspect in cx:
             if 'nodes' in aspect:
                 for node in aspect['nodes']:
@@ -86,12 +99,12 @@ class NdexGraph (MultiDiGraph):
                     else:
                         self.add_edge(s, t, key=id)
             else:
-                self.unknown_cx.append(aspect)
-        cx = self.unknown_cx
+                self.unclassified_cx.append(aspect)
+        cx = self.unclassified_cx
 
         # Third pass, handle attributes
         # Notes. Not handled, datatypes.
-        self.unknown_cx = []
+        self.unclassified_cx = []
         for aspect in cx:
             if 'networkAttributes' in aspect:
                 for networkAttribute in aspect['networkAttributes']:
@@ -138,11 +151,11 @@ class NdexGraph (MultiDiGraph):
                         self[s][t][id][name] = value
 
             else:
-                self.unknown_cx.append(aspect)
-        cx = self.unknown_cx
+                self.unclassified_cx.append(aspect)
+        cx = self.unclassified_cx
         # Fourth pass, node locations
         self.pos = {}
-        self.unknown_cx = []
+        self.unclassified_cx = []
         for aspect in cx:
             if 'cartesianLayout' in aspect:
                 for nodeLayout in aspect['cartesianLayout']:
@@ -151,7 +164,7 @@ class NdexGraph (MultiDiGraph):
                     y = nodeLayout['y']
                     self.pos[id] = [x,y]
             else:
-                self.unknown_cx.append(aspect)
+                self.unclassified_cx.append(aspect)
 
     def clear(self):
         '''Eliminate all graph data in this network.  The network will then be empty and can be filled with data starting "from scratch".
@@ -165,7 +178,7 @@ class NdexGraph (MultiDiGraph):
         self.max_edge_id = 0
         self.pos = None
         self.edgemap = {}
-        self.unknown_cx = []
+        self.unclassified_cx = []
 
     def create_from_edge_list(self, edge_list, interaction='interacts with'):
         ''' Create a network from a list of tuples that represent edges. Each tuple consists of  two nodes names that are to be connected. This operation will first clear ALL data already in the network.
@@ -240,7 +253,7 @@ class NdexGraph (MultiDiGraph):
                 cx += create_aspect.cartesian(G, self.view_id)
             else:
                 cx += create_aspect.cartesian(G, 0)
-        cx += self.unknown_cx
+        cx += self.unclassified_cx
 
         return cx
 
@@ -266,30 +279,30 @@ class NdexGraph (MultiDiGraph):
         return self.max_node_id
 
 
-    def get_node_ids(self, value, attribute_key='name'):
-        '''Returns a list of node ids of all nodes in which attribute_key has the specified value.
+    def get_node_ids(self, value, query_key='name'):
+        '''Returns a list of node ids of all nodes in which query_key has the specified value.
 
             :param value: The value we want.
-            :param attribute_key: The name of the attribute where we should look for the value.
+            :param query_key: The name of the attribute where we should look for the value.
             :return: A list of node ids.
             :rtype: list
 
         '''
-        nodes = [n[0] for n in self.nodes_iter(data=True) if attribute_key in n[1] and n[1][attribute_key] == value]
+        nodes = [n[0] for n in self.nodes_iter(data=True) if query_key in n[1] and n[1][query_key] == value]
         return nodes
 
 
-    def get_edge_ids_by_node_attribute(self, source_node_value, target_node_value, attribute_key='name'):
-        '''Returns a list of edge ids of all edges where both the source node and target node have the specified values for attribute_key.
+    def get_edge_ids_by_node_attribute(self, source_node_value, target_node_value, query_key='name'):
+        '''Returns a list of edge ids of all edges where both the source node and target node have the specified values for query_key.
 
                 :param source_node_value: The value we want in the source node.
                 :param target_node_value: The value we want in the target node.
-                :param attribute_key: The name of the attribute where we should look for the value.
+                :param query_key: The name of the attribute where we should look for the value.
                 :return: A list of edge ids.
                 :rtype: list
             '''
-        source_node_ids = self.get_node_ids(source_node_value, attribute_key)
-        target_node_ids = self.get_node_ids(target_node_value, attribute_key)
+        source_node_ids = self.get_node_ids(source_node_value, query_key)
+        target_node_ids = self.get_node_ids(target_node_value, query_key)
         edge_keys = []
         for s in source_node_ids:
             for t in target_node_ids:
@@ -313,6 +326,10 @@ class NdexGraph (MultiDiGraph):
             :type attr_dict: dict
             :param attr: Set or change attributes using key=value.
         '''
+        if source_node_id not in self.node:
+            raise ValueError('source_node_id = %d is not in the network' % source_node_id)
+        if target_node_id not in self.node:
+            raise ValueError('target_node_id = %d is not in the network' % target_node_id)
 
         if self.max_edge_id == None:
             if self.number_of_edges() > 0:
@@ -324,11 +341,11 @@ class NdexGraph (MultiDiGraph):
         self.edgemap[self.max_edge_id] = (source_node_id, target_node_id)
         return self.max_edge_id
 
-    def get_edge_attribute_value_by_id(self, edge_id, attribute_key):
+    def get_edge_attribute_value_by_id(self, edge_id, query_key):
         '''Get the value for attribute of the edge specified by edge_id.
 
             :param edge_id: The id of the edge.
-            :param attribute_key: The name of the attribute whose value should be retrieved.
+            :param query_key: The name of the attribute whose value should be retrieved.
             :return: The attribute value. If the value is a list, this returns the entire list.
             :rtype: any
 
@@ -338,17 +355,17 @@ class NdexGraph (MultiDiGraph):
             raise ValueError("Your ID is not in the network")
         s = edge_keys[edge_id][0]
         t = edge_keys[edge_id][1]
-        edge_attributes = nx.get_edge_attributes(self, attribute_key)
+        edge_attributes = nx.get_edge_attributes(self, query_key)
         if len(edge_attributes) == 0:
             raise ValueError("That node edge name does not exist ANYWHERE in the network.")
-        return self[s][t][edge_id][attribute_key] if attribute_key in self[s][t][edge_id] else None
+        return self[s][t][edge_id][query_key] if query_key in self[s][t][edge_id] else None
 
 
-    def get_edge_attribute_values_by_id_list(self, edge_id_list, attribute_key):
+    def get_edge_attribute_values_by_id_list(self, edge_id_list, query_key):
         '''Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.'
 
             :param edge_id_list: A list of edge ids whose attribute values we wish to retrieve
-            :param attribute_key: The name of the attribute whose corresponding values should be retrieved.
+            :param query_key: The name of the attribute whose corresponding values should be retrieved.
             :return: A list of attribute values corresponding to the edge keys input.
             :rtype: list
 
@@ -359,35 +376,35 @@ class NdexGraph (MultiDiGraph):
             if id not in edge_keys:
                 raise ValueError("Your ID list has IDs that are not in the network")
         edge_keys = {id: edge_keys[id] for id in edge_id_list}
-        edge_attributes = nx.get_edge_attributes(self, attribute_key)
+        edge_attributes = nx.get_edge_attributes(self, query_key)
         if len(edge_attributes) == 0:
             raise ValueError("That node edge name does not exist ANYWHERE in the network.")
-        return [self[v[0]][v[1]][k][attribute_key] if attribute_key in self[v[0]][v[1]][k] else None for k, v in
+        return [self[v[0]][v[1]][k][query_key] if query_key in self[v[0]][v[1]][k] else None for k, v in
                 edge_keys.iteritems()]
 
-    def get_node_attribute_value_by_id(self, node_id, attribute_key='name'):
+    def get_node_attribute_value_by_id(self, node_id, query_key='name'):
         '''Get the value of a particular node attribute based on the id.
 
         :param node_id: A node id.
         :type node_id: int
-        :param attribute_key: The name of the attribute whose value we desire.
-        :type attribute_key: str
+        :param query_key: The name of the attribute whose value we desire.
+        :type query_key: str
         :return: The attribute value.
         :rtype: any
 
         '''
         if node_id not in self.node:
             raise ValueError("Your ID is not in the network")
-        node_attributes = nx.get_node_attributes(self, attribute_key)
+        node_attributes = nx.get_node_attributes(self, query_key)
         if len(node_attributes) == 0:
             raise ValueError("That node attribute name does not exist ANYWHERE in the network.")
-        return self.node[node_id][attribute_key] if attribute_key in self.node[node_id] else None
+        return self.node[node_id][query_key] if query_key in self.node[node_id] else None
 
-    def get_node_attribute_values_by_id_list(self, id_list, attribute_key='name'):
+    def get_node_attribute_values_by_id_list(self, id_list, query_key='name'):
         '''Returns a list of attribute values that correspond with the attribute key using the nodes in id_list.
 
             :param id_list: A list of node ids whose attribute values we wish to retrieve.
-            :param attribute_key: The name of the attribute whose corresponding values should be retrieved.
+            :param query_key: The name of the attribute whose corresponding values should be retrieved.
             :return: A list of attribute values.
             :rtype: list
 
@@ -395,10 +412,10 @@ class NdexGraph (MultiDiGraph):
         for id in id_list:
             if id not in self.node:
                 raise ValueError("Your ID list has IDs that are not in the network")
-        node_attributes = nx.get_node_attributes(self, attribute_key)
+        node_attributes = nx.get_node_attributes(self, query_key)
         if len(node_attributes) == 0:
             raise ValueError("That node attribute name does not exist ANYWHERE in the network.")
-        return [self.node[id][attribute_key] if attribute_key in self.node[id] else None for id in id_list]
+        return [self.node[id][query_key] if query_key in self.node[id] else None for id in id_list]
 
     def get_node_names_by_id_list(self, id_list):
         '''Given a list of node ids, return a list of node names.
@@ -505,3 +522,8 @@ class NdexGraph (MultiDiGraph):
         '''Show the number of nodes and edges.'''
         print "Nodes: %d" % self.number_of_nodes()
         print "Edges: %d" % self.number_of_edges()
+
+    def remove_nodes_from(self, nbunch):
+        for n in nbunch:
+            self.pos.pop(n, None)
+        super(MultiDiGraph, self).remove_nodes_from(nbunch)

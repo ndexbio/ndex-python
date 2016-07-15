@@ -47,8 +47,9 @@ def edge_attributes(G):
 
 def cartesian(G, id):
     pos = G.pos
-    if all( abs(pos[n][0]) < 1.01 and abs(pos[n][1]) < 1.01 for n in pos):
-        pos = {id:pos[id]*100 for id in pos }
+    scale_factor = 40 * G.number_of_nodes()
+    if all( abs(pos[n][0]) < 2.01 and abs(pos[n][1]) < 2.01 for n in pos):
+        pos = {id:pos[id]*scale_factor for id in pos }
     return [{'cartesianLayout': [
         {'node':n, 'view':id, 'x':float(pos[n][0]), 'y':float(pos[n][1])}
         for n in pos
