@@ -112,9 +112,9 @@ def test_st_layout_full():
     toolbox.annotate(G, 'st_layout_annotate1.txt')
     toolbox.apply_source_target_layout(G)
     template_id = 'd1856d17-4937-11e6-a5c7-06603eb7f303'
-    toolbox.apply_template(G, template_id)
+    toolbox.apply_template(G, template_id, 'http://public.ndexbio.org', 'scratch', 'scratch')
     G.set_name('test_st_layout_full')
-    G.upload_to('http://public.ndexbio.org', 'scratch', 'scratch')
+    G.upload_to('http://dev.ndexbio.org', 'scratch', 'scratch')
 
 if __name__ == "__main__":
     test_st_layout_full()

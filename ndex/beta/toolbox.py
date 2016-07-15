@@ -99,8 +99,8 @@ def annotate(G, filename):
                     G.node[n][key] = row[i]
                     annotated[n][key] = True
 
-def apply_template(G, template_id):
-    T = NdexGraph(uuid=template_id, server='http://public.ndexbio.org', username='scratch', password='scratch')
+def apply_template(G, template_id, server='http://public.ndexbio.org', username=None, password=None):
+    T = NdexGraph(uuid=template_id, server=server, username=username, password=password)
     G.subnetwork_id = T.subnetwork_id
     G.view_id = T.view_id
 
