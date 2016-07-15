@@ -231,7 +231,7 @@
 <span id="ndex-networkn-module"></span><h2>ndex.networkn module<a class="headerlink" href="#module-ndex.networkn" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ndex.networkn.NdexGraph">
-<em class="property">class </em><code class="descclassname">ndex.networkn.</code><code class="descname">NdexGraph</code><span class="sig-paren">(</span><em>cx=None</em>, <em>server=None</em>, <em>username=None</em>, <em>password=None</em>, <em>uuid=None</em>, <em>data=None</em>, <em>**attr</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">ndex.networkn.</code><code class="descname">NdexGraph</code><span class="sig-paren">(</span><em>cx=None</em>, <em>server=None</em>, <em>username=None</em>, <em>password=None</em>, <em>uuid=None</em>, <em>networkx_G=None</em>, <em>data=None</em>, <em>**attr</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">networkx.classes.multidigraph.MultiDiGraph</span></code></p>
 <p>A graph compatible with NDEx</p>
 <dl class="method">
@@ -332,7 +332,7 @@
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_edge_attribute_value_by_id">
-<code class="descname">get_edge_attribute_value_by_id</code><span class="sig-paren">(</span><em>edge_id</em>, <em>attribute_key</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_value_by_id" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_edge_attribute_value_by_id</code><span class="sig-paren">(</span><em>edge_id</em>, <em>query_key</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_value_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value for attribute of the edge specified by edge_id.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -340,7 +340,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>edge_id</strong> &#8211; The id of the edge.</li>
-<li><strong>attribute_key</strong> &#8211; The name of the attribute whose value should be retrieved.</li>
+<li><strong>query_key</strong> &#8211; The name of the attribute whose value should be retrieved.</li>
 </ul>
 </td>
 </tr>
@@ -356,7 +356,7 @@
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_edge_attribute_values_by_id_list">
-<code class="descname">get_edge_attribute_values_by_id_list</code><span class="sig-paren">(</span><em>edge_id_list</em>, <em>attribute_key</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_values_by_id_list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_edge_attribute_values_by_id_list</code><span class="sig-paren">(</span><em>edge_id_list</em>, <em>query_key</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_attribute_values_by_id_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.&#8217;</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -364,7 +364,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>edge_id_list</strong> &#8211; A list of edge ids whose attribute values we wish to retrieve</li>
-<li><strong>attribute_key</strong> &#8211; The name of the attribute whose corresponding values should be retrieved.</li>
+<li><strong>query_key</strong> &#8211; The name of the attribute whose corresponding values should be retrieved.</li>
 </ul>
 </td>
 </tr>
@@ -380,8 +380,8 @@
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_edge_ids_by_node_attribute">
-<code class="descname">get_edge_ids_by_node_attribute</code><span class="sig-paren">(</span><em>source_node_value</em>, <em>target_node_value</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_ids_by_node_attribute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of edge ids of all edges where both the source node and target node have the specified values for attribute_key.</p>
+<code class="descname">get_edge_ids_by_node_attribute</code><span class="sig-paren">(</span><em>source_node_value</em>, <em>target_node_value</em>, <em>query_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_edge_ids_by_node_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of edge ids of all edges where both the source node and target node have the specified values for query_key.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -389,7 +389,7 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>source_node_value</strong> &#8211; The value we want in the source node.</li>
 <li><strong>target_node_value</strong> &#8211; The value we want in the target node.</li>
-<li><strong>attribute_key</strong> &#8211; The name of the attribute where we should look for the value.</li>
+<li><strong>query_key</strong> &#8211; The name of the attribute where we should look for the value.</li>
 </ul>
 </td>
 </tr>
@@ -421,7 +421,7 @@
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_node_attribute_value_by_id">
-<code class="descname">get_node_attribute_value_by_id</code><span class="sig-paren">(</span><em>node_id</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_value_by_id" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_node_attribute_value_by_id</code><span class="sig-paren">(</span><em>node_id</em>, <em>query_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_value_by_id" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the value of a particular node attribute based on the id.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -429,7 +429,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>node_id</strong> (<em>int</em>) &#8211; A node id.</li>
-<li><strong>attribute_key</strong> (<em>str</em>) &#8211; The name of the attribute whose value we desire.</li>
+<li><strong>query_key</strong> (<em>str</em>) &#8211; The name of the attribute whose value we desire.</li>
 </ul>
 </td>
 </tr>
@@ -445,7 +445,7 @@
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_node_attribute_values_by_id_list">
-<code class="descname">get_node_attribute_values_by_id_list</code><span class="sig-paren">(</span><em>id_list</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_values_by_id_list" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_node_attribute_values_by_id_list</code><span class="sig-paren">(</span><em>id_list</em>, <em>query_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_attribute_values_by_id_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a list of attribute values that correspond with the attribute key using the nodes in id_list.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -453,7 +453,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>id_list</strong> &#8211; A list of node ids whose attribute values we wish to retrieve.</li>
-<li><strong>attribute_key</strong> &#8211; The name of the attribute whose corresponding values should be retrieved.</li>
+<li><strong>query_key</strong> &#8211; The name of the attribute whose corresponding values should be retrieved.</li>
 </ul>
 </td>
 </tr>
@@ -469,15 +469,15 @@
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.get_node_ids">
-<code class="descname">get_node_ids</code><span class="sig-paren">(</span><em>value</em>, <em>attribute_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_ids" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of node ids of all nodes in which attribute_key has the specified value.</p>
+<code class="descname">get_node_ids</code><span class="sig-paren">(</span><em>value</em>, <em>query_key='name'</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.get_node_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of node ids of all nodes in which query_key has the specified value.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>value</strong> &#8211; The value we want.</li>
-<li><strong>attribute_key</strong> &#8211; The name of the attribute where we should look for the value.</li>
+<li><strong>query_key</strong> &#8211; The name of the attribute where we should look for the value.</li>
 </ul>
 </td>
 </tr>
@@ -526,6 +526,11 @@
 </tbody>
 </table>
 </dd></dl>
+
+<dl class="method">
+<dt id="ndex.networkn.NdexGraph.remove_nodes_from">
+<code class="descname">remove_nodes_from</code><span class="sig-paren">(</span><em>nbunch</em><span class="sig-paren">)</span><a class="headerlink" href="#ndex.networkn.NdexGraph.remove_nodes_from" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="ndex.networkn.NdexGraph.set_edge_attribute">
