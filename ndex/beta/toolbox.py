@@ -140,6 +140,8 @@ def apply_source_target_layout(G, category_name='st_layout'):
         fa.append(fa_n)
     forward_edge_tuples = _create_edge_tuples(fa, forward)
     G.add_edges_from(forward_edge_tuples)
+    # for f in forward:
+    #     G.add_edge(fa[0], f)
 
     ra = []
     for i in range(1):
@@ -147,6 +149,8 @@ def apply_source_target_layout(G, category_name='st_layout'):
         ra.append(ra_n)
     reverse_edge_tuples = _create_edge_tuples(ra, reverse)
     G.add_edges_from(reverse_edge_tuples)
+    # for r in reverse:
+    #     G.add_edge(ra[0], r)
 
     initial_pos = {}
     source_incr = 1.0 / (len(source) + 1)
@@ -161,10 +165,10 @@ def apply_source_target_layout(G, category_name='st_layout'):
         target_y_value += target_incr
         initial_pos[target[i]] = (1.0, target_y_value)
 
-    initial_pos[fa[0]] = (0.5, 1.0)
-    initial_pos[ra[0]] = (0.5, 0.0)
+    initial_pos[fa[0]] = (0.5, 1)
+    initial_pos[ra[0]] = (0.5, 0)
 
-    fixed = source + target
+    fixed = source + target + fa + ra
 
     G.pos = nx.spring_layout(G.to_undirected(), pos=initial_pos, fixed=fixed)
     G.remove_nodes_from(fa)

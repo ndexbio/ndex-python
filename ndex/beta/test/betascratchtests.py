@@ -61,7 +61,7 @@ def test_complex_layout():
 
     template_id = 'd1856d17-4937-11e6-a5c7-06603eb7f303'
     toolbox.apply_template(G, template_id)
-    G.set_name('experiment11')
+    G.set_name('experiment1')
     G.upload_to('http://public.ndexbio.org', 'scratch', 'scratch')
 
 def test_template():
@@ -108,13 +108,14 @@ def test_complex_layout_create():
 
 def test_st_layout_full():
     G = NdexGraph()
-    toolbox.load(G, 'st_layout_network1.txt', header=True)
-    toolbox.annotate(G, 'st_layout_annotate1.txt')
+    toolbox.load(G, 'st_layout_network2.txt', header=True)
+    toolbox.annotate(G, 'st_layout_annotate2.txt')
     toolbox.apply_source_target_layout(G)
     template_id = 'd1856d17-4937-11e6-a5c7-06603eb7f303'
     toolbox.apply_template(G, template_id, 'http://public.ndexbio.org', 'scratch', 'scratch')
-    G.set_name('test_st_layout_full')
-    G.upload_to('http://dev.ndexbio.org', 'scratch', 'scratch')
+    G.set_name('test_st_layout_wtf1')
+    # G.write_to('temp.cx')
+    G.upload_to('http://dev2.ndexbio.org', 'scratch', 'scratch')
 
 if __name__ == "__main__":
     test_st_layout_full()
