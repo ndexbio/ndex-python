@@ -337,7 +337,7 @@ class NdexGraph (MultiDiGraph):
             else:
                 self.max_edge_id = 0
         self.max_edge_id += 1
-        self.add_edge(source_node_id, target_node_id, self.max_edge_id, interaction='interacts_with', attr_dict=attr_dict, **attr)
+        self.add_edge(source_node_id, target_node_id, self.max_edge_id, interaction=interaction, attr_dict=attr_dict, **attr)
         self.edgemap[self.max_edge_id] = (source_node_id, target_node_id)
         return self.max_edge_id
 
