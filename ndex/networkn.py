@@ -166,6 +166,107 @@ class NdexGraph (MultiDiGraph):
             else:
                 self.unclassified_cx.append(aspect)
 
+    def create_from_aspects(self, aspect, aspect_type):
+        # Fourth pass, node locations
+        self.pos = {}
+        self.unclassified_cx = []
+
+        if 'subNetworks' == aspect_type:
+            for subnetwork in aspect:
+                id = subnetwork['@id']
+                if self.subnetwork_id != None:
+                    raise ValueError("networkn does not support collections!")
+                self.subnetwork_id = id
+
+        elif 'cyViews' == aspect_type:
+            for cyViews in aspect:
+                id = cyViews['@id']
+                if self.view_id != None:
+                    raise ValueError("networkn does not support more than one view!")
+                self.view_id = id
+
+        elif 'metaData' == aspect_type:
+            this_type_is_ignored_for_now = 'placeholder'
+
+        elif 'nodes' == aspect_type:
+            for node in aspect:
+                id = node['@id']
+                name = node['n'] if 'n' in node else None
+                if name:
+                    self.add_node(id, name=name)
+                else:
+                    self.add_node(id)
+                represents = node['r'] if 'r' in node else None
+                if represents:
+                    self.node[id]['represents'] = represents
+
+        elif 'edges' == aspect_type:
+            for edge in aspect:
+                id = edge['@id']
+                interaction = edge['i'] if 'i' in edge else None
+                s = edge['s']
+                t = edge['t']
+                self.edgemap[id] = (s, t)
+                if interaction:
+                    self.add_edge(s, t, key=id, interaction=interaction)
+                else:
+                    self.add_edge(s, t, key=id)
+
+        elif 'networkAttributes' == aspect_type:
+            for networkAttribute in aspect:
+                name = networkAttribute['n']
+                # special: ignore selected
+                if name == 'selected':
+                    continue
+                value = networkAttribute['v']
+                if 'd' in networkAttribute:
+                    d = networkAttribute['d']
+                    if d == 'boolean':
+                        value = value.lower() == 'true'
+                if 's' in networkAttribute or name not in self.graph:
+                    self.graph[name] = value
+
+        elif 'nodeAttributes' == aspect_type:
+            for nodeAttribute in aspect:
+                id = nodeAttribute['po']
+                name = nodeAttribute['n']
+                # special: ignore selected
+                if name == 'selected':
+                    continue
+                value = nodeAttribute['v']
+                if 'd' in nodeAttribute:
+                    d = nodeAttribute['d']
+                    if d == 'boolean':
+                        value = value.lower() == 'true'
+                if 's' in nodeAttribute or name not in self.node[id]:
+                    self.node[id][name] = value
+
+        elif 'edgeAttributes' == aspect_type:
+            for edgeAttribute in aspect:
+                id = edgeAttribute['po']
+                s, t = self.edgemap[id]
+                name = edgeAttribute['n']
+                # special: ignore selected and shared_name columns
+                if name == 'selected' or name == 'shared name':
+                    continue
+                value = edgeAttribute['v']
+                if 'd' in edgeAttribute:
+                    d = edgeAttribute['d']
+                    if d == 'boolean':
+                        value = value.lower() == 'true'
+                if 's' in edgeAttribute or name not in self[s][t][id]:
+                    self[s][t][id][name] = value
+
+        elif 'cartesianLayout' == aspect_type:
+            for nodeLayout in aspect:
+                id = nodeLayout['node']
+                x = nodeLayout['x']
+                y = nodeLayout['y']
+                self.pos[id] = [x,y]
+
+        else:
+            self.unclassified_cx.append(aspect)
+
     def clear(self):
         '''Eliminate all graph data in this network.  The network will then be empty and can be filled with data starting "from scratch".
 
@@ -360,6 +461,10 @@ class NdexGraph (MultiDiGraph):
             raise ValueError("That node edge name does not exist ANYWHERE in the network.")
         return self[s][t][edge_id][query_key] if query_key in self[s][t][edge_id] else None
 
+
+    def get_edge_id_by_source_target(self, edge_id, query_key):
+#        raise ValueError("NOT IMPLEMENTED")
+        return self[1]
 
     def get_edge_attribute_values_by_id_list(self, edge_id_list, query_key):
         '''Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.'
