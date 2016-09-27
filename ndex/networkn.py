@@ -167,7 +167,15 @@ class NdexGraph (MultiDiGraph):
                 self.unclassified_cx.append(aspect)
 
     def create_from_aspects(self, aspect, aspect_type):
-        # Fourth pass, node locations
+        ''' adds the corresponding networkn properties from a self-contained aspect.
+
+        :param aspect: json based aspect
+        :type aspect: dict
+        :param aspect_type: name of aspect
+        :type aspect_type: str
+        :return: None
+        :rtype: None
+        '''
         self.pos = {}
         self.unclassified_cx = []
 
