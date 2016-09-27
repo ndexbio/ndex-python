@@ -632,3 +632,13 @@ class NdexGraph (MultiDiGraph):
         for n in nbunch:
             self.pos.pop(n, None)
         super(MultiDiGraph, self).remove_nodes_from(nbunch)
+
+    def remove_orphans(self):
+        #   remove nodes with no edges
+        for node_id in self.nodes():
+            #node_name = network.get_node_attribute_value_by_id(node_id)
+            degree = self.degree([node_id])[node_id]
+            #print node_name + " : " + str()
+            if degree is 0:
+                #print " -- removing " + str(node_name) + " " + str(node_id)
+                self.remove_node(node_id)

@@ -16,7 +16,7 @@ def _add_attractor(network, attracted_nodes, attractor_name):
     #network.add_edges_from(edge_tuples, interaction='in-complex-with')
     return attractor_list[0]
 
-def apply_directed_flow_layout(G, directed_edge_types):
+def apply_directed_flow_layout(G, directed_edge_types=None):
     target_only_nodes = []
     source_only_nodes = []
     initial_pos = {}
@@ -35,12 +35,14 @@ def apply_directed_flow_layout(G, directed_edge_types):
         for edge in G.out_edges([node], keys=True):
             edge_id = edge[2]
             interaction = G.get_edge_attribute_value_by_id(edge_id, "interaction")
-            if interaction in directed_edge_types:
+            causal = G.get_edge_attribute_value_by_id(edge_id, "causal")
+            if causal or interaction in directed_edge_types:
                 out_count = out_count + 1
         for edge in G.in_edges([node], keys=True):
             edge_id = edge[2]
             interaction = G.get_edge_attribute_value_by_id(edge_id, "interaction")
-            if interaction in directed_edge_types:
+            causal = G.get_edge_attribute_value_by_id(edge_id, "causal")
+            if causal or interaction in directed_edge_types:
                 in_count = in_count + 1
 
         if out_count is 0 and in_count > 0:
@@ -48,9 +50,6 @@ def apply_directed_flow_layout(G, directed_edge_types):
 
         if in_count is 0 and out_count > 0:
             source_only_nodes.append(node)
-
-        # if in_count is 0 and out_count is 0:
-        #     G.remove_node(node)
 
     if len(target_only_nodes) > 0:
         #print target_only_nodes
