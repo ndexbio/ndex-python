@@ -579,6 +579,19 @@ class NdexGraph (MultiDiGraph):
         s, t = self.edgemap[id]
         self.edge[s][t][id][attribute_key] = attribute_value
 
+    def set_node_attribute(self, id, attribute_key, attribute_value):
+        '''Set the value of a particular edge attribute.
+
+            :param id: The edge id we wish to set an attribute on.
+            :type id: int
+            :param attribute_key: The name of the attribute we wish to set.
+            :type attribute_key: string
+            :param attribute_value: The value we wish to set the attribute to.
+            :type attribute_value: any
+
+        '''
+        self.node[id][attribute_key] = attribute_value
+
     def get_all_edge_attribute_keys(self):
         '''Get the unique list of all attribute keys used in at least one edge in the network.
 
