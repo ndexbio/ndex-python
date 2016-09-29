@@ -101,6 +101,9 @@ def annotate(G, filename):
 
 def apply_template(G, template_id, server='http://public.ndexbio.org', username=None, password=None):
     T = NdexGraph(uuid=template_id, server=server, username=username, password=password)
+    apply_network_as_template(G, T)
+
+def apply_network_as_template(G, T):
     G.subnetwork_id = T.subnetwork_id
     G.view_id = T.view_id
 
