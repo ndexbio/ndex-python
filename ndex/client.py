@@ -7,7 +7,7 @@ import os
 
 class Ndex:
     '''A class to facilitate communication with an NDEx server.'''
-    def __init__(self, host = "http://public.ndexbio.org", username = None, password = None):
+    def __init__(self, host = "http://public.ndexbio.org", username = None, password = None, update_status=False):
         '''Creates a connection to a particular NDEx server.
 
                 :param host: The URL of the server.
@@ -18,6 +18,8 @@ class Ndex:
                 :type password: string
         '''
         self.debug = False
+        self.version = 1.3
+        self.status = {}
         if "localhost" in host:
             self.host = "http://localhost:8080/ndexbio-rest"
         else:
@@ -27,6 +29,8 @@ class Ndex:
         if username and password:
             # add credentials to the session, if available
             self.s.auth = (username, password)
+        if update_status:
+            self.update_status()
 
 # Base methods for making requests to this NDEx
 
@@ -295,6 +299,12 @@ class Ndex:
         post_json = json.dumps(search_parameter_dict)
         return self.post(route, post_json)
 
+    def network_summaries_to_ids(self, network_summaries):
+        network_ids = []
+        for network in network_summaries:
+            network_ids.append(network['externalId'] )
+        return network_ids
+
     #    network    GET    /network/{networkUUID}       NetworkSummary
     def get_network_summary(self, network_id):
         ''' Gets information about a network.
@@ -389,3 +399,58 @@ class Ndex:
         }
         route = '/network/upload'
         return self.post_multipart(route, fields)
+
+    def update_network_membership_by_id(self, account_id, network_id, permission):
+        route ="/network/{networkId}/member"  % (network_id)
+        postData = {
+            "permission": permission,
+            "networkUUID": network_id,
+            "userUUID": account_id
+        }
+        postJson = json.dumps(postData)
+        self.post(route, postJson)
+
+
+    # Group methods
+
+    def get_network_summaries_for_group(self, group_name):
+        route = "/group/network/%s" % (group_name)
+        return self.get(route)
+
+    def get_network_ids_for_group(self, group_name):
+        return self.network_summaries_to_ids(self.get_network_summaries_for_group(group_name))
+
+    def grant_networks_to_group(self, group_name, networks):
+        for network in networks:
+            if isinstance(network, "string"):
+                self.grant_network_to_group(group_name, network)
+            else:
+                self.grant_network_to_group(group_name, network.get("external_id"))
+
+    def grant_network_to_group(self, group_name, network_id, permission):
+        group_id = self.get_group_id(group_name)
+        self.update_network_membership(group_id, network_id, permission)
+
+    # User methods
+
+    def get_network_summaries_for_user(self, username):
+        return self.search_networks("", username, block_size=1000)
+
+    def get_network_ids_for_user(self, username):
+        return self.network_summaries_to_ids(self.get_network_summaries_for_user(username))
+
+    def grant_network_to_user(self, username, network_id, permission):
+        user_id = self.get_user_id(username)
+        return self.grant_network_to_user_id(user_id, network_id, permission)
+
+    def grant_network_to_user_id(self, user_id, network_id, permission):
+        return self.update_network_membership(user_id, network_id, permission)
+
+    # admin methods
+
+    def update_status(self):
+        route = "/admin/status"
+        self.status = self.get(route)
+
+
+
