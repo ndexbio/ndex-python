@@ -650,10 +650,22 @@ class NdexGraph (MultiDiGraph):
         print "Nodes: %d" % self.number_of_nodes()
         print "Edges: %d" % self.number_of_edges()
 
+    def set_edgemap(self, edgemap):
+        self.edgemap = edgemap
+
     def remove_nodes_from(self, nbunch):
         for n in nbunch:
             self.pos.pop(n, None)
         super(MultiDiGraph, self).remove_nodes_from(nbunch)
+
+    def subgraph_new(self, nbunch):
+
+        return_graph = self.subgraph(nbunch)
+
+        for s, t, edge_id, data in return_graph.edges_iter(keys=True, data=True):
+            return_graph.edgemap[edge_id] = (s, t)
+
+        return return_graph
 
     def remove_orphans(self):
         #   remove nodes with no edges
