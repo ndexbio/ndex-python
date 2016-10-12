@@ -1,8 +1,12 @@
 def number_verification():
     return [{'numberVerification': [{'longNumber': 281474976710655}]}]
 
-def metadata(max_node_id=0, max_edge_id=0):
-    return [{'metaData': [{'name': 'nodes', 'idCounter': max_node_id}, {'name': 'edges', 'idCounter': max_edge_id}]}]
+def metadata(metadata_dict=None, max_node_id=0, max_edge_id=0):
+    if(metadata_dict is not None):
+        metadata_list = [{'name': k, 'idCounter': v} for k, v in metadata_dict.items()]
+        return [{'metaData': metadata_list}]
+    else:
+        return [{'metaData': [{'name': 'nodes', 'idCounter': max_node_id}, {'name': 'edges', 'idCounter': max_edge_id}]}]
 
 def subnetworks(G, id, view_id):
     result = [{'subNetworks': [{'@id': id, 'nodes': G.nodes(), 'edges': [e[2] for e in G.edges_iter(keys=True)]}]}]

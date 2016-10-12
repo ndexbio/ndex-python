@@ -25,6 +25,7 @@ class NdexGraph (MultiDiGraph):
         self.max_edge_id = 0
         self.pos = {}
         self.unclassified_cx = []
+        self.status = {'status': []}
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
@@ -177,7 +178,7 @@ class NdexGraph (MultiDiGraph):
         :rtype: None
         '''
         self.pos = {}
-        self.unclassified_cx = []
+        #self.unclassified_cx = []
 
         if 'subNetworks' == aspect_type:
             for subnetwork in aspect:
@@ -273,7 +274,8 @@ class NdexGraph (MultiDiGraph):
                 self.pos[id] = [x,y]
 
         else:
-            self.unclassified_cx.append(aspect)
+            self.unclassified_cx.append({aspect_type: aspect})
+            #self.unclassified_cx.append(aspect)
 
     def clear(self):
         '''Eliminate all graph data in this network.  The network will then be empty and can be filled with data starting "from scratch".
@@ -338,7 +340,7 @@ class NdexGraph (MultiDiGraph):
             return self.graph['name']
         return None
 
-    def to_cx(self):
+    def to_cx(self, md_dict=None):
         '''Convert this network to a CX dictionary
 
         :return: The cx dictionary that represents this network.
@@ -347,7 +349,7 @@ class NdexGraph (MultiDiGraph):
         G = self
         cx = []
         cx += create_aspect.number_verification()
-        cx += create_aspect.metadata()
+        cx += create_aspect.metadata(metadata_dict=md_dict)
         cx += create_aspect.network_attributes(G)
         if self.subnetwork_id and self.view_id:
             cx += create_aspect.subnetworks(G, self.subnetwork_id, self.view_id)
@@ -363,6 +365,7 @@ class NdexGraph (MultiDiGraph):
             else:
                 cx += create_aspect.cartesian(G, 0)
         cx += self.unclassified_cx
+        cx += [self.status]
 
         return cx
 
@@ -666,6 +669,9 @@ class NdexGraph (MultiDiGraph):
             return_graph.edgemap[edge_id] = (s, t)
 
         return return_graph
+
+    def add_status(self, status):
+        self.status['status'].append(status)
 
     def remove_orphans(self):
         #   remove nodes with no edges
