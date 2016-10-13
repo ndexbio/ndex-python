@@ -420,18 +420,18 @@ class Ndex:
     def get_network_ids_for_group(self, group_name):
         return self.network_summaries_to_ids(self.get_network_summaries_for_group(group_name))
 
-    def grant_networks_to_group(self, group_name, networks):
-        for network in networks:
-            if isinstance(network, "string"):
-                self.grant_network_to_group(group_name, network)
-            else:
-                self.grant_network_to_group(group_name, network.get("external_id"))
+    def grant_networks_to_group(self, group_name, network_ids, permission="READ"):
+        for network_id in network_ids:
+            self.grant_network_to_group(group_name, network_id, permission)
 
-    def grant_network_to_group(self, group_name, network_id, permission):
+    def grant_network_to_group(self, group_name, network_id, permission="READ"):
         group_id = self.get_group_id(group_name)
         self.update_network_membership(group_id, network_id, permission)
 
     # User methods
+
+    def get_user_id(self, username):
+        route = "/user/network/%s" % (username)
 
     def get_network_summaries_for_user(self, username):
         return self.search_networks("", username, block_size=1000)

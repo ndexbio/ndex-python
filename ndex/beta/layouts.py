@@ -4,6 +4,12 @@ import random
 def _create_edge_tuples(attractor, target):
     return [(a,t) for a in attractor for t in target]
 
+default_directed_edge_types = [
+    "controls-phosphorlyation-of",
+    "controls-transport-of",
+    "controls-state-change-of"
+]
+
 def _add_attractor(network, attracted_nodes, attractor_name):
     attractor_list =[]
     attractor_list.append(network.add_new_node(name=attractor_name))
@@ -35,14 +41,14 @@ def apply_directed_flow_layout(G, directed_edge_types=None):
         for edge in G.out_edges([node], keys=True):
             edge_id = edge[2]
             interaction = G.get_edge_attribute_value_by_id(edge_id, "interaction")
-            causal = G.get_edge_attribute_value_by_id(edge_id, "causal")
-            if causal or interaction in directed_edge_types:
+            directed = G.get_edge_attribute_value_by_id(edge_id, "directed")
+            if directed or (directed_edge_types is not None and interaction in directed_edge_types):
                 out_count = out_count + 1
         for edge in G.in_edges([node], keys=True):
             edge_id = edge[2]
             interaction = G.get_edge_attribute_value_by_id(edge_id, "interaction")
-            causal = G.get_edge_attribute_value_by_id(edge_id, "causal")
-            if causal or interaction in directed_edge_types:
+            directed = G.get_edge_attribute_value_by_id(edge_id, "directed")
+            if directed or (directed_edge_types is not None and interaction in directed_edge_types):
                 in_count = in_count + 1
 
         if out_count is 0 and in_count > 0:

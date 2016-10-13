@@ -55,14 +55,14 @@ class NdexGraph (MultiDiGraph):
         # First pass, get information about subnetworks.
         for aspect in cx:
             if 'subNetworks' in aspect:
-                for subnetwork in aspect['subNetworks']:
-                    id = subnetwork['@id']
+                for subnetwork in aspect.get('subNetworks'):
+                    id = subnetwork.get('@id')
                     if self.subnetwork_id != None:
                         raise ValueError("networkn does not support collections!")
                     self.subnetwork_id = id
             elif 'cyViews' in aspect:
-                for cyViews in aspect['cyViews']:
-                    id = cyViews['@id']
+                for cyViews in aspect.get('cyViews'):
+                    id = cyViews.get('@id')
                     if self.view_id != None:
                         raise ValueError("networkn does not support more than one view!")
                     self.view_id = id
@@ -77,20 +77,20 @@ class NdexGraph (MultiDiGraph):
         self.unclassified_cx = []
         for aspect in cx:
             if 'nodes' in aspect:
-                for node in aspect['nodes']:
-                    id = node['@id']
+                for node in aspect.get('nodes'):
+                    id = node.get('@id')
                     name = node['n'] if 'n' in node else None
                     if name:
                         self.add_node(id, name=name)
                     else:
                         self.add_node(id)
-                    represents = node['r'] if 'r' in node else None
+                    represents = node.get('r') if 'r' in node else None
                     if represents:
-                        self.node[id]['represents'] = represents
+                        self.node.get(id)['represents'] = represents
 
             elif 'edges' in aspect:
-                for edge in aspect['edges']:
-                    id = edge['@id']
+                for edge in aspect.get('edges'):
+                    id = edge.get('@id')
                     interaction = edge['i'] if 'i' in edge else None
                     s = edge['s']
                     t = edge['t']
