@@ -2,8 +2,11 @@
 
 import requests
 import json
+import ndex
 from requests_toolbelt import MultipartEncoder
 import os
+from urlparse import urljoin
+from requests import exceptions as req_except
 
 class Ndex:
     '''A class to facilitate communication with an NDEx server.'''
@@ -17,13 +20,39 @@ class Ndex:
                 :param password: The account password. (Optional)
                 :type password: string
         '''
-        self.debug = False
+        self.debug = True
         self.version = 1.3
         self.status = {}
         if "localhost" in host:
             self.host = "http://localhost:8080/ndexbio-rest"
         else:
-            self.host = host + "/rest"
+            status_url = "/rest/admin/status"
+
+            try:
+                version_url = urljoin(host, status_url)
+
+                response = requests.get(version_url)
+                response.raise_for_status()
+                data = response.json()
+
+                prop = data.get('properties')
+                if(prop is not None):
+                    pv = prop.get('ServerVersion')
+                    if(pv is not None):
+                        self.version = pv
+                        self.host = host + "/v2"
+                    else:
+                        self.version = "1.3"
+                        self.host = host + "/rest"
+
+            except req_except.HTTPError as he:
+                ndex.get_logger('CLIENT').warning('Can''t determine server version.' + host + ' Server returned error -- '  + he.message)
+                self.version = "1.3"
+                self.host = host + "/rest"
+                #TODO - how to handle errors getting server version...
+
+#            self.host = host + "/rest"
+
         # create a session for this Ndex
         self.s = requests.session()
         if username and password:
@@ -159,7 +188,7 @@ class Ndex:
         if self.debug:
             print("POST route: " + url)
         headers = {'Content-Type': multipart_data.content_type,
-                   'Accept': 'application/json',
+                   #'Accept': 'multipart/form-data', #'application/json',
                    'Cache-Control': 'no-cache',
                    }
         response = self.s.post(url, data=multipart_data, headers=headers)
@@ -186,16 +215,24 @@ class Ndex:
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
         '''
         self.require_auth()
-        fields = {
-        'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
-        }
+        route = ''
+        fields = {}
+        if(self.version == "2.0"):
+            route = '/network'
+            fields = {
+                'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
+            }
+        else:
+            route = '/network/asCX'
+            fields = {
+                'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
+            }
+
         if provenance:
             if isinstance(provenance, dict):
                 fields['provenance'] = json.dumps(provenance)
             else:
                 fields['provenance'] = provenance
-
-        route = '/network/asCX'
 
         return self.post_multipart(route, fields)
 
@@ -236,7 +273,12 @@ class Ndex:
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
 
         '''
-        route = "/network/%s/asCX" % (network_id)
+        route = ""
+        if(self.version == "2.0"):
+            route = "/network/%s" % (network_id)
+        else:
+            route = "/network/%s/asCX" % (network_id)
+
         return self.get_stream(route)
 
     def get_neighborhood_as_cx_stream(self, network_id, search_string, search_depth=1, edge_limit=2500):

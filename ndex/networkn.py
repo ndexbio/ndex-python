@@ -25,7 +25,7 @@ class NdexGraph (MultiDiGraph):
         self.max_edge_id = 0
         self.pos = {}
         self.unclassified_cx = []
-        self.status = {'status': []}
+        self.status = {'status': []} #Added because status is now required
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
@@ -608,14 +608,14 @@ class NdexGraph (MultiDiGraph):
                 keys.add(key)
         return list(keys)
 
-    def to_cx_stream(self):
+    def to_cx_stream(self, md_dict=None):
         '''Convert this network to a CX stream
 
         :return: The CX stream representation of this network.
         :rtype: io.BytesIO
 
         '''
-        cx = self.to_cx()
+        cx = self.to_cx(md_dict)
         return io.BytesIO(json.dumps(cx))
 
     def write_to(self, filename):
