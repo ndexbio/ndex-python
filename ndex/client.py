@@ -5,6 +5,7 @@ import json
 import ndex
 from requests_toolbelt import MultipartEncoder
 import os
+import io
 from urlparse import urljoin
 from requests import exceptions as req_except
 
@@ -203,6 +204,23 @@ class Ndex:
         return result
 
 # Network methods
+
+    def save_new_network (self, cx, provenance=None):
+        if(len(cx) > 0):
+            if(cx[len(cx) - 1] is not None):
+                if(cx[len(cx) - 1].get('status') is None):
+                    # No STATUS element in the array.  Append a new status
+                    cx.append({"status" : [ {"error" : "","success" : True} ]})
+                else:
+                    if(len(cx[len(cx) - 1].get('status')) < 1):
+                        # STATUS element found, but the status was empty
+                        cx[len(cx) - 1].get('status').append({"error" : "","success" : True})
+
+            stream = io.BytesIO(json.dumps(cx))
+
+            return self.save_cx_stream_as_new_network(stream, provenance)
+        else:
+            raise IndexError("Cannot save empty CX.  Please provide a non-empty CX document.")
 
     # CX Methods
     # Create a network based on a stream from a source CX format

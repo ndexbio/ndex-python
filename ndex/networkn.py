@@ -645,8 +645,7 @@ class NdexGraph (MultiDiGraph):
         '''
 
         ndex = nc.Ndex(server,username,password)
-        return ndex.save_cx_stream_as_new_network(self.to_cx_stream())
-
+        return ndex.save_new_network(self.to_cx())
 
     def show_stats(self):
         '''Show the number of nodes and edges.'''
