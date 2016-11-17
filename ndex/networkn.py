@@ -25,7 +25,7 @@ class NdexGraph (MultiDiGraph):
         self.max_edge_id = 0
         self.pos = {}
         self.unclassified_cx = []
-        self.status = {'status': []} #Added because status is now required
+        self.status = {'status': [{'error' : '','success' : True}]} #Added because status is now required
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
@@ -348,6 +348,7 @@ class NdexGraph (MultiDiGraph):
         '''
         G = self
         cx = []
+        #self.generate_metadata(G, self.unclassified_cx)
         cx += create_aspect.number_verification()
         cx += create_aspect.metadata(metadata_dict=md_dict)
         cx += create_aspect.network_attributes(G)
@@ -368,6 +369,48 @@ class NdexGraph (MultiDiGraph):
         cx += [self.status]
 
         return cx
+
+    def generate_metadata(self, G, unclassified_cx):
+        return_metadata = []
+
+        node_ids = [n[0] for n in G.nodes_iter(data=True)]
+        return_metadata.append(
+            {
+                "consistencyGroup" : 2,
+                "elementCount" : len(node_ids),
+                "idCounter": max(node_ids),
+                "name" : "nodes",
+                "properties" : [ ],
+                "version" : "1.0"
+            }
+        )
+
+        edge_ids = [e[2]for e in G.edges_iter(data=True, keys=True)]
+        return_metadata.append(
+            {
+                "consistencyGroup" : 2,
+                "elementCount" : len(edge_ids),
+                "idCounter": max(edge_ids),
+                "name" : "edges",
+                "properties" : [ ],
+                "version" : "1.0"
+            }
+        )
+
+        if(len(G.graph) > 0):
+            return_metadata.append(
+                {
+                    "consistencyGroup" : 2,
+                    "elementCount" : len(G.graph),
+                    "name" : "networkAttributes",
+                    "properties" : [ ],
+                    "version" : "1.0"
+                }
+            )
+
+        print return_metadata
+
+        return return_metadata
 
     def add_new_node(self, name=None, attr_dict=None, **attr):
         '''Add a cx node, possibly with a particular name, to the graph.
