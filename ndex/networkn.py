@@ -764,7 +764,8 @@ class NdexGraph (MultiDiGraph):
         return return_graph
 
     def add_status(self, status):
-        self.status['status'].append(status)
+        if(len(self.status['status']) == 0):
+            self.status['status'].append(status)
 
     def remove_orphans(self):
         #   remove nodes with no edges
