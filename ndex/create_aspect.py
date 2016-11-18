@@ -3,7 +3,7 @@ def number_verification():
 
 def metadata(metadata_dict=None, max_node_id=0, max_edge_id=0):
     if(metadata_dict is not None):
-        metadata_list = [{'name': k, 'idCounter': v} for k, v in metadata_dict.items()]
+        metadata_list = [{'name': k, 'idCounter': v, 'consistencyGroup': 2} for k, v in metadata_dict.items()]
         return [{'metaData': metadata_list}]
     else:
         return [{'metaData': [{'name': 'nodes', 'idCounter': max_node_id}, {'name': 'edges', 'idCounter': max_edge_id}]}]

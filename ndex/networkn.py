@@ -348,9 +348,8 @@ class NdexGraph (MultiDiGraph):
         '''
         G = self
         cx = []
-        #self.generate_metadata(G, self.unclassified_cx)
         cx += create_aspect.number_verification()
-        cx += create_aspect.metadata(metadata_dict=md_dict)
+        cx += self.generate_metadata(G, self.unclassified_cx) #create_aspect.metadata(metadata_dict=md_dict)
         cx += create_aspect.network_attributes(G)
         if self.subnetwork_id and self.view_id:
             cx += create_aspect.subnetworks(G, self.subnetwork_id, self.view_id)
@@ -373,6 +372,9 @@ class NdexGraph (MultiDiGraph):
     def generate_metadata(self, G, unclassified_cx):
         return_metadata = []
 
+        #========================
+        # Nodes metadata
+        #========================
         node_ids = [n[0] for n in G.nodes_iter(data=True)]
         return_metadata.append(
             {
@@ -385,6 +387,9 @@ class NdexGraph (MultiDiGraph):
             }
         )
 
+        #========================
+        # Edges metadata
+        #========================
         edge_ids = [e[2]for e in G.edges_iter(data=True, keys=True)]
         return_metadata.append(
             {
@@ -397,6 +402,9 @@ class NdexGraph (MultiDiGraph):
             }
         )
 
+        #=============================
+        # Network Attributes metadata
+        #=============================
         if(len(G.graph) > 0):
             return_metadata.append(
                 {
@@ -408,9 +416,52 @@ class NdexGraph (MultiDiGraph):
                 }
             )
 
-        print return_metadata
+        #===========================
+        # Node Attributes metadata
+        #===========================
+        node_attr = [n[0] for n in G.nodes_iter(data=True)]
+        if(len(node_attr) > 0):
+            return_metadata.append(
+                {
+                    "consistencyGroup" : 2,
+                    "elementCount" : len(node_attr),
+                    "idCounter": max(node_attr),
+                    "name" : "nodeAttributes",
+                    "properties" : [ ],
+                    "version" : "1.0"
+                }
+            )
 
-        return return_metadata
+        #===========================
+        # Edge Attributes metadata
+        #===========================
+        edge_attr = [e[2] for e in G.edges_iter(data=True, keys=True)]
+        if(len(edge_attr) > 0):
+            return_metadata.append(
+                {
+                    "consistencyGroup" : 2,
+                    "elementCount" : len(edge_attr),
+                    "idCounter": max(edge_attr),
+                    "name" : "edgeAttributes",
+                    "properties" : [ ],
+                    "version" : "1.0"
+                }
+            )
+
+        for asp in self.unclassified_cx:
+            try:
+                aspect_type = asp.iterkeys().next()
+                if(aspect_type == "visualProperties" or aspect_type == "cyVisualProperties"):
+                    return_metadata.append(
+                        {"elementCount":len(asp[aspect_type]),
+                         "name":aspect_type,
+                         "properties":[]
+                         }
+                    )
+            except Exception as e:
+                print e.message
+
+        return [{'metaData': return_metadata}]
 
     def add_new_node(self, name=None, attr_dict=None, **attr):
         '''Add a cx node, possibly with a particular name, to the graph.
