@@ -25,6 +25,7 @@ class NdexGraph (MultiDiGraph):
         self.max_edge_id = 0
         self.pos = {}
         self.unclassified_cx = []
+        self.metadata_original = None
         self.status = {'status': [{'error' : '','success' : True}]} #Added because status is now required
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
@@ -47,6 +48,10 @@ class NdexGraph (MultiDiGraph):
             cx = ndex.get_network_as_cx_stream(uuid).json()
             if not cx:
                 raise RuntimeError("Failed to retrieve network with uuid " + uuid + " from " + server)
+            else:
+                metadata_temp = (item for item in cx if item.get("metaData") is not None).next()
+                if(metadata_temp is not None):
+                    self.metadata_original = metadata_temp["metaData"]
 
         # If there is no CX to process, just return.
         if cx == None:
@@ -67,6 +72,7 @@ class NdexGraph (MultiDiGraph):
                         raise ValueError("networkn does not support more than one view!")
                     self.view_id = id
             elif 'metaData' in aspect:
+                self.metadata_original = aspect["metaData"]
                 # Strip metaData
                 continue
             else:
@@ -401,6 +407,17 @@ class NdexGraph (MultiDiGraph):
 
     def generate_metadata(self, G, unclassified_cx):
         return_metadata = []
+        consistency_group = 1
+        if(self.metadata_original is not None):
+            for mi in self.metadata_original:
+                if(mi.get("consistencyGroup") is not None):
+                    if(mi.get("consistencyGroup") > consistency_group):
+                        consistency_group = mi.get("consistencyGroup")
+
+            consistency_group += 1 # bump the consistency group up by one
+
+            print "consistency group max: " + str(consistency_group)
+
 
         #========================
         # Nodes metadata
@@ -408,7 +425,7 @@ class NdexGraph (MultiDiGraph):
         node_ids = [n[0] for n in G.nodes_iter(data=True)]
         return_metadata.append(
             {
-                "consistencyGroup" : 2,
+                "consistencyGroup" : consistency_group,
                 "elementCount" : len(node_ids),
                 "idCounter": max(node_ids),
                 "name" : "nodes",
@@ -423,7 +440,7 @@ class NdexGraph (MultiDiGraph):
         edge_ids = [e[2]for e in G.edges_iter(data=True, keys=True)]
         return_metadata.append(
             {
-                "consistencyGroup" : 2,
+                "consistencyGroup" : consistency_group,
                 "elementCount" : len(edge_ids),
                 "idCounter": max(edge_ids),
                 "name" : "edges",
@@ -438,7 +455,7 @@ class NdexGraph (MultiDiGraph):
         if(len(G.graph) > 0):
             return_metadata.append(
                 {
-                    "consistencyGroup" : 2,
+                    "consistencyGroup" : consistency_group,
                     "elementCount" : len(G.graph),
                     "name" : "networkAttributes",
                     "properties" : [ ],
@@ -449,13 +466,21 @@ class NdexGraph (MultiDiGraph):
         #===========================
         # Node Attributes metadata
         #===========================
-        node_attr = [n[0] for n in G.nodes_iter(data=True)]
-        if(len(node_attr) > 0):
+        id_max = 0
+        attr_count = 0
+        for n, nattr in G.nodes(data=True):
+            if(bool(nattr)):
+                attr_count += len(nattr.keys())
+
+            if(n > id_max):
+                id_max = n
+
+        if(attr_count > 0):
             return_metadata.append(
                 {
-                    "consistencyGroup" : 2,
-                    "elementCount" : len(node_attr),
-                    "idCounter": max(node_attr),
+                    "consistencyGroup" : consistency_group,
+                    "elementCount" : attr_count,
+                    "idCounter": id_max,
                     "name" : "nodeAttributes",
                     "properties" : [ ],
                     "version" : "1.0"
@@ -465,31 +490,83 @@ class NdexGraph (MultiDiGraph):
         #===========================
         # Edge Attributes metadata
         #===========================
-        edge_attr = [e[2] for e in G.edges_iter(data=True, keys=True)]
-        if(len(edge_attr) > 0):
+        id_max = 0
+        attr_count = 0
+        for s, t, id, a in G.edges(data=True, keys=True):
+            if(bool(a)):
+                attr_count += len(a.keys())
+
+            if(id > id_max):
+                id_max = id
+
+        if(attr_count > 0):
             return_metadata.append(
                 {
-                    "consistencyGroup" : 2,
-                    "elementCount" : len(edge_attr),
-                    "idCounter": max(edge_attr),
+                    "consistencyGroup" : consistency_group,
+                    "elementCount" : attr_count,
+                    "idCounter": id_max,
                     "name" : "edgeAttributes",
                     "properties" : [ ],
                     "version" : "1.0"
                 }
             )
 
+        #===========================
+        # cyViews metadata
+        #===========================
+        if self.view_id != None:
+            return_metadata.append(
+                {
+                    "elementCount": 1,
+                    "name": "cyViews",
+                    "properties": []
+                }
+            )
+
+        #===========================
+        # subNetworks metadata
+        #===========================
+        if self.subnetwork_id != None:
+            return_metadata.append(
+                {
+                    "elementCount": 1,
+                    "name": "subNetworks",
+                    "properties": []
+                }
+            )
+
+        #===========================
+        # ndexStatus metadata
+        #===========================
+        return_metadata.append(
+            {
+                "consistencyGroup": consistency_group,
+                "elementCount": 1,
+                "name": "ndexStatus",
+                "properties": [],
+                "version": "1.0"
+            }
+        )
+
+        #===========================
+        # OTHER metadata
+        #===========================
         for asp in self.unclassified_cx:
             try:
                 aspect_type = asp.iterkeys().next()
                 if(aspect_type == "visualProperties" or aspect_type == "cyVisualProperties"):
                     return_metadata.append(
-                        {"elementCount":len(asp[aspect_type]),
-                         "name":aspect_type,
-                         "properties":[]
+                        {
+                            "consistencyGroup" : consistency_group,
+                            "elementCount":len(asp[aspect_type]),
+                            "name":aspect_type,
+                            "properties":[]
                          }
                     )
             except Exception as e:
                 print e.message
+
+        print {'metaData': return_metadata}
 
         return [{'metaData': return_metadata}]
 
