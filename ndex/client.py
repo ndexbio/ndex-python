@@ -77,16 +77,21 @@ class Ndex:
         if not self.s.auth:
             raise Exception("this method requires user authentication")
 
-    def put(self, route, put_json):
+    def put(self, route, put_json=None):
         url = self.host + route
         if self.debug:
             print("PUT route: " + url)
-            print("POST json: " + put_json)
+            if put_json is not None:
+                print("PUT json: " + put_json)
+
         headers = {'Content-Type' : 'application/json;charset=UTF-8',
                    'Accept' : 'application/json',
                    'Cache-Control': 'no-cache',
                    }
-        response = self.s.put(url, data = put_json, headers = headers)
+        if put_json is not None:
+            response = self.s.put(url, data = put_json, headers = headers)
+        else:
+            response = self.s.put(url, headers = headers)
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
@@ -375,7 +380,11 @@ class Ndex:
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
 
         '''
-        route = "/network/%s" % (network_id)
+        if(self.version == "2.0"):
+            route = "/network/%s/summary" % (network_id)
+        else:
+            route = "/network/%s" % (network_id)
+
         return self.get(route)
 
     def make_network_public(self, network_id):
@@ -470,6 +479,13 @@ class Ndex:
         postJson = json.dumps(postData)
         self.post(route, postJson)
 
+    def update_network_group_permission(self, groupid, networkid, permission):
+        route = "/network/%s/permission?groupid=%s&permission=%s" % (networkid, groupid, permission)
+        self.put(route)
+
+    def update_network_user_permission(self, userid, networkid, permission):
+        route = "/network/%s/permission?userid=%s&permission=%s" % (networkid, userid, permission)
+        self.put(route)
 
     # Group methods
 
@@ -480,18 +496,15 @@ class Ndex:
     def get_network_ids_for_group(self, group_name):
         return self.network_summaries_to_ids(self.get_network_summaries_for_group(group_name))
 
-    def grant_networks_to_group(self, group_name, network_ids, permission="READ"):
-        for network_id in network_ids:
-            self.grant_network_to_group(group_name, network_id, permission)
-
-    def grant_network_to_group(self, group_name, network_id, permission="READ"):
-        group_id = self.get_group_id(group_name)
-        self.update_network_membership(group_id, network_id, permission)
+    def grant_networks_to_group(self, groupid, networkids, permission="READ"):
+        for networkid in networkids:
+            self.update_network_group_permission(groupid, networkid, permission)
 
     # User methods
 
-    def get_user_id(self, username):
-        route = "/user/network/%s" % (username)
+    def get_user_by_username(self, username):
+        route = "/user?username=%s" % (username)
+        return self.get(route)
 
     def get_network_summaries_for_user(self, username):
         return self.search_networks("", username, block_size=1000)
@@ -499,12 +512,13 @@ class Ndex:
     def get_network_ids_for_user(self, username):
         return self.network_summaries_to_ids(self.get_network_summaries_for_user(username))
 
-    def grant_network_to_user(self, username, network_id, permission):
-        user_id = self.get_user_id(username)
-        return self.grant_network_to_user_id(user_id, network_id, permission)
+    def grant_network_to_user_by_username(self, username, network_id, permission):
+        user = self.get_user_by_username(username).json
+        self.update_network_user_permission(user["externalid"], network_id, permission)
 
-    def grant_network_to_user_id(self, user_id, network_id, permission):
-        return self.update_network_membership(user_id, network_id, permission)
+    def grant_networks_to_user(self, userid, networkids, permission="READ"):
+        for networkid in networkids:
+            self.update_network_user_permission(userid, networkid, permission)
 
     # admin methods
 

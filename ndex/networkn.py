@@ -277,20 +277,6 @@ class NdexGraph (MultiDiGraph):
             self.unclassified_cx.append({aspect_type: aspect})
             #self.unclassified_cx.append(aspect)
 
-    def clear(self):
-        '''Eliminate all graph data in this network.  The network will then be empty and can be filled with data starting "from scratch".
-
-
-        '''
-        super(NdexGraph, self).clear()
-        self.subnetwork_id = None
-        self.view_id = None
-        self.max_node_id = 0
-        self.max_edge_id = 0
-        self.pos = None
-        self.edgemap = {}
-        self.unclassified_cx = []
-
     def create_from_edge_list(self, edge_list, interaction='interacts with'):
         ''' Create a network from a list of tuples that represent edges. Each tuple consists of  two nodes names that are to be connected. This operation will first clear ALL data already in the network.
 
@@ -320,6 +306,24 @@ class NdexGraph (MultiDiGraph):
             edge_interaction = interaction if isinstance(interaction,basestring) else interaction[i]
             self.add_edge_between(n1,n2,edge_interaction)
 
+    #------------------------------------------
+    #       NETWORK
+    #------------------------------------------
+
+    def clear(self):
+        '''Eliminate all graph data in this network.  The network will then be empty and can be filled with data starting "from scratch".
+
+
+        '''
+        super(NdexGraph, self).clear()
+        self.subnetwork_id = None
+        self.view_id = None
+        self.max_node_id = 0
+        self.max_edge_id = 0
+        self.pos = None
+        self.edgemap = {}
+        self.unclassified_cx = []
+
     def set_name(self, name):
         '''Set the name of this graph
 
@@ -339,6 +343,27 @@ class NdexGraph (MultiDiGraph):
         if 'name' in self.graph:
             return self.graph['name']
         return None
+
+    def show_stats(self):
+        '''Show the number of nodes and edges.'''
+        print "Nodes: %d" % self.number_of_nodes()
+        print "Edges: %d" % self.number_of_edges()
+
+    def set_edgemap(self, edgemap):
+        self.edgemap = edgemap
+
+    def subgraph_new(self, nbunch):
+
+        return_graph = self.subgraph(nbunch)
+
+        for s, t, edge_id, data in return_graph.edges_iter(keys=True, data=True):
+            return_graph.edgemap[edge_id] = (s, t)
+
+        return return_graph
+
+    #------------------------------------------
+    #       OUTPUT
+    #------------------------------------------
 
     def to_cx(self, md_dict=None):
         '''Convert this network to a CX dictionary
@@ -368,6 +393,11 @@ class NdexGraph (MultiDiGraph):
         cx += [self.status]
 
         return cx
+
+    # Obsolete?
+    def add_status(self, status):
+        if(len(self.status['status']) == 0):
+            self.status['status'].append(status)
 
     def generate_metadata(self, G, unclassified_cx):
         return_metadata = []
@@ -463,6 +493,50 @@ class NdexGraph (MultiDiGraph):
 
         return [{'metaData': return_metadata}]
 
+
+    def to_cx_stream(self, md_dict=None):
+        '''Convert this network to a CX stream
+
+        :return: The CX stream representation of this network.
+        :rtype: io.BytesIO
+
+        '''
+        cx = self.to_cx(md_dict)
+        return io.BytesIO(json.dumps(cx))
+
+    def write_to(self, filename):
+        '''Write this network as a CX file to the specified filename.
+
+        :param filename: The name of the file to write to.
+        :type filename: str
+
+        '''
+        with open(filename, 'w') as outfile:
+            json.dump(self.to_cx(), outfile, indent=4)
+
+    def upload_to(self, server, username, password):
+        ''' Upload this network to the specified server to the account specified by username and password.
+
+        :param server: The NDEx server to upload the network to.
+        :type server: str
+        :param username: The username of the account to store the network.
+        :type username: str
+        :param password: The password for the account.
+        :type password: str
+        :return: The UUID of the network on NDEx.
+        :rtype: str
+
+        Example:
+            ndexGraph.upload_to('http://test.ndexbio.org', 'myusername', 'mypassword')
+        '''
+
+        ndex = nc.Ndex(server,username,password)
+        return ndex.save_new_network(self.to_cx())
+
+    #------------------------------------------
+    #       NODES
+    #------------------------------------------
+
     def add_new_node(self, name=None, attr_dict=None, **attr):
         '''Add a cx node, possibly with a particular name, to the graph.
 
@@ -485,6 +559,21 @@ class NdexGraph (MultiDiGraph):
         return self.max_node_id
 
 
+    def remove_nodes_from(self, nbunch):
+        for n in nbunch:
+            self.pos.pop(n, None)
+        super(MultiDiGraph, self).remove_nodes_from(nbunch)
+
+    def remove_orphan_nodes(self):
+        #   remove nodes with no edges
+        for node_id in self.nodes():
+            #node_name = network.get_node_attribute_value_by_id(node_id)
+            degree = self.degree([node_id])[node_id]
+            #print node_name + " : " + str()
+            if degree is 0:
+                #print " -- removing " + str(node_name) + " " + str(node_id)
+                self.remove_node(node_id)
+
     def get_node_ids(self, value, query_key='name'):
         '''Returns a list of node ids of all nodes in which query_key has the specified value.
 
@@ -498,99 +587,18 @@ class NdexGraph (MultiDiGraph):
         return nodes
 
 
-    def get_edge_ids_by_node_attribute(self, source_node_value, target_node_value, query_key='name'):
-        '''Returns a list of edge ids of all edges where both the source node and target node have the specified values for query_key.
+    def set_node_attribute(self, id, attribute_key, attribute_value):
+        '''Set the value of a particular edge attribute.
 
-                :param source_node_value: The value we want in the source node.
-                :param target_node_value: The value we want in the target node.
-                :param query_key: The name of the attribute where we should look for the value.
-                :return: A list of edge ids.
-                :rtype: list
-            '''
-        source_node_ids = self.get_node_ids(source_node_value, query_key)
-        target_node_ids = self.get_node_ids(target_node_value, query_key)
-        edge_keys = []
-        for s in source_node_ids:
-            for t in target_node_ids:
-                if s in self and t in self[s]:
-                    edge_keys += self[s][t].keys()
-        return edge_keys
-
-
-    # Need to document n1 and n2 options.
-    # Document if node names are used, they must be unqiue.
-    def add_edge_between(self, source_node_id, target_node_id, interaction='interacts_with', attr_dict=None, **attr):
-        '''Add an edge between two nodes in this network specified by source_node_id and target_node_id, optionally specifying the type of interaction.
-
-            :param source_node_id: The node id of the source node.
-            :type source_node_id: int
-            :param target_node_id: The node id of the target node.
-            :type target_node_id: int
-            :param interaction: The type of interaction specified by the newly added edge.
-            :type interaction: str
-            :param attr_dict: Dictionary of node attributes.  Key/value pairs will update existing data associated with the node.
-            :type attr_dict: dict
-            :param attr: Set or change attributes using key=value.
-        '''
-        if source_node_id not in self.node:
-            raise ValueError('source_node_id = %d is not in the network' % source_node_id)
-        if target_node_id not in self.node:
-            raise ValueError('target_node_id = %d is not in the network' % target_node_id)
-
-        if self.max_edge_id == None:
-            if self.number_of_edges() > 0:
-                self.max_edge_id = max([x[2] for x in self.edges(keys=True)])
-            else:
-                self.max_edge_id = 0
-        self.max_edge_id += 1
-        self.add_edge(source_node_id, target_node_id, self.max_edge_id, interaction=interaction, attr_dict=attr_dict, **attr)
-        self.edgemap[self.max_edge_id] = (source_node_id, target_node_id)
-        return self.max_edge_id
-
-    def get_edge_attribute_value_by_id(self, edge_id, query_key):
-        '''Get the value for attribute of the edge specified by edge_id.
-
-            :param edge_id: The id of the edge.
-            :param query_key: The name of the attribute whose value should be retrieved.
-            :return: The attribute value. If the value is a list, this returns the entire list.
-            :rtype: any
+            :param id: The edge id we wish to set an attribute on.
+            :type id: int
+            :param attribute_key: The name of the attribute we wish to set.
+            :type attribute_key: string
+            :param attribute_value: The value we wish to set the attribute to.
+            :type attribute_value: any
 
         '''
-        edge_keys = {key: (s, t) for s, t, key in self.edges_iter(keys=True)}
-        if edge_id not in edge_keys:
-            raise ValueError("Your ID is not in the network")
-        s = edge_keys[edge_id][0]
-        t = edge_keys[edge_id][1]
-        edge_attributes = nx.get_edge_attributes(self, query_key)
-        if len(edge_attributes) == 0:
-            raise ValueError("That node edge name does not exist ANYWHERE in the network.")
-        return self[s][t][edge_id][query_key] if query_key in self[s][t][edge_id] else None
-
-
-    def get_edge_id_by_source_target(self, edge_id, query_key):
-#        raise ValueError("NOT IMPLEMENTED")
-        return self[1]
-
-    def get_edge_attribute_values_by_id_list(self, edge_id_list, query_key):
-        '''Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.'
-
-            :param edge_id_list: A list of edge ids whose attribute values we wish to retrieve
-            :param query_key: The name of the attribute whose corresponding values should be retrieved.
-            :return: A list of attribute values corresponding to the edge keys input.
-            :rtype: list
-
-        '''
-
-        edge_keys = {key: (s, t) for s, t, key in self.edges_iter(keys=True)}
-        for id in edge_id_list:
-            if id not in edge_keys:
-                raise ValueError("Your ID list has IDs that are not in the network")
-        edge_keys = {id: edge_keys[id] for id in edge_id_list}
-        edge_attributes = nx.get_edge_attributes(self, query_key)
-        if len(edge_attributes) == 0:
-            raise ValueError("That node edge name does not exist ANYWHERE in the network.")
-        return [self[v[0]][v[1]][k][query_key] if query_key in self[v[0]][v[1]][k] else None for k, v in
-                edge_keys.iteritems()]
+        self.node[id][attribute_key] = attribute_value
 
     def get_node_attribute_value_by_id(self, node_id, query_key='name'):
         '''Get the value of a particular node attribute based on the id.
@@ -662,7 +670,97 @@ class NdexGraph (MultiDiGraph):
                 keys.add(key)
         return list(keys)
 
-    def set_edge_attribute(self, id, attribute_key, attribute_value):
+
+    #------------------------------------------
+    #       Edges
+    #------------------------------------------
+
+    def get_edge_ids_by_node_attribute(self, source_node_value, target_node_value, attribute_key='name'):
+        '''Returns a list of edge ids of all edges where both the source node and target node have the specified values for attribute_key.
+
+                :param source_node_value: The value we want in the source node.
+                :param target_node_value: The value we want in the target node.
+                :param attribute_key: The name of the attribute where we should look for the value.
+                :return: A list of edge ids.
+                :rtype: list
+            '''
+        source_node_ids = self.get_node_ids(source_node_value, attribute_key)
+        target_node_ids = self.get_node_ids(target_node_value, attribute_key)
+        edge_keys = []
+        for s in source_node_ids:
+            for t in target_node_ids:
+                if s in self and t in self[s]:
+                    edge_keys += self[s][t].keys()
+        return edge_keys
+
+    
+    # Need to document n1 and n2 options.
+    # Document if node names are used, they must be unique.
+    def add_edge_between(self, source_node_id, target_node_id, interaction='interacts_with', attr_dict=None, **attr):
+        '''Add an edge between two nodes in this network specified by source_node_id and target_node_id, optionally specifying the type of interaction.
+
+            :param source_node_id: The node id of the source node.
+            :type source_node_id: int
+            :param target_node_id: The node id of the target node.
+            :type target_node_id: int
+            :param interaction: The type of interaction specified by the newly added edge.
+            :type interaction: str
+            :param attr_dict: Dictionary of node attributes.  Key/value pairs will update existing data associated with the node.
+            :type attr_dict: dict
+            :param attr: Set or change attributes using key=value.
+        '''
+        if source_node_id not in self.node:
+            raise ValueError('source_node_id = %d is not in the network' % source_node_id)
+        if target_node_id not in self.node:
+            raise ValueError('target_node_id = %d is not in the network' % target_node_id)
+
+        if self.max_edge_id == None:
+            if self.number_of_edges() > 0:
+                self.max_edge_id = max([x[2] for x in self.edges(keys=True)])
+            else:
+                self.max_edge_id = 0
+        self.max_edge_id += 1
+        self.add_edge(source_node_id, target_node_id, self.max_edge_id, interaction=interaction, attr_dict=attr_dict, **attr)
+        self.edgemap[self.max_edge_id] = (source_node_id, target_node_id)
+        return self.max_edge_id
+
+    def get_node_ids_by_edge_id(self, edge_id):
+        if edge_id in self.edgemap:
+            s, t = self.edgemap[edge_id]
+            return s, t
+        else:
+            raise "edge id " + str(edge_id) + " not found in network"
+        
+    def remove_edge_by_id(self, edge_id):
+        source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
+
+        # remove from edge map
+        self.edgemap.pop(edge_id, None)
+
+        # networkX remove edge
+        self.remove_edge(source_id, target_id, edge_id)        
+
+    def get_edge_attribute_value_by_id(self, edge_id, attribute_key):
+        '''Get the value for attribute of the edge specified by edge_id.
+
+            :param edge_id: The id of the edge.
+            :param query_key: The name of the attribute whose value should be retrieved.
+            :return: The attribute value. If the value is a list, this returns the entire list.
+            :rtype: any
+
+        '''
+        # edge_keys = {key: (s, t) for s, t, key in self.edges_iter(keys=True)}
+        # if edge_id not in edge_keys:
+        #     raise ValueError("edge ID Your ID is not in the network")
+        # s = edge_keys[edge_id][0]
+        # t = edge_keys[edge_id][1]
+        # edge_attributes = nx.get_edge_attributes(self, query_key)
+        # if len(edge_attributes) == 0:
+        #     raise ValueError("That node edge name does not exist ANYWHERE in the network.")
+        source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
+        return self[source_id][target_id][edge_id][attribute_key] if attribute_key in self[source_id][target_id][edge_id] else None
+
+    def set_edge_attribute(self, edge_id, attribute_key, attribute_value):
         '''Set the value of a particular edge attribute.
 
             :param id: The edge id we wish to set an attribute on.
@@ -673,21 +771,33 @@ class NdexGraph (MultiDiGraph):
             :type attribute_value: any
 
         '''
-        s, t = self.edgemap[id]
-        self.edge[s][t][id][attribute_key] = attribute_value
+        source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
+        self.edge[source_id][target_id][edge_id][attribute_key] = attribute_value
+        
+    def get_edge_id_by_source_target(self, edge_id, query_key):
+#        raise ValueError("NOT IMPLEMENTED")
+        return self[1]
 
-    def set_node_attribute(self, id, attribute_key, attribute_value):
-        '''Set the value of a particular edge attribute.
+    def get_edge_attribute_values_by_id_list(self, edge_id_list, attribute_key):
+        '''Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.'
 
-            :param id: The edge id we wish to set an attribute on.
-            :type id: int
-            :param attribute_key: The name of the attribute we wish to set.
-            :type attribute_key: string
-            :param attribute_value: The value we wish to set the attribute to.
-            :type attribute_value: any
+            :param edge_id_list: A list of edge ids whose attribute values we wish to retrieve
+            :param query_key: The name of the attribute whose corresponding values should be retrieved.
+            :return: A list of attribute values corresponding to the edge keys input.
+            :rtype: list
 
         '''
-        self.node[id][attribute_key] = attribute_value
+        for edge_id in edge_id_list:
+            if edge_id not in self.edgemap:
+                raise ValueError("edge id list error: edge id " + str(edge_id) + " not found in network")
+            
+        edge_keys = {id: self.edgemap[id] for id in edge_id_list}
+        edge_attributes = nx.get_edge_attributes(self, attribute_key)
+        if len(edge_attributes) == 0:
+            raise ValueError("the attribute name " + str(attribute_key) + " is not used ANYWHERE in the network.")
+        
+        return [self[v[0]][v[1]][k][attribute_key] if attribute_key in self[v[0]][v[1]][k] else None for k, v in
+                edge_keys.iteritems()]
 
     def get_all_edge_attribute_keys(self):
         '''Get the unique list of all attribute keys used in at least one edge in the network.
@@ -702,77 +812,14 @@ class NdexGraph (MultiDiGraph):
                 keys.add(key)
         return list(keys)
 
-    def to_cx_stream(self, md_dict=None):
-        '''Convert this network to a CX stream
 
-        :return: The CX stream representation of this network.
-        :rtype: io.BytesIO
 
-        '''
-        cx = self.to_cx(md_dict)
-        return io.BytesIO(json.dumps(cx))
 
-    def write_to(self, filename):
-        '''Write this network as a CX file to the specified filename.
 
-        :param filename: The name of the file to write to.
-        :type filename: str
 
-        '''
-        with open(filename, 'w') as outfile:
-            json.dump(self.to_cx(), outfile, indent=4)
 
-    def upload_to(self, server, username, password):
-        ''' Upload this network to the specified server to the account specified by username and password.
 
-        :param server: The NDEx server to upload the network to.
-        :type server: str
-        :param username: The username of the account to store the network.
-        :type username: str
-        :param password: The password for the account.
-        :type password: str
-        :return: The UUID of the network on NDEx.
-        :rtype: str
 
-        Example:
-            ndexGraph.upload_to('http://test.ndexbio.org', 'myusername', 'mypassword')
-        '''
 
-        ndex = nc.Ndex(server,username,password)
-        return ndex.save_new_network(self.to_cx())
 
-    def show_stats(self):
-        '''Show the number of nodes and edges.'''
-        print "Nodes: %d" % self.number_of_nodes()
-        print "Edges: %d" % self.number_of_edges()
 
-    def set_edgemap(self, edgemap):
-        self.edgemap = edgemap
-
-    def remove_nodes_from(self, nbunch):
-        for n in nbunch:
-            self.pos.pop(n, None)
-        super(MultiDiGraph, self).remove_nodes_from(nbunch)
-
-    def subgraph_new(self, nbunch):
-
-        return_graph = self.subgraph(nbunch)
-
-        for s, t, edge_id, data in return_graph.edges_iter(keys=True, data=True):
-            return_graph.edgemap[edge_id] = (s, t)
-
-        return return_graph
-
-    def add_status(self, status):
-        if(len(self.status['status']) == 0):
-            self.status['status'].append(status)
-
-    def remove_orphans(self):
-        #   remove nodes with no edges
-        for node_id in self.nodes():
-            #node_name = network.get_node_attribute_value_by_id(node_id)
-            degree = self.degree([node_id])[node_id]
-            #print node_name + " : " + str()
-            if degree is 0:
-                #print " -- removing " + str(node_name) + " " + str(node_id)
-                self.remove_node(node_id)
