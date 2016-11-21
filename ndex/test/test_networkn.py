@@ -27,7 +27,10 @@ def test_types():
 
     # G.upload_to('http://test.ndexbio.org', 'scratch', 'scratch')
 
-
+def test_metadata():
+    G = NdexGraph(server="http://dev.ndexbio.org", uuid="317332f7-ade8-11e6-913c-06832d634f41")
+    print G.metadata_original
 
 if __name__ == "__main__":
     test_types()
+    test_metadata()
