@@ -770,9 +770,6 @@ class NdexGraph (MultiDiGraph):
                     edge_keys += self[s][t].keys()
         return edge_keys
 
-    
-    # Need to document n1 and n2 options.
-    # Document if node names are used, they must be unique.
     def add_edge_between(self, source_node_id, target_node_id, interaction='interacts_with', attr_dict=None, **attr):
         '''Add an edge between two nodes in this network specified by source_node_id and target_node_id, optionally specifying the type of interaction.
 
@@ -817,6 +814,7 @@ class NdexGraph (MultiDiGraph):
         # networkX remove edge
         self.remove_edge(source_id, target_id, edge_id)        
 
+    #TODO Check args
     def get_edge_attribute_value_by_id(self, edge_id, attribute_key):
         '''Get the value for attribute of the edge specified by edge_id.
 
@@ -837,6 +835,7 @@ class NdexGraph (MultiDiGraph):
         source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
         return self[source_id][target_id][edge_id][attribute_key] if attribute_key in self[source_id][target_id][edge_id] else None
 
+    #TODO Check args
     def set_edge_attribute(self, edge_id, attribute_key, attribute_value):
         '''Set the value of a particular edge attribute.
 
@@ -850,7 +849,8 @@ class NdexGraph (MultiDiGraph):
         '''
         source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
         self.edge[source_id][target_id][edge_id][attribute_key] = attribute_value
-        
+
+    #TODO Implement or remove
     def get_edge_id_by_source_target(self, edge_id, query_key):
 #        raise ValueError("NOT IMPLEMENTED")
         return self[1]
