@@ -59,7 +59,49 @@ def cartesian(G, id):
         for n in pos
     ]}]
 
+def citations(G):
+    citations = []
+    for citation_id in G.citation_map:
+        citation = G.citation_map[citation_id]
+        citation["@id"] = citation_id
+        citations.append(citation)
+    return [{"citations" : citations}]
 
+def node_citations(G):
+    node_citations = []
+    for node_id in G.node_citation_map:
+        citations = G.node_citation_map[node_id]
+        node_citations.append({"citations": citations, "po": [node_id]})
+    return [{"node_citations" : node_citations}]
+
+def edge_citations(G):
+    edge_citations = []
+    for edge_id in G.edge_citation_map:
+        citations = G.edge_citation_map[edge_id]
+        edge_citations.append({"citations": citations, "po": [edge_id]})
+    return [{"edge_citations" : edge_citations}]
+
+def supports(G):
+    supports = []
+    for support_id in G.support_map:
+        support = G.support_map[support_id]
+        support["@id"] = support_id
+        supports.append(support)
+    return [{"supports" : supports}]
+
+def node_supports(G):
+    node_supports = []
+    for node_id in G.node_support_map:
+        supports = G.node_support_map[node_id]
+        node_supports.append({"supports": supports, "po": [node_id]})
+    return [{"node_supports" : node_supports}]
+
+def edge_supports(G):
+    edge_supports = []
+    for edge_id in G.edge_support_map:
+        supports = G.edge_support_map[edge_id]
+        edge_supports.append({"supports": supports, "po": [edge_id]})
+    return [{"edge_supports" : edge_supports}]
 
 # cv stands for convert value. This converts a type to a string representation for CX purposes.
 def cv(val):

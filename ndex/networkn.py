@@ -3,6 +3,7 @@ from networkx.classes.multidigraph import MultiDiGraph
 import create_aspect
 import io
 import json
+import copy
 import ndex.client as nc
 
 class NdexGraph (MultiDiGraph):
@@ -21,12 +22,20 @@ class NdexGraph (MultiDiGraph):
         MultiDiGraph.__init__(self, data, **attr)
         self.subnetwork_id = None
         self.view_id = None
-        self.max_node_id = 0
-        self.max_edge_id = 0
+        self.max_node_id = None
+        self.max_edge_id = None
+        self.max_citation_id = None
+        self.max_support_id = None
         self.pos = {}
         self.unclassified_cx = []
         self.metadata_original = None
         self.status = {'status': [{'error' : '','success' : True}]} #Added because status is now required
+        self.citation_map = {}
+        self.node_citation_map = {}
+        self.edge_citation_map = {}
+        self.support_map = {}
+        self.node_support_map = {}
+        self.edge_support_map = {}
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
@@ -170,6 +179,51 @@ class NdexGraph (MultiDiGraph):
                     x = nodeLayout['x']
                     y = nodeLayout['y']
                     self.pos[id] = [x,y]
+            else:
+                self.unclassified_cx.append(aspect)
+
+        cx = self.unclassified_cx
+        self.unclassified_cx = []
+        # Fifth pass, citations
+        for aspect in cx:
+            if 'citations' in aspect:
+                for citation in aspect['citations']:
+                    attributes = copy.deepcopy(citation)
+                    attributes.pop("@id")
+                    self.citation_map[citation["@id"]] = attributes
+            else:
+                self.unclassified_cx.append(aspect)
+
+        cx = self.unclassified_cx
+        self.unclassified_cx = []
+
+        # Sixth pass, supports, the attributes include the mapping to their citation (if any) by its id
+        for aspect in cx:
+            if 'supports' in aspect:
+                for support in aspect['supports']:
+                    attributes = copy.deepcopy(support)
+                    attributes.pop("@id")
+                    self.support_map[support["@id"]] = attributes
+
+            else:
+                self.unclassified_cx.append(aspect)
+
+        cx = self.unclassified_cx
+        self.unclassified_cx = []
+        # Seventh pass, map supports and citations to nodes and edges
+        for aspect in cx:
+            if 'node_citations' in aspect:
+                for node_citation in aspect['node_citations']:
+                    self.node_citation_map[node_citation["po"]] = node_citation["citations"]
+            if 'edge_citations' in aspect:
+                for edge_citation in aspect['edge_citations']:
+                    self.edge_citation_map[edge_citation["po"]] = edge_citation["citations"]
+            if 'node_supports' in aspect:
+                for node_support in aspect['node_supports']:
+                    self.node_support_map[node_support["po"]] = node_support["supports"]
+            if 'edge_supports' in aspect:
+                for edge_support in aspect['edge_supports']:
+                    self.edge_citation_map[edge_citation["po"]] = edge_citation["citations"]
             else:
                 self.unclassified_cx.append(aspect)
 
@@ -324,11 +378,19 @@ class NdexGraph (MultiDiGraph):
         super(NdexGraph, self).clear()
         self.subnetwork_id = None
         self.view_id = None
-        self.max_node_id = 0
-        self.max_edge_id = 0
+        self.max_node_id = None
+        self.max_edge_id = None
+        self.max_citation_id = None
+        self.max_support_id = None
         self.pos = None
         self.edgemap = {}
         self.unclassified_cx = []
+        self.citation_map = {}
+        self.node_citation_map = {}
+        self.edge_citation_map = {}
+        self.support_map = {}
+        self.node_support_map = {}
+        self.edge_support_map = {}
 
     def set_name(self, name):
         '''Set the name of this graph
@@ -395,6 +457,20 @@ class NdexGraph (MultiDiGraph):
                 cx += create_aspect.cartesian(G, self.view_id)
             else:
                 cx += create_aspect.cartesian(G, 0)
+
+        if len(self.citation_map) > 0:
+            cx += create_aspect.citations(G)
+        if len(self.node_citation_map) > 0:
+            cx += create_aspect.node_citations(G)
+        if len(self.edge_citation_map) > 0:
+            cx += create_aspect.edge_citations(G)
+        if len(self.support_map) > 0:
+            cx += create_aspect.supports(G)
+        if len(self.node_support_map) > 0:
+            cx += create_aspect.node_supports(G)
+        if len(self.edge_support_map) > 0:
+            cx += create_aspect.edge_supports(G)
+
         cx += self.unclassified_cx
         cx += [self.status]
 
@@ -535,6 +611,63 @@ class NdexGraph (MultiDiGraph):
                 }
             )
 
+        #===========================
+        # citations and supports metadata
+        #===========================
+        if len(self.support_map) > 0:
+            return_metadata.append(
+                {
+                    "elementCount": len(self.support_map),
+                    "name": "supports",
+                    "properties": [],
+                    "idCounter": max(self.support_map.keys())
+                }
+            )
+
+        if len(self.node_support_map) > 0:
+            return_metadata.append(
+                {
+                    "elementCount": len(self.node_support_map),
+                    "name": "nodeSupports",
+                    "properties": []
+                }
+            )
+        if len(self.edge_support_map) > 0:
+            return_metadata.append(
+                {
+                    "elementCount": len(self.edge_support_map),
+                    "name": "edgeSupports",
+                    "properties": []
+                }
+            )
+
+        if len(self.citation_map) > 0:
+            return_metadata.append(
+                {
+                    "elementCount": len(self.citation_map),
+                    "name": "citations",
+                    "properties": [],
+                    "idCounter": max(self.citation_map.keys())
+                }
+            )
+
+        if len(self.node_citation_map) > 0:
+            return_metadata.append(
+                {
+                    "elementCount": len(self.node_citation_map),
+                    "name": "nodeCitations",
+                    "properties": []
+                }
+            )
+
+        if len(self.edge_citation_map) > 0:
+            return_metadata.append(
+                {
+                    "elementCount": len(self.edge_citation_map),
+                    "name": "edgeCitations",
+                    "properties": []
+                }
+            )
         #===========================
         # ndexStatus metadata
         #===========================
@@ -890,13 +1023,86 @@ class NdexGraph (MultiDiGraph):
         return list(keys)
 
 
+    #------------------------------------------
+    #       Citations
+    #------------------------------------------
 
+    def add_citation(self, identifier=None, title=None, description=None, attributes=None):
+        # get the next citation id
+        if self.max_citation_id == None:
+            if len(self.citation_map) > 0:
+                self.max_citation_id = max(self.citation_map.keys())
+            else:
+                self.max_citation_id = 0
+        self.max_citation_id += 1
 
+        citation = {}
+        if identifier:
+            citation["dc:identifier"] = identifier
+        if title:
+            citation["dc:title"] = title
+        if description:
+            citation["description"] = description
+        if attributes:
+            citation["attributes"] = copy.deepcopy(attributes)
+        self.citation_map[self.max_citation_id] = citation
+        return self.max_citation_id
 
+    def add_node_citation_ref(self, node_id, citation_id):
+        if node_id in self.node_citation_map:
+            citation_ids = self.node_citation_map[node_id]
+            if citation_id not in citation_ids:
+                citation_ids.append(citation_id)
+        else:
+            citation_ids = [citation_id]
+            self.node_citation_map[node_id] = citation_ids
 
+    def add_edge_citation_ref(self, edge_id, citation_id):
+        if edge_id in self.edge_citation_map:
+            citation_ids = self.edge_citation_map[edge_id]
+            if citation_id not in citation_ids:
+                citation_ids.append(citation_id)
+        else:
+            citation_ids = [citation_id]
+            self.edge_citation_map[edge_id] = citation_ids
+            
+    #------------------------------------------
+    #       Supports
+    #------------------------------------------
 
+    def add_support(self, citation=None, text=None, attributes=None):
+        # get the next support id
+        if self.max_support_id == None:
+            if len(self.citation_map) > 0:
+                self.max_support_id = max(self.support_map.keys())
+            else:
+                self.max_support_id = 0
+        self.max_support_id += 1
 
+        support = {}
+        if citation:
+            support["citation"] = citation
+        if text:
+            support["text"] = text
+        if attributes:
+            support["attributes"] = copy.deepcopy(attributes)
+        self.support_map[self.max_support_id] = support
+        return self.max_support_id
+        
+    def add_node_support_ref(self, node_id, support_id):
+        if node_id in self.node_support_map:
+            support_ids = self.node_support_map[node_id]
+            if support_id not in support_ids:
+                support_ids.append(support_id)
+        else:
+            support_ids = [support_id]
+            self.node_support_map[node_id] = support_ids
 
-
-
-
+    def add_edge_support_ref(self, edge_id, support_id):
+        if edge_id in self.edge_support_map:
+            support_ids = self.edge_support_map[edge_id]
+            if support_id not in support_ids:
+                support_ids.append(support_id)
+        else:
+            support_ids = [support_id]
+            self.edge_support_map[edge_id] = support_ids
