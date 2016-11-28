@@ -620,7 +620,8 @@ class NdexGraph (MultiDiGraph):
                     "elementCount": len(self.support_map),
                     "name": "supports",
                     "properties": [],
-                    "idCounter": max(self.support_map.keys())
+                    "idCounter": max(self.support_map.keys()),
+                    "consistencyGroup" : consistency_group
                 }
             )
 
@@ -629,7 +630,8 @@ class NdexGraph (MultiDiGraph):
                 {
                     "elementCount": len(self.node_support_map),
                     "name": "nodeSupports",
-                    "properties": []
+                    "properties": [],
+                    "consistencyGroup" : consistency_group
                 }
             )
         if len(self.edge_support_map) > 0:
@@ -637,7 +639,8 @@ class NdexGraph (MultiDiGraph):
                 {
                     "elementCount": len(self.edge_support_map),
                     "name": "edgeSupports",
-                    "properties": []
+                    "properties": [],
+                    "consistencyGroup" : consistency_group
                 }
             )
 
@@ -647,7 +650,8 @@ class NdexGraph (MultiDiGraph):
                     "elementCount": len(self.citation_map),
                     "name": "citations",
                     "properties": [],
-                    "idCounter": max(self.citation_map.keys())
+                    "idCounter": max(self.citation_map.keys()),
+                    "consistencyGroup" : consistency_group
                 }
             )
 
@@ -656,7 +660,8 @@ class NdexGraph (MultiDiGraph):
                 {
                     "elementCount": len(self.node_citation_map),
                     "name": "nodeCitations",
-                    "properties": []
+                    "properties": [],
+                    "consistencyGroup" : consistency_group
                 }
             )
 
@@ -665,7 +670,8 @@ class NdexGraph (MultiDiGraph):
                 {
                     "elementCount": len(self.edge_citation_map),
                     "name": "edgeCitations",
-                    "properties": []
+                    "properties": [],
+                    "consistencyGroup" : consistency_group
                 }
             )
         #===========================
@@ -941,11 +947,82 @@ class NdexGraph (MultiDiGraph):
     def remove_edge_by_id(self, edge_id):
         source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
 
-        # remove from edge map
+        # remove edge from edge map
         self.edgemap.pop(edge_id, None)
 
+        # remove citation and support references to edges
+        self.remove_citation_and_support_edge_references(edge_id)
+
         # networkX remove edge
-        self.remove_edge(source_id, target_id, edge_id)        
+        self.remove_edge(source_id, target_id, edge_id)
+
+    def remove_citation_and_support_edge_references(self, edge_id):
+        citation_ids = None
+        support_ids = None
+
+        # remove support to edge references
+        if edge_id in self.edge_support_map:
+            # get the supports that reference the edge
+            support_ids = self.edge_support_map[edge_id]
+            # remove the edge entry from the edge_support_map
+            self.edge_support_map.pop(edge_id)
+
+            # eliminate the supports that are still referenced by some node or edge
+            for map_support_ids in self.edge_support_map.values():
+                for map_support_id in map_support_ids:
+                    if map_support_id in support_ids:
+                        support_ids.remove(map_support_id)
+                        if len(support_ids) == 0:
+                            # we have proved that all the potentially orphaned
+                            # supports are connected to some other edge
+                            break
+
+            for map_support_ids in self.node_support_map.values():
+                for map_support_id in map_support_ids:
+                    if map_support_id in support_ids:
+                        support_ids.remove(map_support_id)
+                        if len(support_ids) == 0:
+                            # we have proved that all the potentially orphaned
+                            # supports are connected to some node
+                            break
+
+            # the remaining supports are orphaned and may be removed
+            for support_id in support_ids:
+                self.support_map.pop(support_id)
+
+        # remove citation to edge references
+        if edge_id in self.edge_citation_map or edge_id in self.edge_support_map:
+            # get the citations that reference the edge
+            citation_ids = self.edge_citation_map[edge_id]
+            # remove the edge entry from the edge_citation_map
+            self.edge_citation_map.pop(edge_id)
+
+            # eliminate the citations that are still referenced by some node or edge
+            for map_citation_ids in self.edge_citation_map.values():
+                for map_citation_id in map_citation_ids:
+                    if map_citation_id in citation_ids:
+                        citation_ids.remove(map_citation_id)
+                        if len(citation_ids) == 0:
+                            # we have proved that all the potentially orphaned
+                            # citations are connected to some other edge
+                            break
+
+            for map_citation_ids in self.node_citation_map.values():
+                for map_citation_id in map_citation_ids:
+                    if map_citation_id in citation_ids:
+                        citation_ids.remove(map_citation_id)
+                        if len(citation_ids) == 0:
+                            # we have proved that all the potentially orphaned
+                            # citations are connected to some node
+                            break
+
+            # the remaining citations are orphaned and may be removed
+            for citation_id in citation_ids:
+                self.citation_map.pop(citation_id)
+
+        # at this point, all supports that referenced a removed citation
+        # have already been removed.
+
 
     #TODO Check args
     def get_edge_attribute_value_by_id(self, edge_id, attribute_key):

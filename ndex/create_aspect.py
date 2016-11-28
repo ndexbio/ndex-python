@@ -72,14 +72,14 @@ def node_citations(G):
     for node_id in G.node_citation_map:
         citations = G.node_citation_map[node_id]
         node_citations.append({"citations": citations, "po": [node_id]})
-    return [{"node_citations" : node_citations}]
+    return [{"nodeCitations" : node_citations}]
 
 def edge_citations(G):
     edge_citations = []
     for edge_id in G.edge_citation_map:
         citations = G.edge_citation_map[edge_id]
         edge_citations.append({"citations": citations, "po": [edge_id]})
-    return [{"edge_citations" : edge_citations}]
+    return [{"edgeCitations" : edge_citations}]
 
 def supports(G):
     supports = []
@@ -94,14 +94,14 @@ def node_supports(G):
     for node_id in G.node_support_map:
         supports = G.node_support_map[node_id]
         node_supports.append({"supports": supports, "po": [node_id]})
-    return [{"node_supports" : node_supports}]
+    return [{"nodeSupports" : node_supports}]
 
 def edge_supports(G):
     edge_supports = []
     for edge_id in G.edge_support_map:
         supports = G.edge_support_map[edge_id]
         edge_supports.append({"supports": supports, "po": [edge_id]})
-    return [{"edge_supports" : edge_supports}]
+    return [{"edgeSupports" : edge_supports}]
 
 # cv stands for convert value. This converts a type to a string representation for CX purposes.
 def cv(val):
