@@ -1183,3 +1183,76 @@ class NdexGraph (MultiDiGraph):
         else:
             support_ids = [support_id]
             self.edge_support_map[edge_id] = support_ids
+
+
+class FilterSub:
+    '''A graph compatible with NDEx'''
+    def __init__(self, cx=None, subnet_index=0):
+        self.subnetwork_id = None
+        self.view_id = None
+        self.max_node_id = None
+        self.max_edge_id = None
+        self.max_citation_id = None
+        self.max_support_id = None
+        self.pos = {}
+        self.unclassified_cx = []
+        self.metadata_original = None
+        self.status = {'status': [{'error' : '','success' : True}]}
+        self.citation_map = {}
+        self.node_citation_map = {}
+        self.edge_citation_map = {}
+        self.support_map = {}
+        self.node_support_map = {}
+        self.edge_support_map = {}
+        self.cx = cx
+
+        # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
+        self.edgemap = {}
+
+        # If there is no CX to process raise exception
+        if cx == None:
+            raise RuntimeError("Missing CX. Please provide a valid CX")
+
+        for aspect in cx:
+            if 'subNetworks' in aspect:
+                sub_nets = aspect.get('subNetworks')
+                try:
+                    subnetwork = sub_nets[subnet_index]
+                except IndexError:
+                    raise RuntimeError("Subnetwork at index %d does not exist " % subnet_index)
+
+                self.subnetwork_id = subnetwork.get('@id')
+
+                # Set the subnetwork property to a single array element
+                # (subnetwork does not need a collection)
+                sub_nets = [subnetwork]
+
+        self.unclassified_cx = []
+        for aspect in cx:
+            if 'networkAttributes' in aspect:
+                the_list = aspect['networkAttributes']
+                the_list[:] = [d for d in the_list if d.get('s') == self.subnetwork_id]
+
+            elif 'nodeAttributes' in aspect:
+                the_list = aspect['nodeAttributes']
+                the_list[:] = [d for d in the_list if d.get('s') == self.subnetwork_id]
+
+            elif 'edgeAttributes' in aspect:
+                the_list = aspect['edgeAttributes']
+                the_list[:] = [d for d in the_list if d.get('s') == self.subnetwork_id]
+
+            elif 'cyTableColumn' in aspect:
+                the_list = aspect['cyTableColumn']
+                the_list[:] = [d for d in the_list if d.get('s') == self.subnetwork_id]
+
+            elif 'cyViews' in aspect:
+                the_list = aspect['cyViews']
+                the_list[:] = [d for d in the_list if d.get('s') == self.subnetwork_id]
+
+            else:
+                self.unclassified_cx.append(aspect)
+
+        print cx
+
+    def get_cx(self):
+        return self.cx
