@@ -24,6 +24,7 @@ class Ndex:
         self.debug = True
         self.version = 1.3
         self.status = {}
+        self.username = username
         if "localhost" in host:
             self.host = "http://localhost:8080/ndexbio-rest"
         else:
@@ -281,7 +282,10 @@ class Ndex:
             else:
                 fields['provenance'] = provenance
 
-        route = '/network/asCX/%s' % (network_id)
+        if(self.version == "2.0"):
+            route = "/network/%s" % (network_id)
+        else:
+            route = '/network/asCX/%s' % (network_id)
 
 
         return self.put_multipart(route, fields)
@@ -329,23 +333,29 @@ class Ndex:
 
     # Search for networks by keywords
     #    network    POST    /network/search/{skipBlocks}/{blockSize}    SimpleNetworkQuery    NetworkSummary[]
-    def search_networks(self, search_string="", account_name=None, skip_blocks=0, block_size=100):
+    def search_networks(self, search_string="", account_name=None, start=0, size=100, include_groups=False):
         ''' Search for networks based on the search_text, optionally limited to networks owned by the specified account_name.
 
         :param search_string: The text to search for.
         :type search_string: str
         :param account_name: The account to search
         :type account_name: str
-        :param skip_blocks: The number of blocks to skip. Usually zero, but may be used to page results.
-        :type skip_blocks: int
-        :param block_size: The size of the block.
-        :type block_size: int
+        :param start: The number of blocks to skip. Usually zero, but may be used to page results.
+        :type start: int
+        :param size: The size of the block.
+        :type size: int
         :return: The response.
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
 
         '''
-        route = "/network/search/%s/%s" % (skip_blocks, block_size)
         post_data = {"searchString" : search_string}
+        if self.version == "2.0":
+            route = "/search/network?start=%s&size=%s"  % (start, size)
+            if include_groups:
+                post_data["includeGroups"] = True
+        else:
+            route = "/network/search/%s/%s" % (start, size)
+
         if account_name:
             post_data["accountName"] = account_name
         post_json = json.dumps(post_data)
