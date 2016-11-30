@@ -131,8 +131,10 @@ class NdexGraph (MultiDiGraph):
                     value = networkAttribute['v']
                     if 'd' in networkAttribute:
                         d = networkAttribute['d']
-                        if d == 'boolean':
-                            value = value.lower() == 'true'
+                        value = self.data_to_type(value,d)
+
+                        #if d == 'boolean':
+                        #    value = value.lower() == 'true'
                     if 's' in networkAttribute or name not in self.graph:
                         self.graph[name] = value
 
@@ -146,8 +148,9 @@ class NdexGraph (MultiDiGraph):
                     value = nodeAttribute['v']
                     if 'd' in nodeAttribute:
                         d = nodeAttribute['d']
-                        if d == 'boolean':
-                            value = value.lower() == 'true'
+                        value = self.data_to_type(value,d)
+                        #if d == 'boolean':
+                        #    value = value.lower() == 'true'
                     if 's' in nodeAttribute or name not in self.node[id]:
                         self.node[id][name] = value
             elif 'edgeAttributes' in aspect:
@@ -161,8 +164,10 @@ class NdexGraph (MultiDiGraph):
                     value = edgeAttribute['v']
                     if 'd' in edgeAttribute:
                         d = edgeAttribute['d']
-                        if d == 'boolean':
-                            value = value.lower() == 'true'
+                        value = self.data_to_type(value,d)
+
+                        #if d == 'boolean':
+                        #    value = value.lower() == 'true'
                     if 's' in edgeAttribute or name not in self[s][t][id]:
                         self[s][t][id][name] = value
 
@@ -499,6 +504,8 @@ class NdexGraph (MultiDiGraph):
         # Nodes metadata
         #========================
         node_ids = [n[0] for n in G.nodes_iter(data=True)]
+        if(len(node_ids) < 1):
+            node_ids = [0]
         return_metadata.append(
             {
                 "consistencyGroup" : consistency_group,
@@ -514,6 +521,8 @@ class NdexGraph (MultiDiGraph):
         # Edges metadata
         #========================
         edge_ids = [e[2]for e in G.edges_iter(data=True, keys=True)]
+        if(len(edge_ids) < 1):
+            edge_ids = [0]
         return_metadata.append(
             {
                 "consistencyGroup" : consistency_group,
@@ -1184,10 +1193,54 @@ class NdexGraph (MultiDiGraph):
             support_ids = [support_id]
             self.edge_support_map[edge_id] = support_ids
 
+    @staticmethod
+    def data_to_type(data, data_type):
+        return_data = None
+        data = data.replace('[', '').replace(']','')
+        if data_type == "boolean":
+            return_data = data.lower() == 'true'
+        elif data_type == "byte":
+            return_data = str(data).encode()
+        elif data_type == "char":
+            return_data = str(data)
+        elif data_type == "double":
+            return_data = float(data)
+        elif data_type == "float":
+            return_data = float(data)
+        elif data_type == "integer":
+            return_data = int(data)
+        elif data_type == "long":
+            return_data = int(data)
+        elif data_type == "short":
+            return_data = int(data)
+        elif data_type == "string":
+            return_data = str(data)
+        elif data_type == "list_of_boolean":
+            return_data = [s.lower() == 'true' for s in data.split(',')]
+        elif data_type == "list_of_byte":
+            return_data = [bytes(s) for s in data.split(',')]
+        elif data_type == "list_of_char":
+            return_data = [str(s) for s in data.split(',')]
+        elif data_type == "list_of_double":
+            return_data = [float(s) for s in data.split(',')]
+        elif data_type == "list_of_float":
+            return_data = [float(s) for s in data.split(',')]
+        elif data_type == "list_of_integer":
+            return_data = [int(s) for s in data.split(',')]
+        elif data_type == "list_of_long":
+            return_data = [int(s) for s in data.split(',')]
+        elif data_type == "list_of_short":
+            return_data = [int(s) for s in data.split(',')]
+        elif data_type == "list_of_string":
+            return_data = [str(s) for s in data.split(',')]
+        else:
+            return None
+
+        return return_data
 
 class FilterSub:
     '''A graph compatible with NDEx'''
-    def __init__(self, cx=None, subnet_index=0):
+    def __init__(self, cx=None, subnet_index=0, subnetwork_id=None):
         self.subnetwork_id = None
         self.view_id = None
         self.max_node_id = None
@@ -1213,19 +1266,48 @@ class FilterSub:
         if cx == None:
             raise RuntimeError("Missing CX. Please provide a valid CX")
 
+        found_subnetwork = False
         for aspect in cx:
             if 'subNetworks' in aspect:
+                found_subnetwork = True
                 sub_nets = aspect.get('subNetworks')
-                try:
-                    subnetwork = sub_nets[subnet_index]
-                except IndexError:
-                    raise RuntimeError("Subnetwork at index %d does not exist " % subnet_index)
 
-                self.subnetwork_id = subnetwork.get('@id')
+                if(subnetwork_id is not None):
+                    self.subnetwork_id = subnetwork_id
+                    for s in sub_nets:
+                        if(s.get("@id") == subnetwork_id):
+                            sub_nets = [s]
+                            break
+                else:
+                    try:
+                        subnetwork = sub_nets[subnet_index]
+                    except IndexError:
+                        raise RuntimeError("Subnetwork at index %d does not exist " % subnet_index)
 
-                # Set the subnetwork property to a single array element
-                # (subnetwork does not need a collection)
-                sub_nets = [subnetwork]
+                    self.subnetwork_id = subnetwork.get('@id')
+                    sub_nets = [subnetwork]
+                    break
+
+        if(not found_subnetwork):
+            for aspect in cx:
+                if 'cySubNetworks' in aspect:
+                    found_subnetwork = True
+                    sub_nets = aspect.get('cySubNetworks')
+                    if(subnetwork_id is not None):
+                        self.subnetwork_id = subnetwork_id
+                        for s in sub_nets:
+                            if(s.get("@id") == subnetwork_id):
+                                sub_nets = [s]
+                                break
+                    else:
+                        try:
+                            subnetwork = sub_nets[subnet_index]
+                        except IndexError:
+                            raise RuntimeError("Subnetwork at index %d does not exist " % subnet_index)
+
+                        self.subnetwork_id = subnetwork.get('@id')
+                        sub_nets = [subnetwork]
+                        break
 
         self.unclassified_cx = []
         for aspect in cx:
