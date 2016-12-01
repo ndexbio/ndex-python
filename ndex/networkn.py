@@ -1196,7 +1196,12 @@ class NdexGraph (MultiDiGraph):
     @staticmethod
     def data_to_type(data, data_type):
         return_data = None
-        data = data.replace('[', '').replace(']','')
+
+        if(type(data) is str):
+            data = data.replace('[', '').replace(']','')
+            if('list_of' in data_type):
+                data = data.split(',')
+
         if data_type == "boolean":
             return_data = data.lower() == 'true'
         elif data_type == "byte":
@@ -1218,21 +1223,21 @@ class NdexGraph (MultiDiGraph):
         elif data_type == "list_of_boolean":
             return_data = [s.lower() == 'true' for s in data.split(',')]
         elif data_type == "list_of_byte":
-            return_data = [bytes(s) for s in data.split(',')]
+            return_data = [bytes(s) for s in data]
         elif data_type == "list_of_char":
-            return_data = [str(s) for s in data.split(',')]
+            return_data = [str(s) for s in data]
         elif data_type == "list_of_double":
-            return_data = [float(s) for s in data.split(',')]
+            return_data = [float(s) for s in data]
         elif data_type == "list_of_float":
-            return_data = [float(s) for s in data.split(',')]
+            return_data = [float(s) for s in data]
         elif data_type == "list_of_integer":
-            return_data = [int(s) for s in data.split(',')]
+            return_data = [int(s) for s in data]
         elif data_type == "list_of_long":
-            return_data = [int(s) for s in data.split(',')]
+            return_data = [int(s) for s in data]
         elif data_type == "list_of_short":
-            return_data = [int(s) for s in data.split(',')]
+            return_data = [int(s) for s in data]
         elif data_type == "list_of_string":
-            return_data = [str(s) for s in data.split(',')]
+            return_data = [str(s) for s in data]
         else:
             return None
 
