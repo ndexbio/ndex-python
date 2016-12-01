@@ -33,7 +33,7 @@ class NetworkNTests(unittest.TestCase):
         list_of_short = NdexGraph.data_to_type('[1,4]','list_of_short')
         print list_of_short
 
-        list_of_string = NdexGraph.data_to_type('[1,4]','list_of_string')
+        list_of_string = NdexGraph.data_to_type(['abc'],'list_of_string')
         print list_of_string
 
 
