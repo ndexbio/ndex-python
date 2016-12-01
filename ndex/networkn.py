@@ -1193,13 +1193,6 @@ class NdexGraph (MultiDiGraph):
             support_ids = [support_id]
             self.edge_support_map[edge_id] = support_ids
 
-    def add_provenance_event(event_type, old_provenance=None):
-        if old_provenance:
-            provenance = {}
-        else:
-            provenance = {}
-        return provenance
-
 
     @staticmethod
     def data_to_type(data, data_type):

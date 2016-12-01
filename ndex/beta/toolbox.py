@@ -2,6 +2,7 @@ import pandas as pd
 import networkx as nx
 from ndex.networkn import NdexGraph
 import csv
+from time import time
 
 
 def load(G, filename, source=1, target=2, edge_attributes=None, sep='\t', header=False):
@@ -176,3 +177,23 @@ def apply_source_target_layout(G, category_name='st_layout'):
     G.pos = nx.spring_layout(G.to_undirected(), pos=initial_pos, fixed=fixed)
     G.remove_nodes_from(fa)
     G.remove_nodes_from(ra)
+
+def make_provenance(event_type, network_id, ndex, provenance=None, entity_props=None):
+    uri = ndex.host + "/network/%s/summary" % (network_id)
+    t = int(round(time() * 1000))
+    event = {
+        "startedAtTime": t,
+        "endedAtTime": t,
+        "eventType": event_type
+    }
+    if provenance:
+        event["inputs"] = [provenance]
+
+    new_provenance = {
+        "uri" : uri,
+        "creationEvent": event
+    }
+    if entity_props:
+        new_provenance["properties"] = entity_props
+
+    return new_provenance
