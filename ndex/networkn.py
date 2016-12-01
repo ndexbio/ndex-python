@@ -1221,7 +1221,7 @@ class NdexGraph (MultiDiGraph):
         elif data_type == "string":
             return_data = str(data)
         elif data_type == "list_of_boolean":
-            return_data = [s.lower() == 'true' for s in data.split(',')]
+            return_data = [s.lower() == 'true' for s in data]
         elif data_type == "list_of_byte":
             return_data = [bytes(s) for s in data]
         elif data_type == "list_of_char":
