@@ -6,10 +6,30 @@ import json
 import copy
 import ndex.client as nc
 
+NDEXGRAPH_RESERVED_ATTRIBUTES = [
+    "subnetwork_id"
+    "view_id",
+    "max_node_id",
+    "max_edge_id",
+    "max_citation_id",
+    "max_support_id",
+    "pos",
+    "unclassified_cx",
+    "metadata_original",
+    "status",
+    "citation_map",
+    "node_citation_map",
+    "edge_citation_map",
+    "support_map",
+    "node_support_map",
+    "edge_support_map",
+    "self.edgemap"
+]
+
 class NdexGraph (MultiDiGraph):
-    '''A graph compatible with NDEx'''
+    """A graph compatible with NDEx"""
     def __init__(self, cx=None, server=None, username=None, password=None, uuid=None, networkx_G=None, data=None, **attr):
-        '''There are generally four ways to create a graph.
+        """There are generally four ways to create a graph.
 
             1. An empty graph. G = NdexGraph()
             2. Using a cx dictionary. G = NdexGraph(cx)
@@ -18,7 +38,7 @@ class NdexGraph (MultiDiGraph):
             4. Just like any other NetworkX MultiDiGraph().
             5. From an existing networkx graph. G = NdexGraph(networkx_G=networkx_G)
 
-        '''
+        """
         MultiDiGraph.__init__(self, data, **attr)
         self.subnetwork_id = None
         self.view_id = None
@@ -29,7 +49,7 @@ class NdexGraph (MultiDiGraph):
         self.pos = {}
         self.unclassified_cx = []
         self.metadata_original = None
-        self.status = {'status': [{'error' : '','success' : True}]} #Added because status is now required
+        self.status = {'status': [{'error': '','success': True}]} #Added because status is now required
         self.citation_map = {}
         self.node_citation_map = {}
         self.edge_citation_map = {}
@@ -233,7 +253,7 @@ class NdexGraph (MultiDiGraph):
                 self.unclassified_cx.append(aspect)
 
     def create_from_aspects(self, aspect, aspect_type):
-        ''' adds the corresponding networkn properties from a self-contained aspect.
+        """ adds the corresponding networkn properties from a self-contained aspect.
 
         :param aspect: json based aspect
         :type aspect: dict
@@ -241,7 +261,7 @@ class NdexGraph (MultiDiGraph):
         :type aspect_type: str
         :return: None
         :rtype: None
-        '''
+        """
         self.pos = {}
         #self.unclassified_cx = []
 
@@ -343,14 +363,14 @@ class NdexGraph (MultiDiGraph):
             #self.unclassified_cx.append(aspect)
 
     def create_from_edge_list(self, edge_list, interaction='interacts with'):
-        ''' Create a network from a list of tuples that represent edges. Each tuple consists of  two nodes names that are to be connected. This operation will first clear ALL data already in the network.
+        """ Create a network from a list of tuples that represent edges. Each tuple consists of  two nodes names that are to be connected. This operation will first clear ALL data already in the network.
 
             :param edge_list: A list of tuples containing node names that are connected.
             :type edge_list: list
             :param interaction: Either a list of interactions that is the same length as the edge_list a single string with an interaction to be applied to all edges.
             :type interaction: str or list
 
-        '''
+        """
         self.clear()
         node_names_added = {}
         for i, edge in enumerate(edge_list):
@@ -376,10 +396,10 @@ class NdexGraph (MultiDiGraph):
     #------------------------------------------
 
     def clear(self):
-        '''Eliminate all graph data in this network.  The network will then be empty and can be filled with data starting "from scratch".
+        """Eliminate all graph data in this network.  The network will then be empty and can be filled with data starting "from scratch".
 
 
-        '''
+        """
         super(NdexGraph, self).clear()
         self.subnetwork_id = None
         self.view_id = None
@@ -398,27 +418,32 @@ class NdexGraph (MultiDiGraph):
         self.edge_support_map = {}
 
     def set_name(self, name):
-        '''Set the name of this graph
+        """Set the name of this graph
 
         :param name: A descriptive name for the network which will show up on NDEx.
         :type name: str
 
-        '''
+        """
         self.graph['name'] = name
 
+    def set_network_attribute(self, name, value):
+        if name in NDEXGRAPH_RESERVED_ATTRIBUTES:
+            raise ValueError(str(name) + " is a reserved network attribute name and may not be set by this method")
+        self.graph[name] = value
+
     def get_name(self):
-        '''Get the name of this graph
+        """Get the name of this graph
 
         :return: The descriptive name for this network.
         :rtype: str
 
-        '''
+        """
         if 'name' in self.graph:
             return self.graph['name']
         return None
 
     def show_stats(self):
-        '''Show the number of nodes and edges.'''
+        """Show the number of nodes and edges."""
         print "Nodes: %d" % self.number_of_nodes()
         print "Edges: %d" % self.number_of_edges()
 
@@ -427,9 +452,9 @@ class NdexGraph (MultiDiGraph):
 
     def subgraph_new(self, nbunch):
 
-        return_graph = self.subgraph(nbunch)
+        return_graph = NdexGraph(self.subgraph(nbunch))
 
-        for s, t, edge_id, data in return_graph.edges_iter(keys=True, data=True):
+        for s, t, edge_id, data in return_graph.edges_iter(data=True):
             return_graph.edgemap[edge_id] = (s, t)
 
         return return_graph
@@ -439,11 +464,11 @@ class NdexGraph (MultiDiGraph):
     #------------------------------------------
 
     def to_cx(self, md_dict=None):
-        '''Convert this network to a CX dictionary
+        """Convert this network to a CX dictionary
 
         :return: The cx dictionary that represents this network.
         :rtype: dict
-        '''
+        """
         G = self
         cx = []
         cx += create_aspect.number_verification()
@@ -720,27 +745,27 @@ class NdexGraph (MultiDiGraph):
 
 
     def to_cx_stream(self, md_dict=None):
-        '''Convert this network to a CX stream
+        """Convert this network to a CX stream
 
         :return: The CX stream representation of this network.
         :rtype: io.BytesIO
 
-        '''
+        """
         cx = self.to_cx(md_dict)
         return io.BytesIO(json.dumps(cx))
 
     def write_to(self, filename):
-        '''Write this network as a CX file to the specified filename.
+        """Write this network as a CX file to the specified filename.
 
         :param filename: The name of the file to write to.
         :type filename: str
 
-        '''
+        """
         with open(filename, 'w') as outfile:
             json.dump(self.to_cx(), outfile, indent=4)
 
     def upload_to(self, server, username, password):
-        ''' Upload this network to the specified server to the account specified by username and password.
+        """ Upload this network to the specified server to the account specified by username and password.
 
         :param server: The NDEx server to upload the network to.
         :type server: str
@@ -753,7 +778,7 @@ class NdexGraph (MultiDiGraph):
 
         Example:
             ndexGraph.upload_to('http://test.ndexbio.org', 'myusername', 'mypassword')
-        '''
+        """
 
         ndex = nc.Ndex(server,username,password)
         return ndex.save_new_network(self.to_cx())
@@ -763,7 +788,7 @@ class NdexGraph (MultiDiGraph):
     #------------------------------------------
 
     def add_new_node(self, name=None, attr_dict=None, **attr):
-        '''Add a cx node, possibly with a particular name, to the graph.
+        """Add a cx node, possibly with a particular name, to the graph.
 
         :param name: The name of the node. (Optional).
         :type name: str
@@ -771,7 +796,7 @@ class NdexGraph (MultiDiGraph):
         :type attr_dict: dict
         :param attr: Set or change attributes using key=value.
 
-        '''
+        """
         if self.max_node_id == None:
             if self.number_of_nodes() > 0:
                 self.max_node_id = max(self.nodes())
@@ -800,20 +825,20 @@ class NdexGraph (MultiDiGraph):
                 self.remove_node(node_id)
 
     def get_node_ids(self, value, query_key='name'):
-        '''Returns a list of node ids of all nodes in which query_key has the specified value.
+        """Returns a list of node ids of all nodes in which query_key has the specified value.
 
             :param value: The value we want.
             :param query_key: The name of the attribute where we should look for the value.
             :return: A list of node ids.
             :rtype: list
 
-        '''
+        """
         nodes = [n[0] for n in self.nodes_iter(data=True) if query_key in n[1] and n[1][query_key] == value]
         return nodes
 
 
     def set_node_attribute(self, id, attribute_key, attribute_value):
-        '''Set the value of a particular edge attribute.
+        """Set the value of a particular edge attribute.
 
             :param id: The edge id we wish to set an attribute on.
             :type id: int
@@ -822,11 +847,11 @@ class NdexGraph (MultiDiGraph):
             :param attribute_value: The value we wish to set the attribute to.
             :type attribute_value: any
 
-        '''
+        """
         self.node[id][attribute_key] = attribute_value
 
     def get_node_attribute_value_by_id(self, node_id, query_key='name'):
-        '''Get the value of a particular node attribute based on the id.
+        """Get the value of a particular node attribute based on the id.
 
         :param node_id: A node id.
         :type node_id: int
@@ -835,7 +860,7 @@ class NdexGraph (MultiDiGraph):
         :return: The attribute value.
         :rtype: any
 
-        '''
+        """
         if node_id not in self.node:
             raise ValueError("Your ID is not in the network")
         node_attributes = nx.get_node_attributes(self, query_key)
@@ -844,14 +869,14 @@ class NdexGraph (MultiDiGraph):
         return self.node[node_id][query_key] if query_key in self.node[node_id] else None
 
     def get_node_attribute_values_by_id_list(self, id_list, query_key='name'):
-        '''Returns a list of attribute values that correspond with the attribute key using the nodes in id_list.
+        """Returns a list of attribute values that correspond with the attribute key using the nodes in id_list.
 
             :param id_list: A list of node ids whose attribute values we wish to retrieve.
             :param query_key: The name of the attribute whose corresponding values should be retrieved.
             :return: A list of attribute values.
             :rtype: list
 
-        '''
+        """
         for id in id_list:
             if id not in self.node:
                 raise ValueError("Your ID list has IDs that are not in the network")
@@ -861,34 +886,34 @@ class NdexGraph (MultiDiGraph):
         return [self.node[id][query_key] if query_key in self.node[id] else None for id in id_list]
 
     def get_node_names_by_id_list(self, id_list):
-        '''Given a list of node ids, return a list of node names.
+        """Given a list of node ids, return a list of node names.
 
             :param id_list: A list of node ids whose attribute values we wish to retrieve.
             :type id_list: list
             :return: A list of node names.
             :rtype: list
 
-        '''
+        """
         return self.get_node_attribute_values_by_id_list(id_list)
 
     def get_node_name_by_id(self, id):
-        '''Given a node id, return the name of the node.
+        """Given a node id, return the name of the node.
 
         :param id: The cx id of the node.
         :type id: int
         :return: The name of the node.
         :rtype: str
 
-        '''
+        """
         return self.get_node_attribute_value_by_id(id)
 
     def get_all_node_attribute_keys(self):
-        '''Get the unique list of all attribute keys used in at least one node in the network.
+        """Get the unique list of all attribute keys used in at least one node in the network.
 
             :return: A list of attribute keys.
             :rtype: list
 
-        '''
+        """
         keys = set()
         for _, attributes in self.nodes_iter(data=True):
             for key, value in attributes.iteritems():
@@ -901,14 +926,14 @@ class NdexGraph (MultiDiGraph):
     #------------------------------------------
 
     def get_edge_ids_by_node_attribute(self, source_node_value, target_node_value, attribute_key='name'):
-        '''Returns a list of edge ids of all edges where both the source node and target node have the specified values for attribute_key.
+        """Returns a list of edge ids of all edges where both the source node and target node have the specified values for attribute_key.
 
                 :param source_node_value: The value we want in the source node.
                 :param target_node_value: The value we want in the target node.
                 :param attribute_key: The name of the attribute where we should look for the value.
                 :return: A list of edge ids.
                 :rtype: list
-            '''
+            """
         source_node_ids = self.get_node_ids(source_node_value, attribute_key)
         target_node_ids = self.get_node_ids(target_node_value, attribute_key)
         edge_keys = []
@@ -919,7 +944,7 @@ class NdexGraph (MultiDiGraph):
         return edge_keys
 
     def add_edge_between(self, source_node_id, target_node_id, interaction='interacts_with', attr_dict=None, **attr):
-        '''Add an edge between two nodes in this network specified by source_node_id and target_node_id, optionally specifying the type of interaction.
+        """Add an edge between two nodes in this network specified by source_node_id and target_node_id, optionally specifying the type of interaction.
 
             :param source_node_id: The node id of the source node.
             :type source_node_id: int
@@ -930,7 +955,7 @@ class NdexGraph (MultiDiGraph):
             :param attr_dict: Dictionary of node attributes.  Key/value pairs will update existing data associated with the node.
             :type attr_dict: dict
             :param attr: Set or change attributes using key=value.
-        '''
+        """
         if source_node_id not in self.node:
             raise ValueError('source_node_id = %d is not in the network' % source_node_id)
         if target_node_id not in self.node:
@@ -1035,14 +1060,14 @@ class NdexGraph (MultiDiGraph):
 
     #TODO Check args
     def get_edge_attribute_value_by_id(self, edge_id, attribute_key):
-        '''Get the value for attribute of the edge specified by edge_id.
+        """Get the value for attribute of the edge specified by edge_id.
 
             :param edge_id: The id of the edge.
             :param query_key: The name of the attribute whose value should be retrieved.
             :return: The attribute value. If the value is a list, this returns the entire list.
             :rtype: any
 
-        '''
+        """
         # edge_keys = {key: (s, t) for s, t, key in self.edges_iter(keys=True)}
         # if edge_id not in edge_keys:
         #     raise ValueError("edge ID Your ID is not in the network")
@@ -1056,16 +1081,16 @@ class NdexGraph (MultiDiGraph):
 
     #TODO Check args
     def set_edge_attribute(self, edge_id, attribute_key, attribute_value):
-        '''Set the value of a particular edge attribute.
+        """Set the value of a particular edge attribute.
 
-            :param id: The edge id we wish to set an attribute on.
-            :type id: int
+            :param edge_id: The edge id we wish to set an attribute on.
+            :type edge_id: int
             :param attribute_key: The name of the attribute we wish to set.
             :type attribute_key: string
             :param attribute_value: The value we wish to set the attribute to.
             :type attribute_value: any
 
-        '''
+        """
         source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
         self.edge[source_id][target_id][edge_id][attribute_key] = attribute_value
 
@@ -1075,14 +1100,14 @@ class NdexGraph (MultiDiGraph):
         return self[1]
 
     def get_edge_attribute_values_by_id_list(self, edge_id_list, attribute_key):
-        '''Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.'
+        """Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.'
 
             :param edge_id_list: A list of edge ids whose attribute values we wish to retrieve
             :param query_key: The name of the attribute whose corresponding values should be retrieved.
             :return: A list of attribute values corresponding to the edge keys input.
             :rtype: list
 
-        '''
+        """
         for edge_id in edge_id_list:
             if edge_id not in self.edgemap:
                 raise ValueError("edge id list error: edge id " + str(edge_id) + " not found in network")
@@ -1096,12 +1121,12 @@ class NdexGraph (MultiDiGraph):
                 edge_keys.iteritems()]
 
     def get_all_edge_attribute_keys(self):
-        '''Get the unique list of all attribute keys used in at least one edge in the network.
+        """Get the unique list of all attribute keys used in at least one edge in the network.
 
         :return: A list of edge attribute keys.
         :rtype: list
 
-        '''
+        """
         keys = set()
         for _, _, attributes in self.edges_iter(data=True):
             for key, value in attributes.iteritems():
@@ -1244,7 +1269,7 @@ class NdexGraph (MultiDiGraph):
         return return_data
 
 class FilterSub:
-    '''A graph compatible with NDEx'''
+    """A graph compatible with NDEx"""
     def __init__(self, cx=None, subnet_index=0, subnetwork_id=None):
         self.subnetwork_id = None
         self.view_id = None
