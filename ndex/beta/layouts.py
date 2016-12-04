@@ -2,6 +2,114 @@ import networkx as nx
 import random
 import math
 
+
+def _create_simple_graph(networkn):
+    g = nx.Graph(networkn)
+    return g
+
+def _add_degree_edge_weights(g):
+    weights = {}
+    for edge in g.edges():
+        s = edge[0]
+        t = edge[1]
+        sd = g.degree(s)
+        td = g.degree(t)
+        d = min(sd, td)
+        if d < 2:
+            weight = 4.0
+        elif d < 6:
+            weight = 1.0
+        elif d < 10:
+            weight = 0.5
+        else:
+            weight = 0.1
+
+        # weight = 1/math.log10((sd + td) * 20)
+        props = g[s][t]
+        props["weight"] = weight
+
+# networkx layout source code:
+# https://github.com/networkx/networkx/blob/master/networkx/drawing/layout.py
+#
+def add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterations=None, use_degree_edge_weights=False):
+    fixed = []
+    initial_pos = {}
+    g_simple = _create_simple_graph(g)
+    next_node_id = max(g.nodes()) + 1
+
+    if use_degree_edge_weights:
+        _add_degree_edge_weights(g_simple)
+
+    for attractor in attractor_map:
+        attractor_id = next_node_id
+        g_simple.add_node(next_node_id)
+        next_node_id = next_node_id + 1
+        fixed.append(attractor_id)
+        initial_pos[attractor_id] = attractor["position"]
+        for node_id in attractor["node_ids"]:
+            g_simple.add_edge(node_id, attractor_id, {"weight":5.0})
+
+    scaled_pos = {}
+    scale_factor = 4 * node_width * math.sqrt(g.number_of_nodes())
+
+    for node in g_simple.nodes():
+        x_pos = random.random() * scale_factor
+        y_pos = random.random() * scale_factor
+        scaled_pos[node] = (x_pos, y_pos)
+
+    for node_id in initial_pos:
+        position = initial_pos[node_id]
+        scaled_pos[node_id] = (scale_factor * position[0], scale_factor * position[1])
+
+    final_positions = nx.spring_layout(g_simple, fixed=fixed, pos=scaled_pos, iterations=iterations)
+    for node_id in fixed:
+        final_positions.pop(node_id)
+    g.pos = final_positions
+
+def apply_directed_flow_layout(g, directed_edge_types=None, node_width=35, iterations=50, use_degree_edge_weights=False):
+    target_only_node_ids = []
+    source_only_node_ids = []
+    upstream_attractor_position = (0.0, 0.5)
+    downstream_attractor_position = (1.0, 0.5)
+    attractor_map = []
+    random.seed()
+
+    if not g.subnetwork_id and not g.view_id:
+        g.subnetwork_id = 0,
+        g.view_id = 0
+
+    for node_id in g.nodes():
+        out_count = 0
+        in_count = 0
+        for edge in g.out_edges([node_id], keys=True):
+            edge_id = edge[2]
+            interaction = g.get_edge_attribute_value_by_id(edge_id, "interaction")
+            directed = g.get_edge_attribute_value_by_id(edge_id, "directed")
+            if directed or (directed_edge_types is not None and interaction in directed_edge_types):
+                out_count = out_count + 1
+        for edge in g.in_edges([node_id], keys=True):
+            edge_id = edge[2]
+            interaction = g.get_edge_attribute_value_by_id(edge_id, "interaction")
+            directed = g.get_edge_attribute_value_by_id(edge_id, "directed")
+            if directed or (directed_edge_types is not None and interaction in directed_edge_types):
+                in_count = in_count + 1
+
+        if out_count is 0 and in_count > 0:
+            target_only_node_ids.append(node_id)
+
+        if in_count is 0 and out_count > 0:
+            source_only_node_ids.append(node_id)
+
+    if len(target_only_node_ids) > 0:
+        #print target_only_nodes
+        attractor_map.append({"position": downstream_attractor_position, "node_ids": target_only_node_ids})
+
+    if len(source_only_node_ids) > 0:
+        #print source_only_nodes
+        attractor_map.append({"position": upstream_attractor_position, "node_ids": source_only_node_ids})
+
+    add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterations=iterations, use_degree_edge_weights=use_degree_edge_weights)
+
 def _create_edge_tuples(attractor, target):
     return [(a,t) for a in attractor for t in target]
 
@@ -23,7 +131,7 @@ def _add_attractor(network, attracted_nodes, attractor_name):
     #network.add_edges_from(edge_tuples, interaction='in-complex-with')
     return attractor_list[0]
 
-def apply_directed_flow_layout(G, directed_edge_types=None):
+def apply_directed_flow_layout_old(G, directed_edge_types=None):
     target_only_nodes = []
     source_only_nodes = []
     initial_pos = {}
@@ -32,7 +140,9 @@ def apply_directed_flow_layout(G, directed_edge_types=None):
     downstream_attractor = None
     random.seed()
 
-
+    if not G.subnetwork_id and not G.view_id:
+        G.subnetwork_id = 0,
+        G.view_id = 0
 
     for node in G.nodes():
         out_count = 0
@@ -93,6 +203,7 @@ def apply_directed_flow_layout(G, directed_edge_types=None):
     #     pos = {id:pos[id]*scale_factor for id in pos }
 
     print "scale = %s" % (scale)
+
     iterations = 100
     G_undirected = G.to_undirected()
     initial_pos = nx.circular_layout(G_undirected)

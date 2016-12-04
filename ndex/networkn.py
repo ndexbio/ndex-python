@@ -469,24 +469,34 @@ class NdexGraph (MultiDiGraph):
         :return: The cx dictionary that represents this network.
         :rtype: dict
         """
+        has_single_subnetwork = False
+        if self.subnetwork_id and self.view_id:
+            has_single_subnetwork = True
+        if (self.subnetwork_id and not self.view_id) or (not self.subnetwork_id and self.view_id):
+            raise ValueError("subnetwork and view inconsistent. subnetwork id = %s and view id = %s" % (self.subnetwork_id, self.view_id))
+
         G = self
         cx = []
         cx += create_aspect.number_verification()
         cx += self.generate_metadata(G, self.unclassified_cx) #create_aspect.metadata(metadata_dict=md_dict)
-        cx += create_aspect.network_attributes(G)
-        if self.subnetwork_id and self.view_id:
+        network_attributes = create_aspect.network_attributes(G, has_single_subnetwork)
+        cx += network_attributes
+        if has_single_subnetwork:
             cx += create_aspect.subnetworks(G, self.subnetwork_id, self.view_id)
-        else:
-            cx += create_aspect.subnetworks(G, 0, 0)
+        # - don't output subnetworks if the NdexGraph doesn't know about them.
+        # - All operations that add aspects for visual properties, cartesian coordinates,
+        #   or otherwise refer to subnetworks must ensure that subnetwork and view ids are set
+        # else:
+        #     cx += create_aspect.subnetworks(G, 0, 0)
         cx += create_aspect.nodes(G)
         cx += create_aspect.edges(G)
-        cx += create_aspect.node_attributes(G)
-        cx += create_aspect.edge_attributes(G)
+        cx += create_aspect.node_attributes(G, has_single_subnetwork)
+        cx += create_aspect.edge_attributes(G, has_single_subnetwork)
         if self.pos and len(self.pos):
-            if self.subnetwork_id and self.view_id:
+            if has_single_subnetwork:
                 cx += create_aspect.cartesian(G, self.view_id)
             else:
-                cx += create_aspect.cartesian(G, 0)
+                raise ValueError("NdexGraph positions (g.pos) set without setting view and subnetwork ids")
 
         if len(self.citation_map) > 0:
             cx += create_aspect.citations(G)
