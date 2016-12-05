@@ -951,7 +951,7 @@ class NdexGraph (MultiDiGraph):
             s, t = self.edgemap[edge_id]
             return s, t
         else:
-            raise "edge id " + str(edge_id) + " not found in network"
+            raise Exception("edge id " + str(edge_id) + " not found in network")
         
     def remove_edge_by_id(self, edge_id):
         source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
