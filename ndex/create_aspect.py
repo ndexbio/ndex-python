@@ -45,8 +45,8 @@ def network_attributes(G, has_single_subnetwork):
         if not isinstance(value, basestring):
             d = domain(value)
             element["d"] = d
-        # if has_single_subnetwork:
-        #     element["s"] = G.subnetwork_id
+        if has_single_subnetwork:
+            element["s"] = G.subnetwork_id
         elements.append(element)
     return [{'networkAttributes': elements}]
 

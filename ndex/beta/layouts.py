@@ -1,7 +1,7 @@
 import networkx as nx
 import random
 import math
-
+from operator import index
 
 def _create_simple_graph(networkn):
     g = nx.Graph(networkn)
@@ -15,11 +15,13 @@ def _add_degree_edge_weights(g):
         sd = g.degree(s)
         td = g.degree(t)
         d = min(sd, td)
-        if d < 2:
-            weight = 4.0
-        elif d < 6:
+        if d <= 1:
+            weight = 2.0
+        elif d <= 2:
             weight = 1.0
-        elif d < 10:
+        elif d <= 3:
+            weight = 0.7
+        elif d <= 4:
             weight = 0.5
         else:
             weight = 0.1
@@ -27,6 +29,7 @@ def _add_degree_edge_weights(g):
         # weight = 1/math.log10((sd + td) * 20)
         props = g[s][t]
         props["weight"] = weight
+        #print "sd %s  td %s -> weight: %s" % (sd, td, weight)
 
 # networkx layout source code:
 # https://github.com/networkx/networkx/blob/master/networkx/drawing/layout.py
@@ -35,10 +38,27 @@ def add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterati
     fixed = []
     initial_pos = {}
     g_simple = _create_simple_graph(g)
-    next_node_id = max(g.nodes()) + 1
+    next_node_id = max(g_simple.nodes()) + 1
 
-    if use_degree_edge_weights:
-        _add_degree_edge_weights(g_simple)
+    cc = sorted(nx.connected_components(g_simple), key = len, reverse=True)
+    if len(cc) > 1:
+        print "%s disconnected subgraphs: adding centerpoint attractor with edges to one of the least connected nodes in each subgraph" % len(cc)
+        anchor_node_ids = []
+        for c in cc:
+            cl = list(c)
+            min_degree = min(cl)
+            min_index = cl.index(min_degree)
+            node_id = cl[min_index]
+            anchor_node_ids.append(node_id)
+        attractor_id = next_node_id
+        g_simple.add_node(next_node_id)
+        next_node_id = next_node_id + 1
+        fixed.append(attractor_id)
+        initial_pos[attractor_id] = (0.5, 0.5)
+        for node_id in anchor_node_ids:
+            g_simple.add_edge(node_id, attractor_id)
+
+
 
     for attractor in attractor_map:
         attractor_id = next_node_id
@@ -47,7 +67,10 @@ def add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterati
         fixed.append(attractor_id)
         initial_pos[attractor_id] = attractor["position"]
         for node_id in attractor["node_ids"]:
-            g_simple.add_edge(node_id, attractor_id, {"weight":5.0})
+            g_simple.add_edge(node_id, attractor_id) # , {"weight":2.5})
+
+    if use_degree_edge_weights:
+        _add_degree_edge_weights(g_simple)
 
     scaled_pos = {}
     scale_factor = 4 * node_width * math.sqrt(g.number_of_nodes())
@@ -61,16 +84,22 @@ def add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterati
         position = initial_pos[node_id]
         scaled_pos[node_id] = (scale_factor * position[0], scale_factor * position[1])
 
-    final_positions = nx.spring_layout(g_simple, fixed=fixed, pos=scaled_pos, iterations=iterations)
-    for node_id in fixed:
-        final_positions.pop(node_id)
+    if len(fixed) > 0:
+        final_positions = nx.spring_layout(g_simple, fixed=fixed, pos=scaled_pos, iterations=iterations)
+        for node_id in fixed:
+            final_positions.pop(node_id)
+    else:
+        final_positions = nx.spring_layout(g_simple, pos=scaled_pos, iterations=iterations)
+
     g.pos = final_positions
 
 def apply_directed_flow_layout(g, directed_edge_types=None, node_width=35, iterations=50, use_degree_edge_weights=False):
     target_only_node_ids = []
     source_only_node_ids = []
-    upstream_attractor_position = (0.0, 0.5)
-    downstream_attractor_position = (1.0, 0.5)
+    upstream_top_attractor_position = (0.0, 1.0)
+    downstream_top_attractor_position = (1.0, 1.0)
+    upstream_bottom_attractor_position = (0.0, 0.0)
+    downstream_bottom_attractor_position = (1.0, 0.0)
     attractor_map = []
     random.seed()
 
@@ -102,11 +131,13 @@ def apply_directed_flow_layout(g, directed_edge_types=None, node_width=35, itera
 
     if len(target_only_node_ids) > 0:
         #print target_only_nodes
-        attractor_map.append({"position": downstream_attractor_position, "node_ids": target_only_node_ids})
+        attractor_map.append({"position": downstream_top_attractor_position, "node_ids": target_only_node_ids})
+        attractor_map.append({"position": downstream_bottom_attractor_position, "node_ids": target_only_node_ids})
 
     if len(source_only_node_ids) > 0:
         #print source_only_nodes
-        attractor_map.append({"position": upstream_attractor_position, "node_ids": source_only_node_ids})
+        attractor_map.append({"position": upstream_top_attractor_position, "node_ids": source_only_node_ids})
+        attractor_map.append({"position": upstream_bottom_attractor_position, "node_ids": source_only_node_ids})
 
     add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterations=iterations, use_degree_edge_weights=use_degree_edge_weights)
 

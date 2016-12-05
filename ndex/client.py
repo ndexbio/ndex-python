@@ -517,7 +517,7 @@ class Ndex:
         return self.get(route)
 
     def get_network_summaries_for_user(self, username):
-        return self.search_networks("", username, block_size=1000)
+        return self.search_networks("", username, size=1000)
 
     def get_network_ids_for_user(self, username):
         return self.network_summaries_to_ids(self.get_network_summaries_for_user(username))
