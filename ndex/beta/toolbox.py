@@ -72,6 +72,7 @@ def load(G, filename, source=1, target=2, edge_attributes=None, sep='\t', header
                     x[value_index]}),
             axis=1)
 
+
 def annotate(G, filename):
     with open(filename, 'rb') as tsvfile:
         dialect = csv.Sniffer().sniff(tsvfile.read(1024))
@@ -80,9 +81,9 @@ def annotate(G, filename):
         header = reader.next()
         query_key = header[0]
         header = header[1:]
-        #Trackes values that have been annotated to ensure that the same value
-        #is never annotated twice. If an annotation happens twice, an exception
-        #is thrown.
+        # Trackes values that have been annotated to ensure that the same value
+        # is never annotated twice. If an annotation happens twice, an exception
+        # is thrown.
         annotated = {}
         for row in reader:
             query_value = row[0]
@@ -91,7 +92,7 @@ def annotate(G, filename):
             for n in nodes:
                 if n not in annotated:
                     annotated[n] = {}
-                for i in range( len(header) ):
+                for i in range(len(header)):
                     key = header[i]
                     if key in annotated[n]:
                         # This would not be expected to occur,
@@ -100,9 +101,11 @@ def annotate(G, filename):
                     G.node[n][key] = row[i]
                     annotated[n][key] = True
 
+
 def apply_template(G, template_id, server='http://public.ndexbio.org', username=None, password=None):
     T = NdexGraph(uuid=template_id, server=server, username=username, password=password)
     apply_network_as_template(G, T)
+
 
 def apply_network_as_template(G, T):
     G.subnetwork_id = T.subnetwork_id
@@ -115,12 +118,14 @@ def apply_network_as_template(G, T):
         if 'networkRelations' in cx:
             vp.append(cx)
 
-
-    G.unclassified_cx = [cx for cx in G.unclassified_cx if 'visualProperties' not in cx and 'networkRelations' not in cx]
+    G.unclassified_cx = [cx for cx in G.unclassified_cx if
+                         'visualProperties' not in cx and 'networkRelations' not in cx]
     G.unclassified_cx = G.unclassified_cx + vp
 
+
 def _create_edge_tuples(attractor, target):
-    return [(a,t) for a in attractor for t in target]
+    return [(a, t) for a in attractor for t in target]
+
 
 def apply_source_target_layout(G, category_name='st_layout'):
     '''
@@ -178,6 +183,7 @@ def apply_source_target_layout(G, category_name='st_layout'):
     G.remove_nodes_from(fa)
     G.remove_nodes_from(ra)
 
+
 def make_provenance(event_type, network_id, ndex, provenance=None, entity_props=None):
     uri = ndex.host + "/network/%s/summary" % (network_id)
     t = int(round(time() * 1000))
@@ -190,7 +196,7 @@ def make_provenance(event_type, network_id, ndex, provenance=None, entity_props=
         event["inputs"] = [provenance]
 
     new_provenance = {
-        "uri" : uri,
+        "uri": uri,
         "creationEvent": event
     }
     if entity_props:
