@@ -452,9 +452,9 @@ class NdexGraph (MultiDiGraph):
 
     def subgraph_new(self, nbunch):
 
-        return_graph = NdexGraph(self.subgraph(nbunch))
+        return_graph = self.subgraph(nbunch)
 
-        for s, t, edge_id, data in return_graph.edges_iter(data=True):
+        for s, t, edge_id, data in return_graph.edges_iter(keys=True, data=True):
             return_graph.edgemap[edge_id] = (s, t)
 
         return return_graph
