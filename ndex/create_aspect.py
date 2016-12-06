@@ -57,21 +57,60 @@ def network_attributes(G, has_single_subnetwork):
 
 
 def node_attributes(G, has_single_subnetwork):
-    return [{'nodeAttributes': [
-        {'po': n[0], 'n': k, 'v': n[1][k]} if isinstance(n[1][k], basestring) else
-        {'po': n[0], 'n': k, 'v': cv(n[1][k]), 'd': domain(n[1][k])}
-        for k in n[1] if k != 'name' and k != 'represents']} for n in G.nodes_iter(data=True)
-            if ('name' in n[1] and 'represents' in n[1] and len(n[1]) > 2) or
-            ('name' in n[1] and 'represents' not in n[1] and len(n[1]) > 1) or
-            ('name' not in n[1] and 'represents' in n[1] and len(n[1]) > 1) or
-            ('name' not in n[1] and 'represents' not in n[1] and len(n[1]) > 0)]
+    elements = []
+    for node_id, attributes in G.nodes_iter(data=True):
+        for attribute_name in attributes:
+            if attribute_name != "name" and attribute_name != "represents":
+                attribute_value = attributes[attribute_name]
+                element = {'po': node_id, 'n': attribute_name, 'v': attribute_value}
+
+                if not isinstance(attribute_value, basestring):
+                    element['d'] = domain(attribute_value)
+
+                if has_single_subnetwork:
+                    element['s'] = G.subnetwork_id
+
+                elements.append(element)
+
+    if len(elements) == 0:
+        return None
+    else:
+        return [{"nodeAttributes": elements}]
+
+    # return [{'nodeAttributes': [
+    #     {'po': n[0], 'n': k, 'v': n[1][k]} if isinstance(n[1][k], basestring) else
+    #     {'po': n[0], 'n': k, 'v': cv(n[1][k]), 'd': domain(n[1][k])}
+    #     for k in n[1] if k != 'name' and k != 'represents']} for n in G.nodes_iter(data=True)
+    #         if ('name' in n[1] and 'represents' in n[1] and len(n[1]) > 2) or
+    #         ('name' in n[1] and 'represents' not in n[1] and len(n[1]) > 1) or
+    #         ('name' not in n[1] and 'represents' in n[1] and len(n[1]) > 1) or
+    #         ('name' not in n[1] and 'represents' not in n[1] and len(n[1]) > 0)]
 
 
 def edge_attributes(G, has_single_subnetwork):
-    return [{'edgeAttributes': [
-        {'po': e[2], 'n': k, 'v': e[3][k]} if isinstance(e[3][k], basestring) else
-        {'po': e[2], 'n': k, 'v': cv(e[3][k]), 'd': domain(e[3][k])}
-        for k in e[3]]} for e in G.edges_iter(data=True, keys=True) if e[3]]
+    elements = []
+    for source, target, edge_id, attributes in G.edges_iter(data=True, keys=True):
+        for attribute_name in attributes:
+            attribute_value = attributes[attribute_name]
+            element = {'po': edge_id, 'n': attribute_name, 'v': attribute_value}
+
+            if not isinstance(attribute_value, basestring):
+                element['d'] = domain(attribute_value)
+
+            if has_single_subnetwork:
+                element['s'] = G.subnetwork_id
+
+            elements.append(element)
+
+    if len(elements) == 0:
+        return None
+    else:
+        return [{"edgeAttributes": elements}]
+
+    # return [{'edgeAttributes': [
+    #     {'po': e[2], 'n': k, 'v': e[3][k]} if isinstance(e[3][k], basestring) else
+    #     {'po': e[2], 'n': k, 'v': cv(e[3][k]), 'd': domain(e[3][k])}
+    #     for k in e[3]]} for e in G.edges_iter(data=True, keys=True) if e[3]]
 
 
 def cartesian(G, id):

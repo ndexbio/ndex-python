@@ -129,15 +129,15 @@ def apply_directed_flow_layout(g, directed_edge_types=None, node_width=35, itera
         if in_count is 0 and out_count > 0:
             source_only_node_ids.append(node_id)
 
-    if len(target_only_node_ids) > 0:
+    #if len(target_only_node_ids) > 0:
         #print target_only_nodes
-        attractor_map.append({"position": downstream_top_attractor_position, "node_ids": target_only_node_ids})
-        attractor_map.append({"position": downstream_bottom_attractor_position, "node_ids": target_only_node_ids})
+    attractor_map.append({"position": downstream_top_attractor_position, "node_ids": target_only_node_ids})
+    attractor_map.append({"position": downstream_bottom_attractor_position, "node_ids": target_only_node_ids})
 
-    if len(source_only_node_ids) > 0:
+    #if len(source_only_node_ids) > 0:
         #print source_only_nodes
-        attractor_map.append({"position": upstream_top_attractor_position, "node_ids": source_only_node_ids})
-        attractor_map.append({"position": upstream_bottom_attractor_position, "node_ids": source_only_node_ids})
+    attractor_map.append({"position": upstream_top_attractor_position, "node_ids": source_only_node_ids})
+    attractor_map.append({"position": upstream_bottom_attractor_position, "node_ids": source_only_node_ids})
 
     add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterations=iterations, use_degree_edge_weights=use_degree_edge_weights)
 
