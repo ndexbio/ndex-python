@@ -452,7 +452,7 @@ class NdexGraph (MultiDiGraph):
 
     def subgraph_new(self, nbunch):
 
-        return_graph = self.subgraph(nbunch)
+        return_graph = self.subgraph(nbunch[:400])
 
         for s, t, edge_id, data in return_graph.edges_iter(keys=True, data=True):
             return_graph.edgemap[edge_id] = (s, t)
@@ -753,7 +753,7 @@ class NdexGraph (MultiDiGraph):
             except Exception as e:
                 print e.message
 
-        print {'metaData': return_metadata}
+        #print {'metaData': return_metadata}
 
         return [{'metaData': return_metadata}]
 
@@ -1378,7 +1378,7 @@ class FilterSub:
             else:
                 self.unclassified_cx.append(aspect)
 
-        print cx
+        #print cx
 
     def get_cx(self):
         return self.cx
