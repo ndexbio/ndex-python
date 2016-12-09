@@ -241,15 +241,15 @@ class NdexGraph (MultiDiGraph):
                 for node_citation in aspect['nodeCitations']:
                     for node in node_citation["po"]:
                         self.node_citation_map[node] = node_citation["citations"]
-            if 'edgeCitations' in aspect:
+            elif 'edgeCitations' in aspect:
                 for edge_citation in aspect['edgeCitations']:
                     for edge in edge_citation["po"]:
                         self.edge_citation_map[edge] = edge_citation["citations"]
-            if 'nodeSupports' in aspect:
+            elif 'nodeSupports' in aspect:
                 for node_support in aspect['nodeSupports']:
                     for node_sup in node_support["po"]:
                         self.node_support_map[node_sup] = node_support["supports"]
-            if 'edgeSupports' in aspect:
+            elif 'edgeSupports' in aspect:
                 for edge_support in aspect['edgeSupports']:
                     for edge_sup in edge_support["po"]:
                         self.edge_support_map[edge_sup] = edge_support["supports"]
