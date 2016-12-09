@@ -1002,8 +1002,11 @@ class NdexGraph (MultiDiGraph):
         # remove edge from edge map
         self.edgemap.pop(edge_id, None)
 
+        self.edge_citation_map.pop(edge_id, None)
+        self.edge_support_map.pop(edge_id)
+
         # remove citation and support references to edges
-        self.remove_citation_and_support_edge_references(edge_id)
+        #self.remove_citation_and_support_edge_references(edge_id)
 
         # networkX remove edge
         self.remove_edge(source_id, target_id, edge_id)
@@ -1051,9 +1054,6 @@ class NdexGraph (MultiDiGraph):
 
             # eliminate the citations that are still referenced by some node or edge
             for map_citation_ids in self.edge_citation_map.values():
-
-
-
                 for map_citation_id in map_citation_ids:
                     if map_citation_id in citation_ids:
                         citation_ids.remove(map_citation_id)

@@ -323,7 +323,7 @@ class Ndex:
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
 
         '''
-        route = "/network/%s/asCX/query" % (network_id)
+        route = "/network/%s/query" % (network_id)
         post_data = {'searchString': search_string,
                    'searchDepth': search_depth,
                    'edgeLimit': edge_limit}
