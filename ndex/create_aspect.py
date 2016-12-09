@@ -16,6 +16,16 @@ def subnetworks(G, subnetwork_id, view_id):
                                 'nodes': G.nodes(),
                                 'edges': [e[2] for e in G.edges_iter(keys=True)]}]}]
     result += [{'cyViews': [{'s': subnetwork_id, '@id': view_id}]}]
+    result += [{"networkRelations": [{"p": subnetwork_id,
+                                      "c": view_id,
+                                      "r": "view",
+                                      "name": "%s view" % G.get_name()
+                                      },
+                                     {"c": subnetwork_id,
+                                      "r": "subnetwork",
+                                      "name": G.get_name()
+                                      }]
+                }]
     return result
 
 
