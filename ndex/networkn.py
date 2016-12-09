@@ -485,6 +485,7 @@ class NdexGraph (MultiDiGraph):
         cx += self.generate_metadata(G, self.unclassified_cx) #create_aspect.metadata(metadata_dict=md_dict)
         network_attributes = create_aspect.network_attributes(G, has_single_subnetwork)
         cx += network_attributes
+
         if has_single_subnetwork:
             cx += create_aspect.subnetworks(G, self.subnetwork_id, self.view_id)
         # - don't output subnetworks if the NdexGraph doesn't know about them.
@@ -494,12 +495,9 @@ class NdexGraph (MultiDiGraph):
         #     cx += create_aspect.subnetworks(G, 0, 0)
         cx += create_aspect.nodes(G)
         cx += create_aspect.edges(G)
-        node_attributes = create_aspect.node_attributes(G, has_single_subnetwork)
-        if node_attributes:
-            cx += node_attributes
-        edge_attributes = create_aspect.edge_attributes(G, has_single_subnetwork)
-        if edge_attributes:
-            cx += edge_attributes
+        cx +=  create_aspect.node_attributes(G, has_single_subnetwork)
+        cx +=  create_aspect.edge_attributes(G, has_single_subnetwork)
+
         if self.pos and len(self.pos):
             if has_single_subnetwork:
                 cx += create_aspect.cartesian(G, self.view_id)
@@ -519,7 +517,12 @@ class NdexGraph (MultiDiGraph):
         if len(self.edge_support_map) > 0:
             cx += create_aspect.edge_supports(G)
 
-        cx += self.unclassified_cx
+        for fragment in self.unclassified_cx:
+            # filter out redundant networkRelations
+            if not "networkRelations" in fragment:
+                cx += [fragment]
+
+        #cx += self.unclassified_cx
         cx += [self.status]
 
         return cx
@@ -594,21 +597,29 @@ class NdexGraph (MultiDiGraph):
         #===========================
         # Node Attributes metadata
         #===========================
-        id_max = 0
+        #id_max = 0
         attr_count = 0
-        for n, nattr in G.nodes(data=True):
-            if(bool(nattr)):
-                attr_count += len(nattr.keys())
+        for node_id , attributes in G.nodes_iter(data=True):
+            for attribute_name in attributes:
+                if attribute_name != "name" and attribute_name != "represents":
+                    attr_count += 1
 
-            if(n > id_max):
-                id_max = n
+
+
+        #
+        # for n, nattr in G.nodes(data=True):
+        #     if(bool(nattr)):
+        #         attr_count += len(nattr.keys())
+        #
+        #     if(n > id_max):
+        #         id_max = n
 
         if(attr_count > 0):
             return_metadata.append(
                 {
                     "consistencyGroup" : consistency_group,
                     "elementCount" : attr_count,
-                    "idCounter": id_max,
+                    #"idCounter": id_max,
                     "name" : "nodeAttributes",
                     "properties" : [ ],
                     "version" : "1.0"
@@ -618,21 +629,21 @@ class NdexGraph (MultiDiGraph):
         #===========================
         # Edge Attributes metadata
         #===========================
-        id_max = 0
+        #id_max = 0
         attr_count = 0
         for s, t, id, a in G.edges(data=True, keys=True):
             if(bool(a)):
                 attr_count += len(a.keys())
 
-            if(id > id_max):
-                id_max = id
+            # if(id > id_max):
+            #     id_max = id
 
         if(attr_count > 0):
             return_metadata.append(
                 {
                     "consistencyGroup" : consistency_group,
                     "elementCount" : attr_count,
-                    "idCounter": id_max,
+                    #"idCounter": id_max,
                     "name" : "edgeAttributes",
                     "properties" : [ ],
                     "version" : "1.0"
@@ -647,7 +658,8 @@ class NdexGraph (MultiDiGraph):
                 {
                     "elementCount": 1,
                     "name": "cyViews",
-                    "properties": []
+                    "properties": [],
+                    "consistencyGroup" : consistency_group
                 }
             )
 
@@ -659,7 +671,21 @@ class NdexGraph (MultiDiGraph):
                 {
                     "elementCount": 1,
                     "name": "subNetworks",
-                    "properties": []
+                    "properties": [],
+                    "consistencyGroup" : consistency_group
+                }
+            )
+
+        #===========================
+        # networkRelations metadata
+        #===========================
+        if self.subnetwork_id != None and self.view_id != None:
+            return_metadata.append(
+                {
+                    "elementCount": 2,
+                    "name": "networkRelations",
+                    "properties": [],
+                    "consistencyGroup" : consistency_group
                 }
             )
 
@@ -740,6 +766,20 @@ class NdexGraph (MultiDiGraph):
         )
 
         #===========================
+        # cartesianLayout metadata
+        #===========================
+        if self.pos and len(self.pos) > 0:
+            return_metadata.append(
+                {
+                    "consistencyGroup": consistency_group,
+                    "elementCount": len(self.pos),
+                    "name": "cartesianLayout",
+                    "properties": [],
+                    "version": "1.0"
+                }
+            )
+
+        #===========================
         # OTHER metadata
         #===========================
         for asp in self.unclassified_cx:
@@ -756,6 +796,7 @@ class NdexGraph (MultiDiGraph):
                     )
             except Exception as e:
                 print e.message
+
 
         #print {'metaData': return_metadata}
 
