@@ -237,18 +237,22 @@ class NdexGraph (MultiDiGraph):
         self.unclassified_cx = []
         # Seventh pass, map supports and citations to nodes and edges
         for aspect in cx:
-            if 'node_citations' in aspect:
-                for node_citation in aspect['node_citations']:
-                    self.node_citation_map[node_citation["po"]] = node_citation["citations"]
-            if 'edge_citations' in aspect:
-                for edge_citation in aspect['edge_citations']:
-                    self.edge_citation_map[edge_citation["po"]] = edge_citation["citations"]
-            if 'node_supports' in aspect:
-                for node_support in aspect['node_supports']:
-                    self.node_support_map[node_support["po"]] = node_support["supports"]
-            if 'edge_supports' in aspect:
-                for edge_support in aspect['edge_supports']:
-                    self.edge_citation_map[edge_citation["po"]] = edge_citation["citations"]
+            if 'nodeCitations' in aspect:
+                for node_citation in aspect['nodeCitations']:
+                    for node in node_citation["po"]:
+                        self.node_citation_map[node] = node_citation["citations"]
+            if 'edgeCitations' in aspect:
+                for edge_citation in aspect['edgeCitations']:
+                    for edge in edge_citation["po"]:
+                        self.edge_citation_map[edge] = edge_citation["citations"]
+            if 'nodeSupports' in aspect:
+                for node_support in aspect['nodeSupports']:
+                    for node_sup in node_support["po"]:
+                        self.node_support_map[node_sup] = node_support["supports"]
+            if 'edgeSupports' in aspect:
+                for edge_support in aspect['edgeSupports']:
+                    for edge_sup in edge_support["po"]:
+                        self.edge_support_map[edge_sup] = edge_support["supports"]
             else:
                 self.unclassified_cx.append(aspect)
 
@@ -1039,7 +1043,7 @@ class NdexGraph (MultiDiGraph):
                 self.support_map.pop(support_id)
 
         # remove citation to edge references
-        if edge_id in self.edge_citation_map or edge_id in self.edge_support_map:
+        if edge_id in self.edge_citation_map:
             # get the citations that reference the edge
             citation_ids = self.edge_citation_map[edge_id]
             # remove the edge entry from the edge_citation_map
@@ -1047,6 +1051,9 @@ class NdexGraph (MultiDiGraph):
 
             # eliminate the citations that are still referenced by some node or edge
             for map_citation_ids in self.edge_citation_map.values():
+
+
+
                 for map_citation_id in map_citation_ids:
                     if map_citation_id in citation_ids:
                         citation_ids.remove(map_citation_id)
