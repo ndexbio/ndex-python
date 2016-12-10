@@ -1044,7 +1044,7 @@ class NdexGraph (MultiDiGraph):
         self.edgemap.pop(edge_id, None)
 
         self.edge_citation_map.pop(edge_id, None)
-        self.edge_support_map.pop(edge_id)
+        self.edge_support_map.pop(edge_id, None)
 
         # remove citation and support references to edges
         #self.remove_citation_and_support_edge_references(edge_id)
