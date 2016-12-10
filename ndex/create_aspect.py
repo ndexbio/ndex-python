@@ -68,24 +68,28 @@ def network_attributes(G, has_single_subnetwork):
 
 def node_attributes(G, has_single_subnetwork):
     elements = []
-    for node_id, attributes in G.nodes_iter(data=True):
-        for attribute_name in attributes:
-            if attribute_name != "name" and attribute_name != "represents":
-                attribute_value = attributes[attribute_name]
-                element = {'po': node_id, 'n': attribute_name, 'v': attribute_value}
+    try:
+        for node_id, attributes in G.nodes_iter(data=True):
+            for attribute_name in attributes:
+                if attribute_name != "name" and attribute_name != "represents":
+                    attribute_value = attributes[attribute_name]
+                    element = {'po': node_id, 'n': attribute_name, 'v': attribute_value}
 
-                if not isinstance(attribute_value, basestring):
-                    element['d'] = domain(attribute_value)
+                    if not isinstance(attribute_value, basestring):
+                        element['d'] = domain(attribute_value)
 
-                if has_single_subnetwork:
-                    element['s'] = G.subnetwork_id
+                    if has_single_subnetwork:
+                        element['s'] = G.subnetwork_id
 
-                elements.append(element)
+                    elements.append(element)
+        if len(elements) == 0:
+            return None
+        else:
+            return [{"nodeAttributes": elements}]
 
-    if len(elements) == 0:
-        return None
-    else:
-        return [{"nodeAttributes": elements}]
+    except Exception as e:
+        print e.message
+
 
     # return [{'nodeAttributes': [
     #     {'po': n[0], 'n': k, 'v': n[1][k]} if isinstance(n[1][k], basestring) else

@@ -495,8 +495,13 @@ class NdexGraph (MultiDiGraph):
         #     cx += create_aspect.subnetworks(G, 0, 0)
         cx += create_aspect.nodes(G)
         cx += create_aspect.edges(G)
-        cx +=  create_aspect.node_attributes(G, has_single_subnetwork)
-        cx +=  create_aspect.edge_attributes(G, has_single_subnetwork)
+        node_att = create_aspect.node_attributes(G, has_single_subnetwork)
+        if(node_att is not None):
+            cx += node_att
+
+        edge_att = create_aspect.edge_attributes(G, has_single_subnetwork)
+        if(edge_att is not None):
+            cx += edge_att
 
         if self.pos and len(self.pos):
             if has_single_subnetwork:
