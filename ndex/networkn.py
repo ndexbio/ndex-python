@@ -5,6 +5,7 @@ import io
 import json
 import copy
 import ndex.client as nc
+from time import time
 
 NDEXGRAPH_RESERVED_ATTRIBUTES = [
     "subnetwork_id"
@@ -56,6 +57,7 @@ class NdexGraph (MultiDiGraph):
         self.support_map = {}
         self.node_support_map = {}
         self.edge_support_map = {}
+        self.provenance = None
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
@@ -194,6 +196,7 @@ class NdexGraph (MultiDiGraph):
             else:
                 self.unclassified_cx.append(aspect)
         cx = self.unclassified_cx
+
         # Fourth pass, node locations
         self.pos = {}
         self.unclassified_cx = []
@@ -209,6 +212,7 @@ class NdexGraph (MultiDiGraph):
 
         cx = self.unclassified_cx
         self.unclassified_cx = []
+
         # Fifth pass, citations
         for aspect in cx:
             if 'citations' in aspect:
@@ -255,6 +259,18 @@ class NdexGraph (MultiDiGraph):
                         self.edge_support_map[edge_sup] = edge_support["supports"]
             else:
                 self.unclassified_cx.append(aspect)
+
+        cx = self.unclassified_cx
+        self.unclassified_cx = []
+        # Eighth pass, add provenance
+        for aspect in cx:
+            if 'provenanceHistory' in aspect:
+                elements = aspect['provenanceHistory']
+                if len(elements) > 0:
+                    self.provenance = elements[0]
+            else:
+                self.unclassified_cx.append(aspect)
+
 
     def create_from_aspects(self, aspect, aspect_type):
         """ adds the corresponding networkn properties from a self-contained aspect.
@@ -521,6 +537,8 @@ class NdexGraph (MultiDiGraph):
             cx += create_aspect.node_supports(G)
         if len(self.edge_support_map) > 0:
             cx += create_aspect.edge_supports(G)
+        if self.provenance:
+            cx += create_aspect.provenance(G)
 
         for fragment in self.unclassified_cx:
             # filter out redundant networkRelations
@@ -1285,6 +1303,28 @@ class NdexGraph (MultiDiGraph):
             support_ids = [support_id]
             self.edge_support_map[edge_id] = support_ids
 
+    #------------------------------------------
+    #       Provenance
+    #------------------------------------------
+
+    def get_provenance(self):
+        return self.provenance
+
+    def set_provenance(self, provenance):
+        self.provenance = provenance
+
+    def update_provenance(self, event_type, entity_props=None):
+        current_provenance = self.provenance
+        if current_provenance:
+            new_provenance = make_provenance(event_type, provenance=current_provenance, entity_props=entity_props)
+        else:
+            new_provenance = make_provenance(event_type,entity_props=entity_props)
+        self.set_provenance(new_provenance)
+
+    #------------------------------------------
+    #       Datatypes
+    #------------------------------------------
+
     @staticmethod
     def data_to_type(data, data_type):
         return_data = None
@@ -1334,6 +1374,38 @@ class NdexGraph (MultiDiGraph):
             return None
 
         return return_data
+
+def make_provenance(event_type, provenance=None, entity_props=None):
+    uri = None
+    old_entity = None
+
+    if provenance and "entity" in provenance:
+        old_entity = provenance["entity"]
+        if uri in old_entity:
+            uri = old_entity["uri"]
+
+    t = int(round(time() * 1000))
+
+    event = {
+        "startedAtTime": t,
+        "endedAtTime": t,
+        "eventType": event_type
+    }
+
+    if old_entity:
+        event["inputs"] = [old_entity]
+
+    entity = {"creationEvent": event}
+
+    if uri:
+        entity["uri"] = uri
+
+    if entity_props:
+        entity["properties"] = entity_props
+
+    new_provenance = {"entity": entity}
+
+    return new_provenance
 
 class FilterSub:
     """A graph compatible with NDEx"""

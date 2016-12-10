@@ -23,7 +23,8 @@ def subnetworks(G, subnetwork_id, view_id):
                                       },
                                      {"c": subnetwork_id,
                                       "r": "subnetwork",
-                                      "name": G.get_name()
+                                      "name": G.get_name(),
+                                      "p": 10000 # this is a bogus number provided just to enable CyNDEx import
                                       }]
                 }]
     return result
@@ -183,6 +184,11 @@ def edge_supports(G):
         edge_supports.append({"supports": supports, "po": [edge_id]})
     return [{"edgeSupports": edge_supports}]
 
+def provenance(G):
+    if G.get_provenance():
+        return [{"provenanceHistory": [G.get_provenance()]}]
+    else:
+        return []
 
 # cv stands for convert value. This converts a type to a string representation for CX purposes.
 def cv(val):
