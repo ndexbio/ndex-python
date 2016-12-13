@@ -3,6 +3,15 @@ import random
 import math
 from operator import index
 
+def aliases_to_node_type(aliases):
+    for alias in aliases:
+        lower = str.lower(alias)
+        if lower.startswith("chebi"):
+            return "SmallMolecule"
+        if lower.startswith("protein") or lower.startswith("uniprot"):
+            return "Protein"
+    return "Other"
+
 def _create_simple_graph(networkn):
     g = nx.Graph(networkn)
     return g
@@ -93,7 +102,7 @@ def add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterati
 
     g.pos = final_positions
 
-def apply_directed_flow_layout(g, directed_edge_types=None, node_width=35, iterations=50, use_degree_edge_weights=False):
+def apply_directed_flow_layout(g, directed_edge_types=[], node_width=25, iterations=50, use_degree_edge_weights=True):
     target_only_node_ids = []
     source_only_node_ids = []
     upstream_top_attractor_position = (0.0, 1.0)
@@ -102,7 +111,6 @@ def apply_directed_flow_layout(g, directed_edge_types=None, node_width=35, itera
     downstream_bottom_attractor_position = (1.0, 0.0)
     attractor_map = []
     random.seed()
-
     if not g.subnetwork_id and not g.view_id:
         g.subnetwork_id = 0,
         g.view_id = 0
@@ -110,17 +118,31 @@ def apply_directed_flow_layout(g, directed_edge_types=None, node_width=35, itera
     for node_id in g.nodes():
         out_count = 0
         in_count = 0
+        aliases = g.get_node_attribute_value_by_id(node_id, "alias")
+        if aliases:
+            type = aliases_to_node_type(aliases)
+            g.set_node_attribute(node_id, "type", type)
+
         for edge in g.out_edges([node_id], keys=True):
             edge_id = edge[2]
             interaction = g.get_edge_attribute_value_by_id(edge_id, "interaction")
             directed = g.get_edge_attribute_value_by_id(edge_id, "directed")
-            if directed or (directed_edge_types is not None and interaction in directed_edge_types):
+            if not directed and interaction in directed_edge_types:
+                g.set_edge_attribute(edge_id, "directed", True)
+                directed = True
+
+            if directed:
                 out_count = out_count + 1
+
         for edge in g.in_edges([node_id], keys=True):
             edge_id = edge[2]
             interaction = g.get_edge_attribute_value_by_id(edge_id, "interaction")
             directed = g.get_edge_attribute_value_by_id(edge_id, "directed")
-            if directed or (directed_edge_types is not None and interaction in directed_edge_types):
+            if not directed and interaction in directed_edge_types:
+                g.set_edge_attribute(edge_id, "directed", True)
+                directed = True
+
+            if directed:
                 in_count = in_count + 1
 
         if out_count is 0 and in_count > 0:

@@ -27,6 +27,64 @@ NDEXGRAPH_RESERVED_ATTRIBUTES = [
     "self.edgemap"
 ]
 
+
+def parse_attribute(attribute):
+    value = attribute['v']
+    if 'd' in attribute:
+        d = attribute['d']
+        value = data_to_type(value,d)
+    return value
+
+
+def data_to_type(data, data_type):
+    return_data = None
+
+    if(type(data) is str):
+        data = data.replace('[', '').replace(']','')
+        if('list_of' in data_type):
+            data = data.split(',')
+
+    if data_type == "boolean":
+        return_data = data.lower() == 'true'
+    elif data_type == "byte":
+        return_data = str(data).encode()
+    elif data_type == "char":
+        return_data = str(data)
+    elif data_type == "double":
+        return_data = float(data)
+    elif data_type == "float":
+        return_data = float(data)
+    elif data_type == "integer":
+        return_data = int(data)
+    elif data_type == "long":
+        return_data = int(data)
+    elif data_type == "short":
+        return_data = int(data)
+    elif data_type == "string":
+        return_data = str(data)
+    elif data_type == "list_of_boolean":
+        return_data = [s.lower() == 'true' for s in data]
+    elif data_type == "list_of_byte":
+        return_data = [bytes(s) for s in data]
+    elif data_type == "list_of_char":
+        return_data = [str(s) for s in data]
+    elif data_type == "list_of_double":
+        return_data = [float(s) for s in data]
+    elif data_type == "list_of_float":
+        return_data = [float(s) for s in data]
+    elif data_type == "list_of_integer":
+        return_data = [int(s) for s in data]
+    elif data_type == "list_of_long":
+        return_data = [int(s) for s in data]
+    elif data_type == "list_of_short":
+        return_data = [int(s) for s in data]
+    elif data_type == "list_of_string":
+        return_data = [str(s) for s in data]
+    else:
+        return None
+
+    return return_data
+
 class NdexGraph (MultiDiGraph):
     """A graph compatible with NDEx"""
     def __init__(self, cx=None, server=None, username=None, password=None, uuid=None, networkx_G=None, data=None, **attr):
@@ -90,6 +148,9 @@ class NdexGraph (MultiDiGraph):
 
         # First pass, get information about subnetworks.
         for aspect in cx:
+            if 'status' in aspect or "numberVerification" in aspect:
+                # new status and numberVerification will be added when the network is output to_cx
+                continue
             if 'subNetworks' in aspect:
                 for subnetwork in aspect.get('subNetworks'):
                     id = subnetwork.get('@id')
@@ -150,15 +211,11 @@ class NdexGraph (MultiDiGraph):
                     # special: ignore selected
                     if name == 'selected':
                         continue
+                    value = parse_attribute(networkAttribute)
                     value = networkAttribute['v']
-                    if 'd' in networkAttribute:
-                        d = networkAttribute['d']
-                        value = self.data_to_type(value,d)
-
-                        #if d == 'boolean':
-                        #    value = value.lower() == 'true'
-                    if 's' in networkAttribute or name not in self.graph:
-                        self.graph[name] = value
+                    if value:
+                        if 's' in networkAttribute or name not in self.graph:
+                            self.graph[name] = value
 
             elif 'nodeAttributes' in aspect:
                 for nodeAttribute in aspect['nodeAttributes']:
@@ -167,14 +224,11 @@ class NdexGraph (MultiDiGraph):
                     # special: ignore selected
                     if name == 'selected':
                         continue
-                    value = nodeAttribute['v']
-                    if 'd' in nodeAttribute:
-                        d = nodeAttribute['d']
-                        value = self.data_to_type(value,d)
-                        #if d == 'boolean':
-                        #    value = value.lower() == 'true'
-                    if 's' in nodeAttribute or name not in self.node[id]:
-                        self.node[id][name] = value
+                    value = parse_attribute(nodeAttribute)
+                    if value:
+                        if 's' in nodeAttribute or name not in self.node[id]:
+                            self.node[id][name] = value
+
             elif 'edgeAttributes' in aspect:
                 for edgeAttribute in aspect['edgeAttributes']:
                     id = edgeAttribute['po']
@@ -183,23 +237,18 @@ class NdexGraph (MultiDiGraph):
                     # special: ignore selected and shared_name columns
                     if name == 'selected' or name == 'shared name':
                         continue
-                    value = edgeAttribute['v']
-                    if 'd' in edgeAttribute:
-                        d = edgeAttribute['d']
-                        value = self.data_to_type(value,d)
-
-                        #if d == 'boolean':
-                        #    value = value.lower() == 'true'
-                    if 's' in edgeAttribute or name not in self[s][t][id]:
-                        self[s][t][id][name] = value
-
+                    value = parse_attribute(edgeAttribute)
+                    if value:
+                        if 's' in edgeAttribute or name not in self[s][t][id]:
+                            self[s][t][id][name] = value
             else:
                 self.unclassified_cx.append(aspect)
+
         cx = self.unclassified_cx
+        self.unclassified_cx = []
 
         # Fourth pass, node locations
         self.pos = {}
-        self.unclassified_cx = []
         for aspect in cx:
             if 'cartesianLayout' in aspect:
                 for nodeLayout in aspect['cartesianLayout']:
@@ -808,7 +857,9 @@ class NdexGraph (MultiDiGraph):
         for asp in self.unclassified_cx:
             try:
                 aspect_type = asp.iterkeys().next()
-                if(aspect_type == "visualProperties" or aspect_type == "cyVisualProperties"):
+                if(aspect_type == "visualProperties"
+                   or aspect_type == "cyVisualProperties"
+                   or aspect_type == "@context"):
                     return_metadata.append(
                         {
                             "consistencyGroup" : consistency_group,
@@ -932,7 +983,7 @@ class NdexGraph (MultiDiGraph):
         """
         self.node[id][attribute_key] = attribute_value
 
-    def get_node_attribute_value_by_id(self, node_id, query_key='name'):
+    def get_node_attribute_value_by_id(self, node_id, query_key='name', error=False):
         """Get the value of a particular node attribute based on the id.
 
         :param node_id: A node id.
@@ -946,7 +997,7 @@ class NdexGraph (MultiDiGraph):
         if node_id not in self.node:
             raise ValueError("Your ID is not in the network")
         node_attributes = nx.get_node_attributes(self, query_key)
-        if len(node_attributes) == 0:
+        if error and len(node_attributes) == 0:
             raise ValueError("That node attribute name does not exist ANYWHERE in the network.")
         return self.node[node_id][query_key] if query_key in self.node[node_id] else None
 
@@ -1325,55 +1376,6 @@ class NdexGraph (MultiDiGraph):
     #       Datatypes
     #------------------------------------------
 
-    @staticmethod
-    def data_to_type(data, data_type):
-        return_data = None
-
-        if(type(data) is str):
-            data = data.replace('[', '').replace(']','')
-            if('list_of' in data_type):
-                data = data.split(',')
-
-        if data_type == "boolean":
-            return_data = data.lower() == 'true'
-        elif data_type == "byte":
-            return_data = str(data).encode()
-        elif data_type == "char":
-            return_data = str(data)
-        elif data_type == "double":
-            return_data = float(data)
-        elif data_type == "float":
-            return_data = float(data)
-        elif data_type == "integer":
-            return_data = int(data)
-        elif data_type == "long":
-            return_data = int(data)
-        elif data_type == "short":
-            return_data = int(data)
-        elif data_type == "string":
-            return_data = str(data)
-        elif data_type == "list_of_boolean":
-            return_data = [s.lower() == 'true' for s in data]
-        elif data_type == "list_of_byte":
-            return_data = [bytes(s) for s in data]
-        elif data_type == "list_of_char":
-            return_data = [str(s) for s in data]
-        elif data_type == "list_of_double":
-            return_data = [float(s) for s in data]
-        elif data_type == "list_of_float":
-            return_data = [float(s) for s in data]
-        elif data_type == "list_of_integer":
-            return_data = [int(s) for s in data]
-        elif data_type == "list_of_long":
-            return_data = [int(s) for s in data]
-        elif data_type == "list_of_short":
-            return_data = [int(s) for s in data]
-        elif data_type == "list_of_string":
-            return_data = [str(s) for s in data]
-        else:
-            return None
-
-        return return_data
 
 def make_provenance(event_type, provenance=None, entity_props=None):
     uri = None
