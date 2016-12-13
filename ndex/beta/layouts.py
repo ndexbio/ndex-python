@@ -102,7 +102,8 @@ def add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterati
 
     g.pos = final_positions
 
-def apply_directed_flow_layout(g, directed_edge_types=[], node_width=25, iterations=50, use_degree_edge_weights=True):
+
+def apply_directed_flow_layout(g, directed_edge_types=None, node_width=25, iterations=50, use_degree_edge_weights=True):
     target_only_node_ids = []
     source_only_node_ids = []
     upstream_top_attractor_position = (0.0, 1.0)
@@ -125,22 +126,24 @@ def apply_directed_flow_layout(g, directed_edge_types=[], node_width=25, iterati
 
         for edge in g.out_edges([node_id], keys=True):
             edge_id = edge[2]
-            interaction = g.get_edge_attribute_value_by_id(edge_id, "interaction")
+            interaction = str(g.get_edge_attribute_value_by_id(edge_id, "interaction"))
             directed = g.get_edge_attribute_value_by_id(edge_id, "directed")
-            if not directed and interaction in directed_edge_types:
-                g.set_edge_attribute(edge_id, "directed", True)
-                directed = True
+            if directed is None and directed_edge_types is not None:
+                if interaction in directed_edge_types:
+                    g.set_edge_attribute(edge_id, "directed", True)
+                    directed = True
 
             if directed:
                 out_count = out_count + 1
 
         for edge in g.in_edges([node_id], keys=True):
             edge_id = edge[2]
-            interaction = g.get_edge_attribute_value_by_id(edge_id, "interaction")
+            interaction = str(g.get_edge_attribute_value_by_id(edge_id, "interaction"))
             directed = g.get_edge_attribute_value_by_id(edge_id, "directed")
-            if not directed and interaction in directed_edge_types:
-                g.set_edge_attribute(edge_id, "directed", True)
-                directed = True
+            if directed is None and directed_edge_types is not None:
+                if interaction in directed_edge_types:
+                    g.set_edge_attribute(edge_id, "directed", True)
+                    directed = True
 
             if directed:
                 in_count = in_count + 1
@@ -151,17 +154,14 @@ def apply_directed_flow_layout(g, directed_edge_types=[], node_width=25, iterati
         if in_count is 0 and out_count > 0:
             source_only_node_ids.append(node_id)
 
-    #if len(target_only_node_ids) > 0:
-        #print target_only_nodes
     attractor_map.append({"position": downstream_top_attractor_position, "node_ids": target_only_node_ids})
     attractor_map.append({"position": downstream_bottom_attractor_position, "node_ids": target_only_node_ids})
 
-    #if len(source_only_node_ids) > 0:
-        #print source_only_nodes
     attractor_map.append({"position": upstream_top_attractor_position, "node_ids": source_only_node_ids})
     attractor_map.append({"position": upstream_bottom_attractor_position, "node_ids": source_only_node_ids})
 
     add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterations=iterations, use_degree_edge_weights=use_degree_edge_weights)
+
 
 def _create_edge_tuples(attractor, target):
     return [(a,t) for a in attractor for t in target]
