@@ -120,9 +120,13 @@ def apply_directed_flow_layout(g, directed_edge_types=None, node_width=25, itera
         out_count = 0
         in_count = 0
         aliases = g.get_node_attribute_value_by_id(node_id, "alias")
-        if aliases:
-            type = aliases_to_node_type(aliases)
-            g.set_node_attribute(node_id, "type", type)
+        type = g.get_node_attribute_value_by_id(node_id, "type")
+        if type is None or type == "Other":
+            if aliases:
+                type = aliases_to_node_type(aliases)
+                g.set_node_attribute(node_id, "type", type)
+            else:
+                g.set_node_attribute(node_id, "type", "Other")
 
         for edge in g.out_edges([node_id], keys=True):
             edge_id = edge[2]
