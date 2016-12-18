@@ -291,3 +291,117 @@ def apply_directed_flow_layout_old(G, directed_edge_types=None):
     G.remove_nodes_from([upstream_attractor])
 
     # print G.pos
+
+def _create_edge_tuples(attractor, target):
+    return [(a, t) for a in attractor for t in target]
+
+def get_node_ids(network, value, query_key):
+    node_ids = []
+    for node in network.nodes_iter(data=True):
+        data = node[1]
+        if query_key in data:
+            v = data[query_key]
+            if v == value:
+                node_ids.append(node[0])
+
+    #node_ids = [n[0] for n in network.nodes_iter(data=True) if query_key in n[1] and n[1][query_key] == value]
+    return node_ids
+
+def apply_source_target_layout(G, category_name='st_layout'):
+    '''
+
+    :param G: The graph to layout.
+    :type G: NdexGraph
+    :param category_name: The attribute that specifies the category for the node. Valid categories are
+    'Source', 'Target', 'Forward', or 'Reverse'
+    :type category_name: str
+
+    '''
+
+    source = get_node_ids(G, 'Source', category_name)
+    target = get_node_ids(G, 'Target', category_name)
+    forward = get_node_ids(G, 'Forward', category_name)
+    reverse = get_node_ids(G, 'Reverse', category_name)
+
+    node_width = 35
+    n_nodes = G.number_of_nodes()
+    scale = 4 * node_width * math.sqrt(n_nodes)
+    print "scale = %s" % (scale)
+
+
+    initial_pos = nx.circular_layout(G)
+    initial_pos = {id:initial_pos[id]*scale for id in initial_pos }
+
+    top = scale
+    right = scale
+    bottom = 0.0
+    left = -1.0 * scale
+    middle = 0.0
+
+    fa = []
+    ra = []
+
+    # if we have both forward and reverse add attractors
+    if len(forward) > 0 and len(reverse) > 0:
+        for i in range(1):
+            fa_n = G.add_new_node()
+            fa.append(fa_n)
+        forward_edge_tuples = _create_edge_tuples(fa, forward)
+        G.add_edges_from(forward_edge_tuples)
+
+        # attractor positions
+        initial_pos[fa[0]] = (right/2, top)
+
+        for i in range(1):
+            ra_n = G.add_new_node()
+            ra.append(ra_n)
+        reverse_edge_tuples = _create_edge_tuples(ra, reverse)
+        G.add_edges_from(reverse_edge_tuples)
+
+        initial_pos[ra[0]] = (right/2, bottom)
+    else:
+        ra_n = G.add_new_node()
+        #ra_n2 = G.add_new_node()
+        ra.append(ra_n)
+        #ra.append(ra_n2)
+        initial_pos[ra[0]] = (middle, top/2)
+        #initial_pos[ra[1]] = (left, top/2)
+        reverse_edge_tuples = _create_edge_tuples(ra, G.nodes())
+        G.add_edges_from(reverse_edge_tuples, attr_dict={"weight": 4})
+
+
+    # source positions
+    source_incr = top / (len(source) + 1)
+    source_y_value = bottom
+    for i in range(len(source)):
+        source_y_value += source_incr
+        source_id = source[i]
+
+        initial_pos[source_id] = (left, source_y_value)
+
+    # target positions
+    target_incr = top / (len(target) + 1)
+    target_y_value = bottom
+    for i in range(len(target)):
+        target_y_value += target_incr
+        target_id = target[i]
+        initial_pos[target_id] = (right, target_y_value)
+
+
+    fixed = source + target + fa + ra
+
+    iterations = 100
+
+    G_undirected = G.to_undirected()
+    G.pos = nx.spring_layout(G_undirected,
+                             pos=initial_pos,
+                             fixed=fixed,
+                             iterations= iterations)
+
+    #G.pos = {id:G.pos[id]*scale for id in G.pos }
+
+    G.remove_nodes_from(fa)
+    G.remove_nodes_from(ra)
+
+
+    print "done"

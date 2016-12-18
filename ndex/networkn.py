@@ -1230,10 +1230,13 @@ class NdexGraph (MultiDiGraph):
         source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
         self.edge[source_id][target_id][edge_id][attribute_key] = attribute_value
 
-    #TODO Implement or remove
-    def get_edge_id_by_source_target(self, edge_id, query_key):
-#        raise ValueError("NOT IMPLEMENTED")
-        return self[1]
+    def get_edge_ids_by_source_target(self, source_id, target_id):
+        edge_ids =[]
+        out_edges = self.out_edges(keys=True)
+        for edge in out_edges:
+            if edge[1] == target_id:
+                edge_ids.append(edge[2])
+        return edge_ids
 
     def get_edge_attribute_values_by_id_list(self, edge_id_list, attribute_key):
         """Given a list of edge ids and particular attribute key, return a list of corresponding attribute values.'
