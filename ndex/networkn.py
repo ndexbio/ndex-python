@@ -115,6 +115,7 @@ class NdexGraph (MultiDiGraph):
         self.support_map = {}
         self.node_support_map = {}
         self.edge_support_map = {}
+        self.function_term_map = {}
         self.provenance = None
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
@@ -306,6 +307,11 @@ class NdexGraph (MultiDiGraph):
                 for edge_support in aspect['edgeSupports']:
                     for edge_sup in edge_support["po"]:
                         self.edge_support_map[edge_sup] = edge_support["supports"]
+            elif 'functionTerms' in aspect:
+                for function_term in aspect['functionTerms']:
+                    self.function_term_map[function_term["po"]] = function_term
+            elif 'reifiedEdges' in aspect:
+                do_nothing = True
             else:
                 self.unclassified_cx.append(aspect)
 
@@ -586,6 +592,8 @@ class NdexGraph (MultiDiGraph):
             cx += create_aspect.node_supports(G)
         if len(self.edge_support_map) > 0:
             cx += create_aspect.edge_supports(G)
+        if len(self.function_term_map) > 0:
+            cx += create_aspect.function_terms(G)
         if self.provenance:
             cx += create_aspect.provenance(G)
 
@@ -824,6 +832,16 @@ class NdexGraph (MultiDiGraph):
                     "consistencyGroup" : consistency_group
                 }
             )
+
+        if len(self.function_term_map) > 0:
+            return_metadata.append(
+                {
+                    "elementCount": len(self.function_term_map),
+                    "name": "functionTerms",
+                    "properties": [],
+                    "consistencyGroup" : consistency_group
+                }
+            )
         #===========================
         # ndexStatus metadata
         #===========================
@@ -945,7 +963,13 @@ class NdexGraph (MultiDiGraph):
     def remove_nodes_from(self, nbunch):
         for n in nbunch:
             self.pos.pop(n, None)
+            self.function_term_map.pop(n, None)
         super(MultiDiGraph, self).remove_nodes_from(nbunch)
+
+    def remove_node(self, n):
+        if(self.function_term_map.get(n) is not None):
+            self.function_term_map.pop(n, None)
+        super(MultiDiGraph, self).remove_node(n)
 
     def remove_orphan_nodes(self):
         #   remove nodes with no edges
@@ -1428,6 +1452,7 @@ class FilterSub:
         self.support_map = {}
         self.node_support_map = {}
         self.edge_support_map = {}
+        self.function_term_map = {}
         self.cx = cx
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
