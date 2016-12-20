@@ -116,6 +116,7 @@ class NdexGraph (MultiDiGraph):
         self.node_support_map = {}
         self.edge_support_map = {}
         self.function_term_map = {}
+        self.reified_edges = []
         self.provenance = None
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
@@ -311,7 +312,7 @@ class NdexGraph (MultiDiGraph):
                 for function_term in aspect['functionTerms']:
                     self.function_term_map[function_term["po"]] = function_term
             elif 'reifiedEdges' in aspect:
-                do_nothing = True
+                self.reified_edges = aspect["reifiedEdges"]
             else:
                 self.unclassified_cx.append(aspect)
 
@@ -594,6 +595,8 @@ class NdexGraph (MultiDiGraph):
             cx += create_aspect.edge_supports(G)
         if len(self.function_term_map) > 0:
             cx += create_aspect.function_terms(G)
+        if len(self.reified_edges) > 0:
+            cx += create_aspect.reified_edges(G)
         if self.provenance:
             cx += create_aspect.provenance(G)
 
@@ -842,6 +845,17 @@ class NdexGraph (MultiDiGraph):
                     "consistencyGroup" : consistency_group
                 }
             )
+
+        if len(self.reified_edges) > 0:
+            return_metadata.append(
+                {
+                    "elementCount": len(self.reified_edges),
+                    "name": "reifiedEdges",
+                    "properties": [],
+                    "consistencyGroup" : consistency_group
+                }
+            )
+
         #===========================
         # ndexStatus metadata
         #===========================
@@ -967,6 +981,14 @@ class NdexGraph (MultiDiGraph):
         super(MultiDiGraph, self).remove_nodes_from(nbunch)
 
     def remove_node(self, n):
+        self.node_citation_map.pop(n, None)
+        self.node_support_map.pop(n, None)
+
+        #TODO scan reified edges
+        for re in self.reified_edges:
+            if(re["node"] == n):
+                self.reified_edges.remove(re)
+
         if(self.function_term_map.get(n) is not None):
             self.function_term_map.pop(n, None)
         super(MultiDiGraph, self).remove_node(n)
@@ -1140,6 +1162,11 @@ class NdexGraph (MultiDiGraph):
 
         # remove edge from edge map
         self.edgemap.pop(edge_id, None)
+
+        #TODO scan reified edges
+        for re in self.reified_edges:
+            if(re["edge"] == edge_id):
+                self.reified_edges.remove(re)
 
         self.edge_citation_map.pop(edge_id, None)
         self.edge_support_map.pop(edge_id, None)

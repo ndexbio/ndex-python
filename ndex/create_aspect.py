@@ -184,6 +184,18 @@ def edge_supports(G):
         edge_supports.append({"supports": supports, "po": [edge_id]})
     return [{"edgeSupports": edge_supports}]
 
+def function_terms(G):
+    function_terms = []
+    for po in G.function_term_map:
+        function_terms.append(G.function_term_map[po])
+    return [{"functionTerms": function_terms}]
+
+def reified_edges(G):
+    reified_edges = []
+    for re in G.reified_edges:
+        reified_edges.append(re)
+    return [{"reifiedEdges": reified_edges}]
+
 def provenance(G):
     if G.get_provenance():
         return [{"provenanceHistory": [G.get_provenance()]}]
