@@ -1001,17 +1001,60 @@ class NdexGraph (MultiDiGraph):
         super(MultiDiGraph, self).remove_nodes_from(nbunch)
 
     def remove_node(self, n):
-        self.node_citation_map.pop(n, None)
-        self.node_support_map.pop(n, None)
-
-        #TODO scan reified edges
         for re in self.reified_edges:
             if(re["node"] == n):
                 self.reified_edges.remove(re)
 
         if(self.function_term_map.get(n) is not None):
             self.function_term_map.pop(n, None)
+
+        self.remove_citation_and_support_node_references(n)
+
         super(MultiDiGraph, self).remove_node(n)
+
+    def remove_citation_and_support_node_references(self, node_id):
+
+        # remove support to edge references
+        if self.node_support_map.has_key(node_id):
+            # get the supports that reference the edge
+            support_ids = self.node_support_map[node_id]
+            # remove the edge entry from the edge_support_map
+
+            #=====================================================
+            # Check the "supports" reference map. Decrement the
+            # reference value and if it reaches 0 remove from map
+            #=====================================================
+            supports_array = self.node_support_map.get(node_id)
+            for supports_array_id in supports_array:
+                decrement_this = self.support_reference_map.get(supports_array_id)
+                if(decrement_this is not None):
+                    decrement_this -= 1
+                    self.support_reference_map[supports_array_id] = decrement_this
+                    if(decrement_this == 0):
+                        self.support_map.pop(supports_array_id)
+                        self.support_reference_map.pop(supports_array_id)
+
+            self.node_support_map.pop(node_id, None)
+
+
+
+        # remove support to edge references
+        if self.node_citation_map.has_key(node_id):
+            #=====================================================
+            # Check the "citations" reference map. Decrement the
+            # reference value and if it reaches 0 remove from map
+            #=====================================================
+            citations_array = self.node_citation_map.get(node_id)
+            for citations_array_id in citations_array:
+                decrement_this = self.citation_reference_map.get(citations_array_id)
+                if(decrement_this is not None):
+                    decrement_this -= 1
+                    self.citation_reference_map[citations_array_id] = decrement_this
+                    if(decrement_this == 0):
+                        self.citation_map.pop(citations_array_id)
+                        self.citation_reference_map.pop(citations_array_id)
+
+            self.node_citation_map.pop(node_id, None)
 
     def remove_orphan_nodes(self):
         #   remove nodes with no edges
