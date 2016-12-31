@@ -287,7 +287,6 @@ class Ndex:
         else:
             route = '/network/asCX/%s' % (network_id)
 
-
         return self.put_multipart(route, fields)
 
     # Get a CX stream for a network
@@ -323,12 +322,38 @@ class Ndex:
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
 
         '''
-        route = "/network/%s/query" % (network_id)
+        if(self.version == "2.0"):
+            route = "/search/network/%s/query" % (network_id)
+        else:
+            route = "/network/%s/query" % (network_id)
+
         post_data = {'searchString': search_string,
                    'searchDepth': search_depth,
                    'edgeLimit': edge_limit}
         post_json = json.dumps(post_data)
         return self.post_stream(route, post_json=post_json)
+
+
+    def get_neighborhood(self, network_id, search_string, search_depth=1, edge_limit=2500):
+        ''' Get the CX for a subnetwork of the network specified by UUID network_id and a traversal of search_depth steps around the nodes found by search_string.
+
+        :param network_id: The UUID of the network.
+        :type network_id: str
+        :param search_string: The search string used to identify the network neighborhood.
+        :type search_string: str
+        :param search_depth: The depth of the neighborhood from the core nodes identified.
+        :type search_depth: int
+        :param edge_limit: The maximum size of the neighborhood.
+        :type edge_limit: int
+        :return: The CX json object.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+        '''
+        response = self.get_neighborhood_as_cx_stream(network_id, search_string, search_depth=search_depth, edge_limit=edge_limit)
+
+        if(self.version == "2.0"):
+            return response.json()["data"]
+        else:
+            raise Exception("get_neighborhood is not supported for versions prior to 2.0, use get_neighborhood_as_cx_stream")
 
 
     # Search for networks by keywords
@@ -365,7 +390,7 @@ class Ndex:
         print("find_networks is deprecated, please use search_networks")
         return self.search_networks(search_string, account_name, skip_blocks, block_size)
 
-    def search_networks_by_property_filter(self, search_parameter_dict="", account_name=None, limit=100):
+    def search_networks_by_property_filter(self, search_parameter_dict={}, account_name=None, limit=100):
         self.require_auth()
         route = "/network/searchByProperties"
         if account_name:
