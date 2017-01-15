@@ -431,7 +431,11 @@ class Ndex:
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
 
         '''
-        return self.update_network_profile(network_id, {'visibility': 'PUBLIC'})
+        if(self.version == "2.0"):
+            return self.set_network_system_properties(network_id, {'visibility': 'PUBLIC'})
+
+        else:
+            return self.update_network_profile(network_id, {'visibility': 'PUBLIC'})
 
     def make_network_private(self, network_id):
         ''' Makes the network specified by the network_id private.
@@ -442,7 +446,11 @@ class Ndex:
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
 
         '''
-        return self.update_network_profile(network_id, {'visibility': 'PRIVATE'})
+        if(self.version == "2.0"):
+            return self.set_network_system_properties(network_id, {'visibility': 'PRIVATE'})
+
+        else:
+            return self.update_network_profile(network_id, {'visibility': 'PRIVATE'})
 
 
     def get_task_by_id (self, task_id):
@@ -481,16 +489,35 @@ class Ndex:
         route = "/network/%s/properties" % (network_id)
         if isinstance(network_properties, list):
             putJson = json.dumps(network_properties)
-        else:
+        elif isinstance(network_properties, basestring):
             putJson = network_properties
+        else:
+            raise "network_properties must be a string or a list of NdexPropertyValuePair objects"
+        return self.put(route, putJson)
+
+    def set_network_system_properties(self, network_id, network_properties):
+        self.require_auth()
+        route = "/network/%s/systemproperty" % (network_id)
+        if isinstance(network_properties, dict):
+            putJson = json.dumps(network_properties)
+        elif isinstance(network_properties, basestring):
+            putJson = network_properties
+        else:
+            raise "network_properties must be a string or a dict"
         return self.put(route, putJson)
 
     def update_network_profile(self, network_id, network_profile):
+        # network profile attributes that can be updated by this method:
+        #   name
+        #   description
+        #   version
         self.require_auth()
         if isinstance(network_profile, dict):
             json_data = json.dumps(network_profile)
-        else:
+        elif isinstance(network_profile, basestring):
             json_data = network_profile
+        else:
+            raise "network_profile must be a string or a dict"
 
         if(self.version == "2.0"):
             route = "/network/%s/profile" % (network_id)
