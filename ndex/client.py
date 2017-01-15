@@ -487,12 +487,17 @@ class Ndex:
 
     def update_network_profile(self, network_id, network_profile):
         self.require_auth()
-        route = "/network/%s/summary" % (network_id)
         if isinstance(network_profile, dict):
-            postJson = json.dumps(network_profile)
+            json_data = json.dumps(network_profile)
         else:
-            postJson = network_profile
-        return self.post(route, postJson)
+            json_data = network_profile
+
+        if(self.version == "2.0"):
+            route = "/network/%s/profile" % (network_id)
+            return self.put(route, json_data)
+        else:
+            route = "/network/%s/summary" % (network_id)
+            return self.post(route, json_data)
 
     def upload_file(self, filename):
         self.require_auth()
