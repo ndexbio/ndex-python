@@ -8,6 +8,7 @@ import os
 import io
 from urlparse import urljoin
 from requests import exceptions as req_except
+import sys
 
 class Ndex:
     '''A class to facilitate communication with an NDEx server.'''
@@ -41,9 +42,13 @@ class Ndex:
                 if(prop is not None):
                     pv = prop.get('ServerVersion')
                     if(pv is not None):
-                        self.version = pv
-                        self.host = host + "/v2"
+                        if not pv.startswith('2.'):
+                            raise Exception("This release only supports NDEx 2.x server.")
+                        else:
+                            self.version = pv
+                            self.host = host + "/v2"
                     else:
+                        sys.stderr.write("Warning: This release doesn't fully support 1.3 version of NDEx")
                         self.version = "1.3"
                         self.host = host + "/rest"
 
@@ -454,6 +459,7 @@ class Ndex:
 
 
     def get_task_by_id (self, task_id):
+        self.require_auth()
         route = "/task/%s" % (task_id)
         return self.get(route)
 
@@ -475,14 +481,15 @@ class Ndex:
             putJson = provenance
         return self.put(route, putJson)
 
-    def set_network_flag(self, network_id, parameter, value):
-        self.require_auth()
-        route = "/network/%s/setFlag/%s=%s" % (network_id, parameter, value)
-        return self.get(route)
+
+ #   def set_network_flag(self, network_id, parameter, value):
+ #       self.require_auth()
+ #       route = "/network/%s/setFlag/%s=%s" % (network_id, parameter, value)
+ #       return self.get(route)
 
     def set_read_only(self, network_id, value):
         self.require_auth()
-        return self.set_network_flag(network_id, "readOnly", value)
+        return self.set_network_system_properties(network_id, {"readOnly": value})
 
     def set_network_properties(self, network_id, network_properties):
         self.require_auth()
@@ -511,6 +518,7 @@ class Ndex:
         #   name
         #   description
         #   version
+
         self.require_auth()
         if isinstance(network_profile, dict):
             json_data = json.dumps(network_profile)
@@ -527,24 +535,25 @@ class Ndex:
             return self.post(route, json_data)
 
     def upload_file(self, filename):
-        self.require_auth()
-        fields = {
+        raise Exception("This function is not supported in this release. Please use the save_new_network function to create new networks in NDEx server.")
+ #       self.require_auth()
+ #       fields = {
 
-            'fileUpload': (filename, open(filename, 'rb'), 'application/octet-stream'),
-            'filename': os.path.basename(filename)#filename
-        }
-        route = '/network/upload'
-        return self.post_multipart(route, fields)
+ #           'fileUpload': (filename, open(filename, 'rb'), 'application/octet-stream'),
+ #           'filename': os.path.basename(filename)#filename
+ #       }
+ #       route = '/network/upload'
+ #       return self.post_multipart(route, fields)
 
-    def update_network_membership_by_id(self, account_id, network_id, permission):
-        route ="/network/{networkId}/member"  % (network_id)
-        postData = {
-            "permission": permission,
-            "networkUUID": network_id,
-            "userUUID": account_id
-        }
-        postJson = json.dumps(postData)
-        self.post(route, postJson)
+   # def update_network_membership_by_id(self, account_id, network_id, permission):
+   #     route ="/network/{networkId}/member"  % (network_id)
+   #     postData = {
+   #         "permission": permission,
+   #         "networkUUID": network_id,
+   #         "userUUID": account_id
+   #     }
+   #     postJson = json.dumps(postData)
+   #     self.post(route, postJson)
 
     def update_network_group_permission(self, groupid, networkid, permission):
         route = "/network/%s/permission?groupid=%s&permission=%s" % (networkid, groupid, permission)
@@ -556,12 +565,14 @@ class Ndex:
 
     # Group methods
 
-    def get_network_summaries_for_group(self, group_name):
-        route = "/group/network/%s" % (group_name)
-        return self.get(route)
+    # this group of functions are commented out for this release. We might need to wrap the showcase functions to
+    # replace this function
+  #  def get_network_summaries_for_group(self, group_name):
+  #      route = "/group/network/%s" % (group_name)
+  #      return self.get(route)
 
-    def get_network_ids_for_group(self, group_name):
-        return self.network_summaries_to_ids(self.get_network_summaries_for_group(group_name))
+  #  def get_network_ids_for_group(self, group_name):
+  #      return self.network_summaries_to_ids(self.get_network_summaries_for_group(group_name))
 
     def grant_networks_to_group(self, groupid, networkids, permission="READ"):
         for networkid in networkids:
