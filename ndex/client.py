@@ -235,7 +235,7 @@ class Ndex:
 
     # CX Methods
     # Create a network based on a stream from a source CX format
-    def save_cx_stream_as_new_network (self, cx_stream, provenance=None):
+    def save_cx_stream_as_new_network (self, cx_stream):
         ''' Create a new network from a CX stream, optionally providing a provenance history object to be included in the new network.
 
         :param cx_stream: The network stream.
@@ -257,11 +257,11 @@ class Ndex:
                 'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
             }
 
-        if provenance:
-            if isinstance(provenance, dict):
-                fields['provenance'] = json.dumps(provenance)
-            else:
-                fields['provenance'] = provenance
+   #     if provenance:
+   #         if isinstance(provenance, dict):
+   #             fields['provenance'] = json.dumps(provenance)
+   #         else:
+   #             fields['provenance'] = provenance
 
         return self.post_multipart(route, fields)
 
@@ -396,13 +396,14 @@ class Ndex:
         return self.search_networks(search_string, account_name, skip_blocks, block_size)
 
     def search_networks_by_property_filter(self, search_parameter_dict={}, account_name=None, limit=100):
-        self.require_auth()
-        route = "/network/searchByProperties"
-        if account_name:
-            search_parameter_dict["admin"] = account_name
-        search_parameter_dict["limit"] = limit
-        post_json = json.dumps(search_parameter_dict)
-        return self.post(route, post_json)
+        raise Exception("This function is not supported in NDEx 2.0")
+     #   self.require_auth()
+     #   route = "/network/searchByProperties"
+     #   if account_name:
+     #       search_parameter_dict["admin"] = account_name
+     #   search_parameter_dict["limit"] = limit
+     #   post_json = json.dumps(search_parameter_dict)
+     #   return self.post(route, post_json)
 
     def network_summaries_to_ids(self, network_summaries):
         network_ids = []
@@ -521,6 +522,8 @@ class Ndex:
 
         self.require_auth()
         if isinstance(network_profile, dict):
+            if network_profile.get("visibility") and self.version.startswith("2."):
+                raise "Ndex 2.x doesn't support setting visibility by this function. Please use make_network_public/private function to set network visibility."
             json_data = json.dumps(network_profile)
         elif isinstance(network_profile, basestring):
             json_data = network_profile
