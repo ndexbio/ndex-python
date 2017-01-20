@@ -3,6 +3,7 @@ import unittest
 import ndex.client as nc
 import time
 from os import path
+import json
 
 
 ndex_host = "http://dev.ndexbio.org"
@@ -10,7 +11,7 @@ ndex_network_resource = "/v2/network/"
 username_1 = "ttt"
 password_1 = "ttt"
 
-example_network_1 = './tiny_network.cx'
+example_network_1 = 'tiny_network.cx'
 
 # Python Client APIs tested:
 #
@@ -22,7 +23,25 @@ example_network_1 = './tiny_network.cx'
 
 class MyTestCase(unittest.TestCase):
 
-    def test_query(self):
+    @classmethod
+    def getNumberOfNodesAndEdgesFromCX(self, network_in_cx):
+        for aspect in network_in_cx:
+            if 'metaData' in aspect:
+                metaData = aspect['metaData']
+
+                for element in metaData:
+                    if (('name' in element) and (element['name'] == 'nodes')):
+                        numberOfNodes = element['elementCount']
+
+                    if (('name' in element) and (element['name'] == 'edges')):
+                        numberOfEdges = element['elementCount']
+
+                break
+
+        return numberOfNodes, numberOfEdges
+
+
+    def test_get_neighborhood_as_cx_stream(self):
         ndex = nc.Ndex(host=ndex_host, username=username_1, password=password_1)
 
         with open(path.join(path.abspath(path.dirname(__file__)), example_network_1), 'r') as file_handler:
@@ -34,29 +53,34 @@ class MyTestCase(unittest.TestCase):
 
         network_UUID = str(test_network_1_uri.split("/")[-1])
 
-        time.sleep(10)
+        time.sleep(5)
+
 
         search_string = 'AANAT-T3M'
+        # run neighborhood query with depth 1; expected to receive subnetwork with 2 edges and 3 nodes
         network_neighborhood = ndex.get_neighborhood_as_cx_stream(network_UUID, search_string, 1)
         self.assertTrue(network_neighborhood.status_code == 200)
-        network_in_cx = network_neighborhood.text[0]
+        network_in_cx = json.loads(network_neighborhood.text)
+        #network_in_cx = network_neighborhood.text
 
-        t = type(network_in_cx)
-
-        # get metadata
-
-
-
+        numberOfNodes, numberOfEdges = self.getNumberOfNodesAndEdgesFromCX(network_in_cx['data'])
+        self.assertTrue(numberOfNodes == 3)
+        self.assertTrue(numberOfEdges == 2)
 
 
+        # now run neighborhood query with depth 2; expected to receive subnetwork with 6 edges and 5 nodes
+        network_neighborhood = ndex.get_neighborhood_as_cx_stream(network_UUID, search_string, 2)
+        self.assertTrue(network_neighborhood.status_code == 200)
+        network_in_cx = json.loads(network_neighborhood.text)
 
+        numberOfNodes, numberOfEdges = self.getNumberOfNodesAndEdgesFromCX(network_in_cx['data'])
+        self.assertTrue(numberOfNodes == 5)
+        self.assertTrue(numberOfEdges == 6)
 
 
         # test delete_network
         del_network_return = ndex.delete_network(network_UUID)
         #self.assertTrue(del_network_return == '')
-
-
 
 if __name__ == '__main__':
     unittest.main()
