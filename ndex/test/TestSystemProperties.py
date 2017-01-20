@@ -13,13 +13,13 @@ example_network_1 = './A549-SL-network.cx'
 
 # Python Client APIs tested:
 #
-#   set_network_system_properties
+#   get_user_by_username
 #
 
 
 class MyTestCase(unittest.TestCase):
 
-    def test_network_system_properties(self):
+    def test_get_user_by_username(self):
         ndex = nc.Ndex(host=ndex_host, username=username_1, password=password_1)
 
         with open(example_network_1, 'r') as file_handler:
