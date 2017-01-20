@@ -17,6 +17,7 @@ example_network_1 = 'tiny_network.cx'
 #
 #   save_cx_stream_as_new_network
 #   get_neighborhood_as_cx_stream
+#   get_neighborhood
 #   delete_network
 #
 
@@ -61,7 +62,6 @@ class MyTestCase(unittest.TestCase):
         network_neighborhood = ndex.get_neighborhood_as_cx_stream(network_UUID, search_string, 1)
         self.assertTrue(network_neighborhood.status_code == 200)
         network_in_cx = json.loads(network_neighborhood.text)
-        #network_in_cx = network_neighborhood.text
 
         numberOfNodes, numberOfEdges = self.getNumberOfNodesAndEdgesFromCX(network_in_cx['data'])
         self.assertTrue(numberOfNodes == 3)
@@ -80,7 +80,42 @@ class MyTestCase(unittest.TestCase):
 
         # test delete_network
         del_network_return = ndex.delete_network(network_UUID)
-        #self.assertTrue(del_network_return == '')
+        self.assertTrue(del_network_return == '')
+
+
+    def test_get_neighborhood(self):
+        ndex = nc.Ndex(host=ndex_host, username=username_1, password=password_1)
+
+        with open(path.join(path.abspath(path.dirname(__file__)), example_network_1), 'r') as file_handler:
+            network_in_cx_from_file = file_handler.read()
+
+        # test save_cx_stream_as_new_network
+        test_network_1_uri = ndex.save_cx_stream_as_new_network(network_in_cx_from_file)
+        self.assertTrue(test_network_1_uri.startswith(ndex_host + ndex_network_resource))
+
+        network_UUID = str(test_network_1_uri.split("/")[-1])
+
+        time.sleep(5)
+
+
+        search_string = 'AANAT-T3M'
+        # run neighborhood query with depth 1; expected to receive subnetwork with 2 edges and 3 nodes
+        network_neighborhood = ndex.get_neighborhood(network_UUID, search_string, 1)
+        numberOfNodes, numberOfEdges = self.getNumberOfNodesAndEdgesFromCX(network_neighborhood)
+        self.assertTrue(numberOfNodes == 3)
+        self.assertTrue(numberOfEdges == 2)
+
+
+        # now run neighborhood query with depth 2; expected to receive subnetwork with 6 edges and 5 nodes
+        network_neighborhood = ndex.get_neighborhood(network_UUID, search_string, 2)
+        numberOfNodes, numberOfEdges = self.getNumberOfNodesAndEdgesFromCX(network_neighborhood)
+        self.assertTrue(numberOfNodes == 5)
+        self.assertTrue(numberOfEdges == 6)
+
+
+        # test delete_network
+        del_network_return = ndex.delete_network(network_UUID)
+        self.assertTrue(del_network_return == '')
 
 if __name__ == '__main__':
     unittest.main()
