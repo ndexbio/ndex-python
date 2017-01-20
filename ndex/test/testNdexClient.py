@@ -171,3 +171,7 @@ class NdexClientTestCase3(unittest.TestCase):
 
         self.assertEqual(summary1.get(u'name'), "A549-SL-network")
         print "update_cx_network() passed."
+
+
+if __name__ == '__main__':
+    unittest.main()

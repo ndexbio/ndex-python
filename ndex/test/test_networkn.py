@@ -1,4 +1,3 @@
-import pytest
 
 from ndex.networkn import NdexGraph
 
