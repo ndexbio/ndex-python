@@ -2,6 +2,7 @@ import unittest
 
 import ndex.client as nc
 import time
+from os import path
 
 
 ndex_host = "http://dev.ndexbio.org"
@@ -9,7 +10,9 @@ ndex_network_resource = "/v2/network/"
 username_1 = "ttt"
 password_1 = "ttt"
 
-example_network_1 = './A549-SL-network.cx'
+example_network_1 = 'A549-SL-network.cx'
+
+
 
 # Python Client APIs tested:
 #
@@ -22,7 +25,7 @@ class MyTestCase(unittest.TestCase):
     def test_network_system_properties(self):
         ndex = nc.Ndex(host=ndex_host, username=username_1, password=password_1)
 
-        with open(example_network_1, 'r') as file_handler:
+        with open(path.join(path.abspath(path.dirname(__file__)),example_network_1), 'r') as file_handler:
             network_in_cx = file_handler.read()
 
         # test save_cx_stream_as_new_network
