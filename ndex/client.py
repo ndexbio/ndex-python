@@ -10,7 +10,11 @@ from urlparse import urljoin
 from requests import exceptions as req_except
 import sys
 
+userAgent = 'NDEx Python Client/2.0'
+
 class Ndex:
+
+
     '''A class to facilitate communication with an NDEx server.'''
     def __init__(self, host = "http://public.ndexbio.org", username = None, password = None, update_status=False):
         '''Creates a connection to a particular NDEx server.
@@ -26,6 +30,7 @@ class Ndex:
         self.version = 1.3
         self.status = {}
         self.username = username
+        self.passpord = password
         if "localhost" in host:
             self.host = "http://localhost:8080/ndexbio-rest"
         else:
@@ -93,6 +98,7 @@ class Ndex:
         headers = {'Content-Type' : 'application/json;charset=UTF-8',
                    'Accept' : 'application/json',
                    'Cache-Control': 'no-cache',
+                   'User-Agent': 'NDEx Python Client/2.0',
                    }
         if put_json is not None:
             response = self.s.put(url, data = put_json, headers = headers)
@@ -113,6 +119,7 @@ class Ndex:
         headers = {'Content-Type': 'application/json',
                    'Accept': 'application/json',
                    'Cache-Control': 'no-cache',
+                   'User-Agent':   'NDEx Python Client/2.0',
                    }
         response = self.s.post(url, data=post_json, headers=headers)
         self.debug_response(response)
@@ -125,7 +132,9 @@ class Ndex:
         url = self.host + route
         if self.debug:
             print("DELETE route: " + url)
-        response = self.s.delete(url)
+        headers = self.s.headers
+        headers['User-Agent'] = userAgent
+        response = self.s.delete(url, headers = headers)
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
@@ -136,11 +145,13 @@ class Ndex:
         url = self.host + route
         if self.debug:
             print("GET route: " + url)
-        response = self.s.get(url, params = get_params)
+        headers = self.s.headers
+        headers['User-Agent'] = userAgent
+        response = self.s.get(url, params = get_params, headers=headers)
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
-            return ""
+            return None
         return response.json()
 
     # The stream refers to the Response, not the Request
@@ -160,10 +171,11 @@ class Ndex:
         url = self.host + route
         if self.debug:
             print("POST stream route: " + url)
-        headers = {'Content-Type': 'application/json',
-                   'Accept': 'application/json',
-                   'Cache-Control': 'no-cache',
-                   }
+        headers = self.s.headers
+
+        headers['Content-Type'] = 'application/json'
+        headers['Accept'] ='application/json'
+        headers['User-Agent'] = userAgent
         response = self.s.post(url, data=post_json, headers=headers, stream = True)
         self.debug_response(response)
         response.raise_for_status()
@@ -180,9 +192,10 @@ class Ndex:
 
         headers = {'Content-Type' : multipart_data.content_type,
                    'Accept' : 'application/json',
-                   'Cache-Control': 'no-cache',
+#                   'Cache-Control': 'no-cache',
+                   'User-Agent':userAgent
                    }
-        response = self.s.put(url, data=multipart_data, headers=headers)
+        response = requests.put(url, data=multipart_data, headers=headers,auth=(self.username, self.passpord))
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
@@ -201,9 +214,10 @@ class Ndex:
             print("POST route: " + url)
         headers = {'Content-Type': multipart_data.content_type,
                    #'Accept': 'multipart/form-data', #'application/json',
-                   'Cache-Control': 'no-cache',
+ #                  'Cache-Control': 'no-cache',
+                   'User-Agent': userAgent,
                    }
-        response = self.s.post(url, data=multipart_data, headers=headers)
+        response = requests.post(url, data=multipart_data, headers=headers, auth=(self.username, self.passpord))
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
