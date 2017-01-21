@@ -98,7 +98,7 @@ class Ndex:
         headers = {'Content-Type' : 'application/json;charset=UTF-8',
                    'Accept' : 'application/json',
                    'Cache-Control': 'no-cache',
-                   'User-Agent': 'NDEx Python Client/2.0',
+                   'User-Agent': userAgent,
                    }
         if put_json is not None:
             response = self.s.put(url, data = put_json, headers = headers)
@@ -119,7 +119,7 @@ class Ndex:
         headers = {'Content-Type': 'application/json',
                    'Accept': 'application/json',
                    'Cache-Control': 'no-cache',
-                   'User-Agent':   'NDEx Python Client/2.0',
+                   'User-Agent':  userAgent,
                    }
         response = self.s.post(url, data=post_json, headers=headers)
         self.debug_response(response)
