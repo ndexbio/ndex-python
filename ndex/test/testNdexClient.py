@@ -11,19 +11,7 @@ import json
 TESTSERVER= "http://dev.ndexbio.org"
 HERE = path.abspath(path.dirname(__file__))
 
-class NdexClientTestCase1(unittest.TestCase):
-
-    def testConstructorException(self):
-        with self.assertRaises(Exception):
-            print "testing ndex client constructor."
-            ndex = nc.Ndex(host="www.google.com", username="foo", password="bar")
-
-    def testConstructor2 (self):
-        ndex = nc.Ndex(host=TESTSERVER,update_status=True)
-        self.assertTrue(ndex.status.get('properties')['ServerVersion'].startswith("2."))
-
-
-class NdexClientTestCase2(unittest.TestCase):
+class NdexClientTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls._ndex = nc.Ndex(host=TESTSERVER, username="pytest", password="pyunittest")
@@ -37,8 +25,20 @@ class NdexClientTestCase2(unittest.TestCase):
         cls._ndex.delete_network(cls._networkId)
         print "Network " + cls._networkId + " deleted from " + cls._ndex.username +" account " + cls._ndex.host
 
-    #def setup(self):
-    #    self.ndex = nc.Ndex(host="http://public.ndexbio.org", username="drh", passwor="drh")
+
+class NdexClientTestCase1(unittest.TestCase):
+
+    def testConstructorException(self):
+        with self.assertRaises(Exception):
+            print "testing ndex client constructor."
+            ndex = nc.Ndex(host="www.google.com", username="foo", password="bar")
+
+    def testConstructor2 (self):
+        ndex = nc.Ndex(host=TESTSERVER,update_status=True)
+        self.assertTrue(ndex.status.get('properties')['ServerVersion'].startswith("2."))
+
+
+class NdexClientTestCase2(NdexClientTestCase):
 
 
     def testGetNetwork(self):
@@ -71,22 +71,7 @@ class NdexClientTestCase2(unittest.TestCase):
 
 
 
-class NdexClientTestCase3(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls._ndex = nc.Ndex(host=TESTSERVER, username="pytest", password="pyunittest")
-        with open(path.join(HERE, 'tiny_network.cx'),'r') as cx_file:
-            cls._nrc = cls._ndex.save_cx_stream_as_new_network(cx_file)
-            networkId = uuid.UUID('{'+cls._nrc[-36:] + '}')
-            cls._networkId = str(networkId)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls._ndex.delete_network(cls._networkId)
-        print "Network " + cls._networkId + " deleted from " + cls._ndex.username +" account " + cls._ndex.host
-
-    #def setup(self):
-    #    self.ndex = nc.Ndex(host="http://public.ndexbio.org", username="drh", passwor="drh")
+class NdexClientTestCase3(NdexClientTestCase):
 
     def testGrantUserPermission(self):
         ndex2 = nc.Ndex(TESTSERVER, username='pytest2' , password = 'pyunittest')
@@ -112,22 +97,7 @@ class NdexClientTestCase3(unittest.TestCase):
         print "update_network_user_permission() passed."
 
 
-class NdexClientTestCase3(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls._ndex = nc.Ndex(host=TESTSERVER, username="pytest", password="pyunittest")
-        with open(path.join(HERE, 'tiny_network.cx'),'r') as cx_file:
-            cls._nrc = cls._ndex.save_cx_stream_as_new_network(cx_file)
-            networkId = uuid.UUID('{'+cls._nrc[-36:] + '}')
-            cls._networkId = str(networkId)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls._ndex.delete_network(cls._networkId)
-        print "Network " + cls._networkId + " deleted from " + cls._ndex.username +" account " + cls._ndex.host
-
-    #def setup(self):
-    #    self.ndex = nc.Ndex(host="http://public.ndexbio.org", username="drh", passwor="drh")
+class NdexClientTestCase3(NdexClientTestCase):
 
     def testUpdateNetwork(self):
         time.sleep(5)

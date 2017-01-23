@@ -67,6 +67,15 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(new_name == network_summary['name'])
         self.assertTrue(new_description == network_summary['description'])
 
+        time.sleep(10)
+        test_profile['visibility'] = 'PUBLIC'
+        with self.assertRaises(Exception) as e:
+            ndex.update_network_profile(network_UUID, test_profile)
+#            print e
+
+      #  errorMessage = str(e)
+      #  print errorMessage
+      #  self.assertTrue(errorMessage.startswith("Ndex 2.x doesn't support setting visibility by this function."))
 
         provenance_1 = ndex.get_provenance(network_UUID)
 

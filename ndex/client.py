@@ -96,11 +96,11 @@ class Ndex:
             if put_json is not None:
                 print("PUT json: " + put_json)
 
-        headers = {'Content-Type' : 'application/json;charset=UTF-8',
-                   'Accept' : 'application/json',
-                   'Cache-Control': 'no-cache',
-                   'User-Agent': userAgent,
-                   }
+        headers = self.s.headers
+        headers['Content-Type'] ='application/json;charset=UTF-8'
+        headers['Accept'] =  'application/json'
+        headers['User-Agent']= userAgent
+
         if put_json is not None:
             response = self.s.put(url, data = put_json, headers = headers)
         else:
@@ -517,7 +517,7 @@ class Ndex:
         elif isinstance(network_properties, basestring):
             putJson = network_properties
         else:
-            raise "network_properties must be a string or a list of NdexPropertyValuePair objects"
+            raise Exception("network_properties must be a string or a list of NdexPropertyValuePair objects")
         return self.put(route, putJson)
 
     def set_network_system_properties(self, network_id, network_properties):
@@ -528,7 +528,7 @@ class Ndex:
         elif isinstance(network_properties, basestring):
             putJson = network_properties
         else:
-            raise "network_properties must be a string or a dict"
+            raise Exception("network_properties must be a string or a dict")
         return self.put(route, putJson)
 
     def update_network_profile(self, network_id, network_profile):
@@ -540,12 +540,12 @@ class Ndex:
         self.require_auth()
         if isinstance(network_profile, dict):
             if network_profile.get("visibility") and self.version.startswith("2."):
-                raise "Ndex 2.x doesn't support setting visibility by this function. Please use make_network_public/private function to set network visibility."
+                raise Exception("Ndex 2.x doesn't support setting visibility by this function. Please use make_network_public/private function to set network visibility.")
             json_data = json.dumps(network_profile)
         elif isinstance(network_profile, basestring):
             json_data = network_profile
         else:
-            raise "network_profile must be a string or a dict"
+            raise Exception("network_profile must be a string or a dict")
 
         if(self.version == "2.0"):
             route = "/network/%s/profile" % (network_id)
