@@ -18,6 +18,10 @@ class NdexClientTestCase1(unittest.TestCase):
             print "testing ndex client constructor."
             ndex = nc.Ndex(host="www.google.com", username="foo", password="bar")
 
+    def testConstructor2 (self):
+        ndex = nc.Ndex(host=TESTSERVER,update_status=True)
+        self.assertTrue(ndex.status.get('properties')['ServerVersion'].startswith("2."))
+
 
 class NdexClientTestCase2(unittest.TestCase):
     @classmethod

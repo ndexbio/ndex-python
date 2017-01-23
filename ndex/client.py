@@ -10,7 +10,7 @@ from urlparse import urljoin
 from requests import exceptions as req_except
 import sys
 
-userAgent = 'NDEx Python Client/2.0'
+userAgent = 'NDEx-Python/2.0'
 
 class Ndex:
 
@@ -39,7 +39,8 @@ class Ndex:
             try:
                 version_url = urljoin(host, status_url)
 
-                response = requests.get(version_url)
+
+                response = requests.get(version_url,headers = {'User-Agent': userAgent})
                 response.raise_for_status()
                 data = response.json()
 
@@ -159,7 +160,9 @@ class Ndex:
         url = self.host + route
         if self.debug:
             print("GET stream route: " + url)
-        response = self.s.get(url, params = get_params, stream = True)
+        headers = self.s.headers
+        headers['User-Agent'] = userAgent
+        response = self.s.get(url, params = get_params, stream = True,headers = headers)
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
