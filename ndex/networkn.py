@@ -45,7 +45,10 @@ def data_to_type(data, data_type):
             data = data.split(',')
 
     if data_type == "boolean":
-        return_data = data.lower() == 'true'
+        if(type(data) is str):
+            return_data = data.lower() == 'true'
+        else:
+            return_data = bool(data)
     elif data_type == "byte":
         return_data = str(data).encode()
     elif data_type == "char":
@@ -63,7 +66,11 @@ def data_to_type(data, data_type):
     elif data_type == "string":
         return_data = str(data)
     elif data_type == "list_of_boolean":
-        return_data = [s.lower() == 'true' for s in data]
+        # Assumption: if the first element is a string then so are the rest...
+        if(type(data[0]) is str):
+            return_data = [s.lower() == 'true' for s in data]
+        else:
+            return_data = [bool(s) for s in data]
     elif data_type == "list_of_byte":
         return_data = [bytes(s) for s in data]
     elif data_type == "list_of_char":
@@ -1286,9 +1293,9 @@ class NdexGraph (MultiDiGraph):
             self.edge_citation_map.pop(edge_id)
 
 
-
+            '''
             # eliminate the supports that are still referenced by some node or edge
-            '''for map_support_ids in self.edge_support_map.values():
+            for map_support_ids in self.edge_support_map.values():
                 for map_support_id in map_support_ids:
                     if map_support_id in support_ids:
                         support_ids.remove(map_support_id)
