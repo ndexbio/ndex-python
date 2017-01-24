@@ -19,6 +19,7 @@ class NdexClientTestCase(unittest.TestCase):
             cls._nrc = cls._ndex.save_cx_stream_as_new_network(cx_file)
             networkId = uuid.UUID('{'+cls._nrc[-36:] + '}')
             cls._networkId = str(networkId)
+            time.sleep(3)
 
     @classmethod
     def tearDownClass(cls):
