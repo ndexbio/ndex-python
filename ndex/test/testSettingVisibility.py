@@ -22,7 +22,7 @@ class NdexClientTestCase4(tt.NdexClientTestCase):
                 break
             except Exception as inst :
                 d = json.loads(inst.response.content)
-                if d.get('message').startswith("Can't modify locked network.") or d.get('message').startswith("Network is locked by another updating process"):
+                if d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
                     print "retry in 5 seconds(" + str(count) + ")"
                     count += 1
                     time.sleep(5)
@@ -43,7 +43,7 @@ class NdexClientTestCase4(tt.NdexClientTestCase):
                 break
             except Exception as inst:
                 d = json.loads(inst.response.content)
-                if d.get('message').startswith("Can't modify locked network.") or d.get('message').startswith("Network is locked by another updating process"):
+                if d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
                     print "retry in 5 seconds(" + str(count) + ")"
                     count += 1
                     time.sleep(5)

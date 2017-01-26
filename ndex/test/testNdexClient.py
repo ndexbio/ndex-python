@@ -19,7 +19,7 @@ class NdexClientTestCase(unittest.TestCase):
             cls._nrc = cls._ndex.save_cx_stream_as_new_network(cx_file)
             networkId = uuid.UUID('{'+cls._nrc[-36:] + '}')
             cls._networkId = str(networkId)
-            time.sleep(3)
+            time.sleep(2)
 
     @classmethod
     def tearDownClass(cls):
@@ -59,10 +59,10 @@ class NdexClientTestCase2(NdexClientTestCase):
                 count = 60
             except Exception as inst :
                 d = json.loads(inst.response.content)
-                if d.get('message').startswith("Can't modify locked network.") :
-                    print "retry in 5 seconds(" + str(count) + ")"
+                if d.get('errorCode').startswith("NDEx_Concurrent_Modification") :
+                    print "retry in 3 seconds(" + str(count) + ")"
                     count += 1
-                    time.sleep(5)
+                    time.sleep(3)
                 else :
                     raise inst
 
@@ -86,10 +86,10 @@ class NdexClientTestCase3(NdexClientTestCase):
                 count = 60
             except Exception as inst :
                 d = json.loads(inst.response.content)
-                if d.get('message').startswith("Can't modify locked network.") :
-                    print "retry in 5 seconds(" + str(count) + ")"
+                if d.get('errorCode').startswith("NDEx_Concurrent_Modification") :
+                    print "retry in 3 seconds(" + str(count) + ")"
                     count += 1
-                    time.sleep(5)
+                    time.sleep(3)
                 else :
                     raise inst
 
@@ -114,10 +114,10 @@ class NdexClientTestCase3(NdexClientTestCase):
             except Exception as inst :
                 if inst.response and inst.response.get('content') :
                     d = json.loads(inst.response.content)
-                    if d and d.get('message') and d.get('message').startswith("Can't modify locked network.") :
-                        print "retry in 5 seconds(" + str(count) + ")"
+                    if d and d.get('errorCode') and d.get('errorCode').startswith("NDEx_Concurrent_Modification") :
+                        print "retry in 1 seconds(" + str(count) + ")"
                         count += 1
-                        time.sleep(5)
+                        time.sleep(1)
                     else:
                         raise inst
                 else :
@@ -137,10 +137,10 @@ class NdexClientTestCase3(NdexClientTestCase):
                 if (not inst.response) or (not inst.response.get('content')):
                     raise inst
                 d = json.loads(inst.response.content)
-                if d and d.get('message') and d.get('message').startswith("Can't modify locked network."):
-                    print "retry in 5 seconds(" + str(count) + ")"
+                if d and d.get('errorCode') and d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
+                    print "retry in 1 seconds(" + str(count) + ")"
                     count += 1
-                    time.sleep(5)
+                    time.sleep(1)
                 else:
                     raise inst
 

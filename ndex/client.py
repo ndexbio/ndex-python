@@ -9,6 +9,7 @@ import io
 from urlparse import urljoin
 from requests import exceptions as req_except
 import sys
+import time
 
 userAgent = 'NDEx-Python/2.0'
 
@@ -481,10 +482,22 @@ class Ndex:
         route = "/task/%s" % (task_id)
         return self.get(route)
 
-    def delete_network(self, network_id):
+    def delete_network(self, network_id, retry=5):
         self.require_auth()
         route = "/network/%s" % (network_id)
-        return self.delete(route)
+        count = 0
+        while count < retry:
+            try:
+                return self.delete(route)
+            except Exception as inst:
+                d = json.loads(inst.response.content)
+                if d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
+                    print "retry deleting network in 1 second(" + str(count) + ")"
+                    count += 1
+                    time.sleep(1)
+                else:
+                    raise inst
+        raise Exception("Network is locked after " + retry + " retry.")
 
     def get_provenance(self, network_id):
         route = "/network/%s/provenance" % (network_id)
