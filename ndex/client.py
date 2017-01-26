@@ -17,7 +17,7 @@ class Ndex:
 
 
     '''A class to facilitate communication with an NDEx server.'''
-    def __init__(self, host = "http://public.ndexbio.org", username = None, password = None, update_status=False):
+    def __init__(self, host = "http://public.ndexbio.org", username = None, password = None, update_status=False, debug = False):
         '''Creates a connection to a particular NDEx server.
 
                 :param host: The URL of the server.
@@ -27,7 +27,7 @@ class Ndex:
                 :param password: The account password. (Optional)
                 :type password: string
         '''
-        self.debug = True
+        self.debug = debug
         self.version = 1.3
         self.status = {}
         self.username = username
