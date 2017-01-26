@@ -8,7 +8,7 @@ import time
 import json
 import ndex.test.testNdexClient as tt
 
-class NdexClientTestCase4(tt.NdexClientTestCase):
+class NdexClientTestCase4(tt.NdexClientRASMachineTestCase):
 
     def testNetworkVisibility(self):
         ndex2 = nc.Ndex(tt.TESTSERVER)

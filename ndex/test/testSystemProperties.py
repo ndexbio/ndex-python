@@ -3,12 +3,9 @@ import unittest
 import ndex.client as nc
 import time
 from os import path
+import ndex.test.testNdexClient as tt
 
-
-ndex_host = "http://dev.ndexbio.org"
 ndex_network_resource = "/v2/network/"
-username_1 = "ttt"
-password_1 = "ttt"
 
 example_network_1 = 'A549-SL-network.cx'
 
@@ -21,14 +18,14 @@ example_network_1 = 'A549-SL-network.cx'
 class MyTestCase(unittest.TestCase):
 
     def test_get_user_by_username(self):
-        ndex = nc.Ndex(host=ndex_host, username=username_1, password=password_1)
+        ndex = nc.Ndex(host=tt.TESTSERVER, username=tt.testUser1, password=tt.testUserpasswd, debug=True)
 
         with open(path.join(path.abspath(path.dirname(__file__)),example_network_1), 'r') as file_handler:
             network_in_cx = file_handler.read()
 
         # test save_cx_stream_as_new_network
         test_network_1_uri = ndex.save_cx_stream_as_new_network(network_in_cx)
-        self.assertTrue(test_network_1_uri.startswith(ndex_host + ndex_network_resource))
+        self.assertTrue(test_network_1_uri.startswith(tt.TESTSERVER + ndex_network_resource))
 
         network_UUID = str(test_network_1_uri.split("/")[-1])
 

@@ -8,6 +8,8 @@ import time
 import json
 
 
+## The following 2 test users have to be created on the test server before running the test suite.
+
 TESTSERVER= "http://dev.ndexbio.org"
 HERE = path.abspath(path.dirname(__file__))
 
@@ -30,6 +32,15 @@ class NdexClientTestCase(unittest.TestCase):
         cls._ndex.delete_network(cls._networkId)
         print "Network " + cls._networkId + " deleted from " + cls._ndex.username +" account " + cls._ndex.host
 
+class NdexClientRASMachineTestCase(NdexClientTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls._ndex = nc.Ndex(host=TESTSERVER, username=testUser1, password=testUserpasswd, debug=True)
+        with open(path.join(HERE, 'The_RAS_Machine.cx'),'r') as cx_file:
+            cls._nrc = cls._ndex.save_cx_stream_as_new_network(cx_file)
+            networkId = uuid.UUID('{'+cls._nrc[-36:] + '}')
+            cls._networkId = str(networkId)
+            time.sleep(2)
 
 class NdexClientTestCase1(unittest.TestCase):
 
