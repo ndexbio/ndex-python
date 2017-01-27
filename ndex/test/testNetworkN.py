@@ -38,3 +38,5 @@ class NetworkNTests(unittest.TestCase):
         print list_of_string
 
 
+if __name__ == '__main__':
+    unittest.main()

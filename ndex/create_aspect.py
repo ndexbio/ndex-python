@@ -192,7 +192,7 @@ def function_terms(G):
 
 def reified_edges(G):
     reified_edges = []
-    for re in G.reified_edges:
+    for n,re in G.reified_edges.iteritems:
         reified_edges.append(re)
     return [{"reifiedEdges": reified_edges}]
 
