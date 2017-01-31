@@ -192,7 +192,7 @@ def function_terms(G):
 
 def reified_edges(G):
     reified_edges = []
-    for re in G.reified_edges:
+    for n,re in G.reified_edges.iteritems:
         reified_edges.append(re)
     return [{"reifiedEdges": reified_edges}]
 
@@ -200,6 +200,12 @@ def provenance(G):
     if G.get_provenance():
         return [{"provenanceHistory": [G.get_provenance()]}]
     else:
+        return []
+
+def namespaces(G):
+    if G.namespaces:
+        return [{'@context': [G.namespaces]}]
+    else :
         return []
 
 # cv stands for convert value. This converts a type to a string representation for CX purposes.

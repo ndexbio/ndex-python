@@ -1,6 +1,7 @@
 import ndex.client as nc
 from ndex.create_aspect import domain
 import json
+import time
 
 ndex_host = "http://dev2.ndexbio.org"
 username_1 = "drh"
@@ -69,7 +70,7 @@ def update_cx_property_list(name, value, subnetwork_id, property_list):
 
 example_network_1_id = "b612d677-c714-11e6-b48c-0660b7976219"
 
-ndex = nc.Ndex(host=ndex_host, username=username_1, password=password_1)
+ndex = nc.Ndex(host=ndex_host, username=username_1, password=password_1,debug=True)
 
 example_network_1_summary = ndex.get_network_summary(example_network_1_id)
 
@@ -92,6 +93,7 @@ print json.dumps(test_network_1_summary, indent=4)
 #----------------------------
 # Update visibility
 
+time.sleep(3)
 ndex.make_network_public(test_network_1_id)
 print "network is public"
 
@@ -107,7 +109,7 @@ update_network_properties(ndex, test_network_1_summary, test_property_dict)
 
 
 # Get the summary
-
+time.sleep(5)
 test_network_1_summary = ndex.get_network_summary(test_network_1_id)
 
 print json.dumps(test_network_1_summary, indent=4)

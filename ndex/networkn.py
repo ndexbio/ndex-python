@@ -125,8 +125,9 @@ class NdexGraph (MultiDiGraph):
         self.node_support_map = {}
         self.edge_support_map = {}
         self.function_term_map = {}
-        self.reified_edges = []
+        self.reified_edges = {}
         self.provenance = None
+        self.namespaces = {}
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
@@ -159,7 +160,12 @@ class NdexGraph (MultiDiGraph):
 
         # First pass, get information about subnetworks.
         for aspect in cx:
-            if 'status' in aspect or "numberVerification" in aspect:
+            if 'status' in aspect :
+                if aspect['status'][0]['success']:
+                    continue
+                else:
+                    raise RuntimeError("Error in CX status aspect: " + aspect['status'][0]['error'])
+            if "numberVerification" in aspect:
                 # new status and numberVerification will be added when the network is output to_cx
                 continue
             if 'subNetworks' in aspect:
@@ -178,8 +184,23 @@ class NdexGraph (MultiDiGraph):
                 self.metadata_original = aspect["metaData"]
                 # Strip metaData
                 continue
+            elif 'provenanceHistory' in aspect:
+                elements = aspect['provenanceHistory']
+                if len(elements) > 0:
+                    if len(elements)>1 or self.provenance :
+                        raise RuntimeError('profenanceHistory aspect can only have one element.')
+                    else :
+                        self.provenance = elements[0]
+            elif '@context' in aspect :
+                elements = aspect['@context']
+                if len(elements) > 0:
+                    if  len(elements) > 1 or self.namespaces:
+                        raise RuntimeError('@context aspect can only have one element')
+                    else :
+                        self.namespaces = elements[0]
             else:
                 self.unclassified_cx.append(aspect)
+
             cx = self.unclassified_cx
 
         # Second pass, just build basic graph.
@@ -339,18 +360,8 @@ class NdexGraph (MultiDiGraph):
                 for function_term in aspect['functionTerms']:
                     self.function_term_map[function_term["po"]] = function_term
             elif 'reifiedEdges' in aspect:
-                self.reified_edges = aspect["reifiedEdges"]
-            else:
-                self.unclassified_cx.append(aspect)
-
-        cx = self.unclassified_cx
-        self.unclassified_cx = []
-        # Eighth pass, add provenance
-        for aspect in cx:
-            if 'provenanceHistory' in aspect:
-                elements = aspect['provenanceHistory']
-                if len(elements) > 0:
-                    self.provenance = elements[0]
+                for reified_edge in aspect["reifiedEdges"]:
+                    self.reified_edges [reified_edge['node']] = reified_edge
             else:
                 self.unclassified_cx.append(aspect)
 
@@ -545,6 +556,9 @@ class NdexGraph (MultiDiGraph):
             return self.graph['name']
         return None
 
+    def set_namespace (self, namespaceMap):
+        self.namespaces = namespaceMap
+
     def show_stats(self):
         """Show the number of nodes and edges."""
         print "Nodes: %d" % self.number_of_nodes()
@@ -582,6 +596,11 @@ class NdexGraph (MultiDiGraph):
         cx = []
         cx += create_aspect.number_verification()
         cx += self.generate_metadata(G, self.unclassified_cx) #create_aspect.metadata(metadata_dict=md_dict)
+
+        #always add context first.
+        if self.namespaces:
+            cx += create_aspect.namespaces(G)
+
         network_attributes = create_aspect.network_attributes(G, has_single_subnetwork)
         cx += network_attributes
 
@@ -1000,6 +1019,18 @@ class NdexGraph (MultiDiGraph):
         self.add_node(self.max_node_id, attr_dict, **attr)
         return self.max_node_id
 
+    def add_cx_node(self, id, name=None, represents = None, attr_dict=None):
+
+        if (not attr_dict) and (name or represents):
+            attr_dict = {}
+        if name:
+            attr_dict['name'] = name
+        if represents:
+            attr_dict['represents'] = represents
+        self.add_node(id, attr_dict)
+
+    def get_cx_node (self, id):
+        return self.node[id]
 
     def remove_nodes_from(self, nbunch):
         for n in nbunch:
@@ -1008,9 +1039,7 @@ class NdexGraph (MultiDiGraph):
         super(MultiDiGraph, self).remove_nodes_from(nbunch)
 
     def remove_node(self, n):
-        for re in self.reified_edges:
-            if(re["node"] == n):
-                self.reified_edges.remove(re)
+        self.reified_edges.pop(n,None)
 
         if(self.function_term_map.get(n) is not None):
             self.function_term_map.pop(n, None)
@@ -1233,9 +1262,9 @@ class NdexGraph (MultiDiGraph):
         # remove edge from edge map
         self.edgemap.pop(edge_id, None)
 
-        for re in self.reified_edges:
+        for n,re in self.reified_edges.iteritems():
             if(re["edge"] == edge_id):
-                self.reified_edges.remove(re)
+                self.reified_edges.pop(n,None)
 
         #self.edge_citation_map.pop(edge_id, None)
         #self.edge_support_map.pop(edge_id, None)
@@ -1532,6 +1561,9 @@ class NdexGraph (MultiDiGraph):
         else:
             new_provenance = make_provenance(event_type,entity_props=entity_props)
         self.set_provenance(new_provenance)
+
+    def set_namespaces(self,namespaces):
+        self.namespaces = namespaces
 
     #------------------------------------------
     #       Datatypes

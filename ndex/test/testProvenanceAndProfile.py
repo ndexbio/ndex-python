@@ -3,12 +3,10 @@ import unittest
 import ndex.client as nc
 import time
 from os import path
+import ndex.test.testNdexClient as tt
 
 
-ndex_host = "http://dev.ndexbio.org"
 ndex_network_resource = "/v2/network/"
-username_1 = "ttt"
-password_1 = "ttt"
 
 example_network_1 = 'A549-SL-network.cx'
 
@@ -25,7 +23,7 @@ example_network_1 = 'A549-SL-network.cx'
 
 class MyTestCase(unittest.TestCase):
     def test_provenance_and_profile(self):
-        ndex = nc.Ndex(host=ndex_host, username=username_1, password=password_1)
+        ndex = nc.Ndex(host=tt.TESTSERVER, username=tt.testUser1, password=tt.testUserpasswd, debug=True)
 
         with open(path.join(path.abspath(path.dirname(__file__)), example_network_1), 'r') as file_handler:
             network_in_cx = file_handler.read()
@@ -33,7 +31,7 @@ class MyTestCase(unittest.TestCase):
 
         # test save_cx_stream_as_new_network
         test_network_1_uri = ndex.save_cx_stream_as_new_network(network_in_cx)
-        self.assertTrue(test_network_1_uri.startswith(ndex_host + ndex_network_resource))
+        self.assertTrue(test_network_1_uri.startswith(tt.TESTSERVER + ndex_network_resource))
 
 
         # test get_provenance
@@ -46,7 +44,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue('properties' in provenance_keys)
         self.assertTrue('uri' in provenance_keys)
         uri1 = str(provenance['uri']);
-        uri2 = ndex_host + ndex_network_resource + network_UUID + "/summary"
+        uri2 = tt.TESTSERVER + ndex_network_resource + network_UUID + "/summary"
         self.assertTrue(uri1 == uri2)
 
 
