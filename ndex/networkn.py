@@ -191,6 +191,13 @@ class NdexGraph (MultiDiGraph):
                         raise RuntimeError('profenanceHistory aspect can only have one element.')
                     else :
                         self.provenance = elements[0]
+            elif '@context' in aspect :
+                elements = aspect['@context']
+                if len(elements) > 0:
+                    if  len(elements) > 1 or self.namespaces:
+                        raise RuntimeError('@context aspect can only have one element')
+                    else :
+                        self.namespaces = elements[0]
             else:
                 self.unclassified_cx.append(aspect)
 
@@ -589,6 +596,11 @@ class NdexGraph (MultiDiGraph):
         cx = []
         cx += create_aspect.number_verification()
         cx += self.generate_metadata(G, self.unclassified_cx) #create_aspect.metadata(metadata_dict=md_dict)
+
+        #always add context first.
+        if self.namespaces:
+            cx += create_aspect.namespaces(G)
+
         network_attributes = create_aspect.network_attributes(G, has_single_subnetwork)
         cx += network_attributes
 
@@ -1007,6 +1019,18 @@ class NdexGraph (MultiDiGraph):
         self.add_node(self.max_node_id, attr_dict, **attr)
         return self.max_node_id
 
+    def add_cx_node(self, id, name=None, represents = None, attr_dict=None):
+
+        if (not attr_dict) and (name or represents):
+            attr_dict = {}
+        if name:
+            attr_dict['name'] = name
+        if represents:
+            attr_dict['represents'] = represents
+        self.add_node(id, attr_dict)
+
+    def get_cx_node (self, id):
+        return self.node[id]
 
     def remove_nodes_from(self, nbunch):
         for n in nbunch:
@@ -1537,6 +1561,9 @@ class NdexGraph (MultiDiGraph):
         else:
             new_provenance = make_provenance(event_type,entity_props=entity_props)
         self.set_provenance(new_provenance)
+
+    def set_namespaces(self,namespaces):
+        self.namespaces = namespaces
 
     #------------------------------------------
     #       Datatypes

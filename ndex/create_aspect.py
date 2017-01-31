@@ -202,6 +202,12 @@ def provenance(G):
     else:
         return []
 
+def namespaces(G):
+    if G.namespaces:
+        return [{'@context': [G.namespaces]}]
+    else :
+        return []
+
 # cv stands for convert value. This converts a type to a string representation for CX purposes.
 def cv(val):
     return val

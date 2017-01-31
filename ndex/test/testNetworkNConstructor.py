@@ -26,6 +26,7 @@ class NetworkNConstructorTests(unittest.TestCase):
             self.assertEqual(len(G.reified_edges), 2)
             self.assertEqual(len(G.edge_citation_map),37)
             self.assertEqual(len(G.edge_support_map),37)
+            self.assertEqual(len(G.namespaces),39)
 
 if __name__ == '__main__':
     unittest.main()
