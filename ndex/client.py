@@ -246,7 +246,7 @@ class Ndex:
 
             stream = io.BytesIO(json.dumps(cx))
 
-            return self.save_cx_stream_as_new_network(stream, provenance)
+            return self.save_cx_stream_as_new_network(stream)
         else:
             raise IndexError("Cannot save empty CX.  Please provide a non-empty CX document.")
 
