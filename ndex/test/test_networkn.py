@@ -1,35 +1,42 @@
+__author__ = 'aarongary'
 
-from ndex.networkn import NdexGraph
+import unittest
+import ndex
+from ndex.networkn import  FilterSub
 
-def test_types():
-    G = NdexGraph()
-    n = G.add_new_node('Node with Types')
-    n1 = G.add_new_node('A')
-    n2 = G.add_new_node('B')
-    G.add_edge_between(n, n1)
-    G.add_edge_between(n, n2)
-    G.set_name('Test Types')
+class NetworkNTests(unittest.TestCase):
+    #==============================
+    # TEST LARGE NETWORK
+    #==============================
+    def test_data_to_type(self):
+        self.assertTrue(self, ndex.networkn.data_to_type('true','boolean'))
+        print type(ndex.networkn.data_to_type('1.3','double'))
+        print type(ndex.networkn.data_to_type('1.3','float'))
+        print type(ndex.networkn.data_to_type('1','integer'))
+        print type(ndex.networkn.data_to_type('1','long'))
+        print type(ndex.networkn.data_to_type('1','short'))
+        print type(ndex.networkn.data_to_type('1','string'))
+        list_of_boolean = type(ndex.networkn.data_to_type('["true","false"]','list_of_boolean'))
+        print list_of_boolean
 
-    G.node[n]['string'] = 'mystring'
-    G.node[n]['bool'] = True
-    G.node[n]['int'] = 5
-    G.node[n]['double'] = 2.5
-    G.node[n]['long'] = 5L
+        list_of_double = ndex.networkn.data_to_type('[1.3,1.4]','list_of_double')
+        print list_of_double
 
-    G.node[n]['string_list'] = ['mystring','myotherstring']
-    G.node[n]['bool_list'] = [False, True]
-    G.node[n]['int_list'] = [5, -20]
-    G.node[n]['double_list'] = [2.5, 3.7]
-    G.node[n]['long_list'] = [5L, 75L]
+        list_of_float = ndex.networkn.data_to_type('[1.3,1.4]','list_of_float')
+        print list_of_float
 
-    G.write_to('temp_test_type.cx')
+        list_of_integer = ndex.networkn.data_to_type('[1,4]','list_of_integer')
+        print list_of_integer
 
-    # G.upload_to('http://test.ndexbio.org', 'scratch', 'scratch')
+        list_of_long = ndex.networkn.data_to_type('[1,4]','list_of_long')
+        print list_of_long
 
-def test_metadata():
-    G = NdexGraph(server="http://dev.ndexbio.org", uuid="317332f7-ade8-11e6-913c-06832d634f41")
-    print G.metadata_original
+        list_of_short = ndex.networkn.data_to_type('[1,4]','list_of_short')
+        print list_of_short
 
-if __name__ == "__main__":
-    test_types()
-    test_metadata()
+        list_of_string = ndex.networkn.data_to_type(['abc'],'list_of_string')
+        print list_of_string
+
+
+if __name__ == '__main__':
+    unittest.main()
