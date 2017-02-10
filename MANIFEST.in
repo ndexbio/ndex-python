@@ -1,0 +1,10 @@
+graft ndex
+
+recursive-include docs/source *.py
+recursive-include docs/source *.rst
+recursive-include docs Makefile
+include docs/Makefile
+
+global-exclude *.py[cod] __pycache__ *.so *.dylib .DS_Store
+
+include *.md *.txt *.yml LICENSE tox.ini
