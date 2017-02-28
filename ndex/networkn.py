@@ -245,7 +245,7 @@ class NdexGraph (MultiDiGraph):
                         continue
                     value = parse_attribute(networkAttribute)
                     value = networkAttribute['v']
-                    if value:
+                    if value is not None:
                         if 's' in networkAttribute or name not in self.graph:
                             self.graph[name] = value
 
@@ -257,7 +257,7 @@ class NdexGraph (MultiDiGraph):
                     if name == 'selected':
                         continue
                     value = parse_attribute(nodeAttribute)
-                    if value:
+                    if value is not None:
                         if 's' in nodeAttribute or name not in self.node[id]:
                             self.node[id][name] = value
 
@@ -270,7 +270,7 @@ class NdexGraph (MultiDiGraph):
                     if name == 'selected' or name == 'shared name':
                         continue
                     value = parse_attribute(edgeAttribute)
-                    if value:
+                    if value is not None:
                         if 's' in edgeAttribute or name not in self[s][t][id]:
                             self[s][t][id][name] = value
             else:
@@ -674,6 +674,19 @@ class NdexGraph (MultiDiGraph):
 
             print "consistency group max: " + str(consistency_group)
 
+        # ========================
+        # @context metadata
+        # ========================
+        if  self.namespaces:
+            return_metadata.append(
+                {
+                    "consistencyGroup": consistency_group,
+                    "elementCount": 1,
+                    "name": "@context",
+                    "properties": [],
+                    "version": "1.0"
+                }
+            )
 
         #========================
         # Nodes metadata
