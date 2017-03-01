@@ -257,7 +257,6 @@ class Ndex:
         ''' Create a new network from a CX stream, optionally providing a provenance history object to be included in the new network.
 
         :param cx_stream: The network stream.
-        :param provenance: The desired provenance history associated with the network.
         :return: The response.
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
         '''
@@ -275,22 +274,15 @@ class Ndex:
                 'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
             }
 
-   #     if provenance:
-   #         if isinstance(provenance, dict):
-   #             fields['provenance'] = json.dumps(provenance)
-   #         else:
-   #             fields['provenance'] = provenance
-
         return self.post_multipart(route, fields)
 
     # Create a network based on a JSON string or Dict in CX format
-    def update_cx_network(self, cx_stream, network_id, provenance=None):
+    def update_cx_network(self, cx_stream, network_id):
         '''Update the network specified by UUID network_id using the CX stream cx_stream.
 
         :param cx_stream: The network stream.
         :param network_id: The UUID of the network.
         :type network_id: str
-        :param provenance: The desired provenance history associated with the network.
         :return: The response.
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
 
@@ -299,11 +291,6 @@ class Ndex:
         fields = {
             'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
         }
-        if provenance:
-            if isinstance(provenance, dict):
-                fields['provenance'] = json.dumps(provenance)
-            else:
-                fields['provenance'] = provenance
 
         if(self.version == "2.0"):
             route = "/network/%s" % (network_id)
@@ -374,6 +361,9 @@ class Ndex:
         response = self.get_neighborhood_as_cx_stream(network_id, search_string, search_depth=search_depth, edge_limit=edge_limit)
 
         if(self.version == "2.0"):
+            #response_in_json = response.json()
+            #data =  response_in_json["data"]
+            #return data
             return response.json()["data"]
         else:
             raise Exception("get_neighborhood is not supported for versions prior to 2.0, use get_neighborhood_as_cx_stream")
@@ -425,7 +415,7 @@ class Ndex:
 
     def network_summaries_to_ids(self, network_summaries):
         network_ids = []
-        for network in network_summaries:
+        for network in network_summaries['networks']:
             network_ids.append(network['externalId'] )
         return network_ids
 
