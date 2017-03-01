@@ -61,11 +61,11 @@ class MyTestCase(unittest.TestCase):
 
         ################### now, we add a new property with subNetworkId != None ###################
 
+        self.assertTrue("subnetworkIds" in network_summary, "'subnetworkIds' structure is not in network_summary")
 
-        if "subnetworkIds" in network_summary:
-            number_of_subnetworks = len(network_summary["subnetworkIds"])
-            self.assertTrue(number_of_subnetworks == 1, "Expected 1 subnetwork in network summary, but there are " \
-                            + str(number_of_subnetworks))
+        number_of_subnetworks = len(network_summary["subnetworkIds"])
+        self.assertTrue(number_of_subnetworks == 1, "Expected 1 subnetwork in network summary, but there are " \
+                        + str(number_of_subnetworks))
 
         subnetwork_id = network_summary["subnetworkIds"][0]
 
