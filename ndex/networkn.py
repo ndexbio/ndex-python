@@ -7,25 +7,25 @@ import copy
 import ndex.client as nc
 from time import time
 
-NDEXGRAPH_RESERVED_ATTRIBUTES = [
-    "subnetwork_id"
-    "view_id",
-    "max_node_id",
-    "max_edge_id",
-    "max_citation_id",
-    "max_support_id",
-    "pos",
-    "unclassified_cx",
-    "metadata_original",
-    "status",
-    "citation_map",
-    "node_citation_map",
-    "edge_citation_map",
-    "support_map",
-    "node_support_map",
-    "edge_support_map",
-    "self.edgemap"
-]
+#NDEXGRAPH_RESERVED_ATTRIBUTES = [
+#    "subnetwork_id"
+#    "view_id",
+#    "max_node_id",
+#    "max_edge_id",
+#    "max_citation_id",
+#    "max_support_id",
+#    "pos",
+#    "unclassified_cx",
+#    "metadata_original",
+#    "status",
+#    "citation_map",
+#    "node_citation_map",
+#    "edge_citation_map",
+#    "support_map",
+#    "node_support_map",
+#    "edge_support_map",
+#    "self.edgemap"
+#]
 
 
 def parse_attribute(attribute):
@@ -128,9 +128,12 @@ class NdexGraph (MultiDiGraph):
         self.reified_edges = {}
         self.provenance = None
         self.namespaces = {}
+     #   self.edge_type_map = {}  # stores the mapping from cx edgeId to its 'i' attribute
+     #   self.node_prepresent_map ={} #stores the mapping from cx nodeId to its represents
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
+
 
         if networkx_G is not None:
             for node_id, data in networkx_G.nodes_iter(data=True):
@@ -241,8 +244,8 @@ class NdexGraph (MultiDiGraph):
                 for networkAttribute in aspect['networkAttributes']:
                     name = networkAttribute['n']
                     # special: ignore selected
-                    if name == 'selected':
-                        continue
+           #         if name == 'selected':
+           #             continue
                     value = parse_attribute(networkAttribute)
                     value = networkAttribute['v']
                     if value is not None:
@@ -253,9 +256,6 @@ class NdexGraph (MultiDiGraph):
                 for nodeAttribute in aspect['nodeAttributes']:
                     id = nodeAttribute['po']
                     name = nodeAttribute['n']
-                    # special: ignore selected
-                    if name == 'selected':
-                        continue
                     value = parse_attribute(nodeAttribute)
                     if value is not None:
                         if 's' in nodeAttribute or name not in self.node[id]:
@@ -266,9 +266,6 @@ class NdexGraph (MultiDiGraph):
                     id = edgeAttribute['po']
                     s, t = self.edgemap[id]
                     name = edgeAttribute['n']
-                    # special: ignore selected and shared_name columns
-                    if name == 'selected' or name == 'shared name':
-                        continue
                     value = parse_attribute(edgeAttribute)
                     if value is not None:
                         if 's' in edgeAttribute or name not in self[s][t][id]:
@@ -541,8 +538,8 @@ class NdexGraph (MultiDiGraph):
         self.graph['name'] = name
 
     def set_network_attribute(self, name, value):
-        if name in NDEXGRAPH_RESERVED_ATTRIBUTES:
-            raise ValueError(str(name) + " is a reserved network attribute name and may not be set by this method")
+    #    if name in NDEXGRAPH_RESERVED_ATTRIBUTES:
+    #        raise ValueError(str(name) + " is a reserved network attribute name and may not be set by this method")
         self.graph[name] = value
 
     def get_name(self):

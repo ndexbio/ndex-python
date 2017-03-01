@@ -106,6 +106,8 @@ def edge_attributes(G, has_single_subnetwork):
     elements = []
     for source, target, edge_id, attributes in G.edges_iter(data=True, keys=True):
         for attribute_name in attributes:
+            if attribute_name == 'interaction':
+                continue
             attribute_value = attributes[attribute_name]
             element = {'po': edge_id, 'n': attribute_name, 'v': attribute_value}
 
