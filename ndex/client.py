@@ -415,7 +415,7 @@ class Ndex:
 
     def network_summaries_to_ids(self, network_summaries):
         network_ids = []
-        for network in network_summaries['networks']:
+        for network in network_summaries:
             network_ids.append(network['externalId'] )
         return network_ids
 
@@ -611,7 +611,14 @@ class Ndex:
         return self.search_networks("", username, size=1000)
 
     def get_network_ids_for_user(self, username):
-        return self.network_summaries_to_ids(self.get_network_summaries_for_user(username))
+        network_summaries = self.get_network_summaries_for_user(username)
+
+        if (network_summaries and network_summaries['networks']):
+            network_summaries_list = network_summaries['networks']
+        else:
+            network_summaries_list = []
+
+        return self.network_summaries_to_ids(network_summaries_list)
 
     def grant_network_to_user_by_username(self, username, network_id, permission):
         user = self.get_user_by_username(username).json
