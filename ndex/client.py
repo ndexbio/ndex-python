@@ -608,15 +608,17 @@ class Ndex:
         return self.get(route)
 
     def get_network_summaries_for_user(self, username):
-        return self.search_networks("", username, size=1000)
-
-    def get_network_ids_for_user(self, username):
-        network_summaries = self.get_network_summaries_for_user(username)
+        network_summaries = self.search_networks("", username, size=1000)
 
         if (network_summaries and network_summaries['networks']):
             network_summaries_list = network_summaries['networks']
         else:
             network_summaries_list = []
+
+        return network_summaries_list
+
+    def get_network_ids_for_user(self, username):
+        network_summaries_list = self.get_network_summaries_for_user(username)
 
         return self.network_summaries_to_ids(network_summaries_list)
 
