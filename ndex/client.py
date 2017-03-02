@@ -6,9 +6,14 @@ import ndex
 from requests_toolbelt import MultipartEncoder
 import os
 import io
-from urlparse import urljoin
-from requests import exceptions as req_except
 import sys
+
+if sys.version_info.major == 3:
+    from urllib.parse import urljoin
+else:
+    from urlparse import urljoin
+
+from requests import exceptions as req_except
 import time
 
 userAgent = 'NDEx-Python/2.0'
@@ -482,7 +487,7 @@ class Ndex:
             except Exception as inst:
                 d = json.loads(inst.response.content)
                 if d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
-                    print "retry deleting network in 1 second(" + str(count) + ")"
+                    print("retry deleting network in 1 second(" + str(count) + ")")
                     count += 1
                     time.sleep(1)
                 else:
