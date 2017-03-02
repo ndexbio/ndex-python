@@ -2,6 +2,7 @@
 import unittest
 from os import path
 import json
+import ndex.beta.layouts as layouts
 from ndex.networkn import NdexGraph
 
 
@@ -32,6 +33,7 @@ class NetworkNConstructorTests(unittest.TestCase):
         with open (path.join(HERE,'filtered.cx'),'r') as cx_file:
             cx=json.load(cx_file)
             g = NdexGraph(cx)
+            layouts.apply_directed_flow_layout(g)
             self.assertEqual(g.node[80]['diffusion_input'], 1.0)
 
 
