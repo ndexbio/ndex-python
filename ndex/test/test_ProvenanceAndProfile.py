@@ -69,7 +69,7 @@ class MyTestCase(unittest.TestCase):
         test_profile['visibility'] = 'PUBLIC'
         with self.assertRaises(Exception) as e:
             ndex.update_network_profile(network_UUID, test_profile)
-#            print e
+
 
       #  errorMessage = str(e)
       #  print errorMessage

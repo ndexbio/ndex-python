@@ -558,8 +558,8 @@ class NdexGraph (MultiDiGraph):
 
     def show_stats(self):
         """Show the number of nodes and edges."""
-        print "Nodes: %d" % self.number_of_nodes()
-        print "Edges: %d" % self.number_of_edges()
+        print("Nodes: %d" % self.number_of_nodes())
+        print("Edges: %d" % self.number_of_edges())
 
     def set_edgemap(self, edgemap):
         self.edgemap = edgemap
@@ -669,7 +669,7 @@ class NdexGraph (MultiDiGraph):
 
             consistency_group += 1 # bump the consistency group up by one
 
-            print "consistency group max: " + str(consistency_group)
+            print("consistency group max: " + str(consistency_group))
 
         # ========================
         # @context metadata
@@ -957,7 +957,7 @@ class NdexGraph (MultiDiGraph):
                          }
                     )
             except Exception as e:
-                print e.message
+                print(e.message)
 
 
         #print {'metaData': return_metadata}
