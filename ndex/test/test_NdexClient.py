@@ -30,7 +30,7 @@ class NdexClientTestCase(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls._ndex.delete_network(cls._networkId)
-        print "Network " + cls._networkId + " deleted from " + cls._ndex.username +" account " + cls._ndex.host
+        print("Network " + cls._networkId + " deleted from " + cls._ndex.username +" account " + cls._ndex.host)
 
 class NdexClientRASMachineTestCase(NdexClientTestCase):
     @classmethod
@@ -46,7 +46,7 @@ class NdexClientTestCase1(unittest.TestCase):
 
     def testConstructorException(self):
         with self.assertRaises(Exception):
-            print "testing ndex client constructor."
+            print("testing ndex client constructor.")
             ndex = nc.Ndex(host="www.google.com", username="foo", password="bar", debug=True)
 
     def testConstructor2 (self):
@@ -60,7 +60,7 @@ class NdexClientTestCase2(NdexClientTestCase):
     def testGetNetwork(self):
         summary = self._ndex.get_network_summary(self._networkId)
         self.assertEqual(summary.get(u'externalId'), self._networkId)
-        print "get_network_summary() passed."
+        print("get_network_summary() passed.")
 
     def testGrantGroupPermission(self):
         ndex2 = nc.Ndex(TESTSERVER, username=testUser2 , password = testUserpasswd,debug=True)
@@ -75,7 +75,7 @@ class NdexClientTestCase2(NdexClientTestCase):
             except Exception as inst :
                 d = json.loads(inst.response.content)
                 if d.get('errorCode').startswith("NDEx_Concurrent_Modification") :
-                    print "retry in 3 seconds(" + str(count) + ")"
+                    print("retry in 3 seconds(" + str(count) + ")")
                     count += 1
                     time.sleep(3)
                 else :
@@ -83,7 +83,7 @@ class NdexClientTestCase2(NdexClientTestCase):
 
         summary = ndex2.get_network_summary(self._networkId)
         self.assertEqual(summary.get(u'externalId'), self._networkId)
-        print "update_network_group_permission() passed."
+        print("update_network_group_permission() passed.")
 
 
 
@@ -103,7 +103,7 @@ class NdexClientTestCase3(NdexClientTestCase):
             except Exception as inst :
                 d = json.loads(inst.response.content)
                 if d.get('errorCode').startswith("NDEx_Concurrent_Modification") :
-                    print "retry in 3 seconds(" + str(count) + ")"
+                    print("retry in 3 seconds(" + str(count) + ")")
                     count += 1
                     time.sleep(3)
                 else :
@@ -111,7 +111,7 @@ class NdexClientTestCase3(NdexClientTestCase):
 
         summary = ndex2.get_network_summary(self._networkId)
         self.assertEqual(summary.get(u'externalId'), self._networkId)
-        print "update_network_user_permission() passed."
+        print("update_network_user_permission() passed.")
 
 
 class NdexClientTestCase3(NdexClientTestCase):
@@ -131,7 +131,7 @@ class NdexClientTestCase3(NdexClientTestCase):
                 if inst.response and inst.response.get('content') :
                     d = json.loads(inst.response.content)
                     if d and d.get('errorCode') and d.get('errorCode').startswith("NDEx_Concurrent_Modification") :
-                        print "retry in 1 seconds(" + str(count) + ")"
+                        print("retry in 1 seconds(" + str(count) + ")")
                         count += 1
                         time.sleep(1)
                     else:
@@ -154,14 +154,14 @@ class NdexClientTestCase3(NdexClientTestCase):
                     raise inst
                 d = json.loads(inst.response.content)
                 if d and d.get('errorCode') and d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
-                    print "retry in 1 seconds(" + str(count) + ")"
+                    print("retry in 1 seconds(" + str(count) + ")")
                     count += 1
                     time.sleep(1)
                 else:
                     raise inst
 
         self.assertEqual(summary1.get(u'name'), "A549-SL-network")
-        print "update_cx_network() passed."
+        print("update_cx_network() passed.")
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ import ndex.client as nc
 import uuid
 import time
 import json
-import ndex.test.testNdexClient as tt
+import ndex.test.test_NdexClient as tt
 from ndex.networkn import NdexGraph
 
 
@@ -23,7 +23,7 @@ class NdexClientTestCase(tt.NdexClientTestCase):
             except Exception as inst :
                 d = json.loads(inst.response.content)
                 if d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
-                    print "retry in 1 seconds(" + str(count) + ")"
+                    print("retry in 1 seconds(" + str(count) + ")")
                     count += 1
                     time.sleep(1)
                 else :
@@ -45,7 +45,7 @@ class NdexClientTestCase(tt.NdexClientTestCase):
             except Exception as inst:
                 d = json.loads(inst.response.content)
                 if d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
-                    print "retry in 1 seconds(" + str(count) + ")"
+                    print("retry in 1 seconds(" + str(count) + ")")
                     count += 1
                     time.sleep(1)
                 else:
@@ -59,7 +59,7 @@ class NdexClientTestCase(tt.NdexClientTestCase):
         self.assertEqual(len(G.node),513)
  #       print G.metadata_original
 
-        print "Update network and setProperty test passed."
+        print("Update network and setProperty test passed.")
 
 if __name__ == '__main__':
     unittest.main()

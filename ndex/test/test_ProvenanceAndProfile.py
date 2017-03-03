@@ -3,7 +3,7 @@ import unittest
 import ndex.client as nc
 import time
 from os import path
-import ndex.test.testNdexClient as tt
+import ndex.test.test_NdexClient as tt
 
 
 ndex_network_resource = "/v2/network/"
@@ -69,7 +69,7 @@ class MyTestCase(unittest.TestCase):
         test_profile['visibility'] = 'PUBLIC'
         with self.assertRaises(Exception) as e:
             ndex.update_network_profile(network_UUID, test_profile)
-#            print e
+
 
       #  errorMessage = str(e)
       #  print errorMessage
