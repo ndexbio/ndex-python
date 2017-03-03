@@ -772,7 +772,10 @@ class NdexGraph (MultiDiGraph):
         attr_count = 0
         for s, t, id, a in G.edges(data=True, keys=True):
             if(bool(a)):
-                attr_count += len(a.keys())
+                for attribute_name in a:
+                    if attribute_name != "interaction":
+                        attr_count += 1
+                #attr_count += len(a.keys())
 
             # if(id > id_max):
             #     id_max = id
