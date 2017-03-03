@@ -3,7 +3,7 @@ import unittest
 import ndex.client as nc
 import time
 from os import path
-import ndex.test.testNdexClient as tt
+import ndex.test.test_NdexClient as tt
 
 ndex_network_resource = "/v2/network/"
 

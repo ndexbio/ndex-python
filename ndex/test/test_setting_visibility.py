@@ -6,7 +6,7 @@ import ndex.client as nc
 import uuid
 import time
 import json
-import ndex.test.testNdexClient as tt
+import ndex.test.test_NdexClient as tt
 
 class NdexClientTestCase4(tt.NdexClientRASMachineTestCase):
 
