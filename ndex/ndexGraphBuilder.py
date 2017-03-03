@@ -4,9 +4,9 @@ import networkn
 class ndexGraphBuilder:
     def __init__(self):
         self.ndexGraph = networkn.NdexGraph()
-        self.nodeIdCounter = 0
+        self.nodeIdCounter = 1
         self.sidTable = {}  # external id to nodeIt mapping table
-        self.edgeIdCounter = 0
+        self.edgeIdCounter = 1
 
     def addNamespaces(self, namespaces):
         self.ndexGraph.set_namespace(namespaces)
