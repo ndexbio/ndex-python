@@ -12,7 +12,7 @@ def get_network(ndex, network_id):
     return response.json()
 
 def network_id_from_uri(network_uri):
-    print "network URI: %s" % network_uri
+    print("network URI: %s" % network_uri)
     return network_uri.rpartition('/')[2]
 
 def update_network_properties(ndex, network_summary, property_dict):
@@ -74,7 +74,7 @@ ndex = nc.Ndex(host=ndex_host, username=username_1, password=password_1,debug=Tr
 
 example_network_1_summary = ndex.get_network_summary(example_network_1_id)
 
-print json.dumps(example_network_1_summary, indent=4)
+print(json.dumps(example_network_1_summary, indent=4))
 
 # Get the network
 
@@ -88,14 +88,14 @@ test_network_1_id = network_id_from_uri(test_network_1_uri)
 
 test_network_1_summary = ndex.get_network_summary(test_network_1_id)
 
-print json.dumps(test_network_1_summary, indent=4)
+print(json.dumps(test_network_1_summary, indent=4))
 
 #----------------------------
 # Update visibility
 
 time.sleep(3)
 ndex.make_network_public(test_network_1_id)
-print "network is public"
+print("network is public")
 
 
 #----------------------------
@@ -112,7 +112,7 @@ update_network_properties(ndex, test_network_1_summary, test_property_dict)
 time.sleep(5)
 test_network_1_summary = ndex.get_network_summary(test_network_1_id)
 
-print json.dumps(test_network_1_summary, indent=4)
+print(json.dumps(test_network_1_summary, indent=4))
 
 #----------------------------
 # Update the profile
@@ -127,7 +127,7 @@ ndex.update_network_profile(test_network_1_id, test_profile)
 
 test_network_1_summary = ndex.get_network_summary(test_network_1_id)
 
-print json.dumps(test_network_1_summary, indent=4)
+print(json.dumps(test_network_1_summary, indent=4))
 
 
 
