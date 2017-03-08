@@ -7,6 +7,7 @@ import copy
 import ndex.client as nc
 from time import time
 from six import string_types
+import sys
 
 #NDEXGRAPH_RESERVED_ATTRIBUTES = [
 #    "subnetwork_id"
@@ -977,7 +978,11 @@ class NdexGraph (MultiDiGraph):
 
         """
         cx = self.to_cx(md_dict)
-        return io.BytesIO(json.dumps(cx))
+
+        if sys.version_info.major == 3:
+            return io.BytesIO(json.dumps(cx).encode('utf-8'))
+        else:
+            return io.BytesIO(json.dumps(cx))
 
     def write_to(self, filename):
         """Write this network as a CX file to the specified filename.

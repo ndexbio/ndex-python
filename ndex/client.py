@@ -250,7 +250,10 @@ class Ndex:
                         # STATUS element found, but the status was empty
                         cx[len(cx) - 1].get('status').append({"error" : "","success" : True})
 
-            stream = io.BytesIO(json.dumps(cx))
+            if sys.version_info.major == 3:
+                stream = io.BytesIO(json.dumps(cx).encode('utf-8'))
+            else:
+                stream = io.BytesIO(json.dumps(cx))
 
             return self.save_cx_stream_as_new_network(stream)
         else:
