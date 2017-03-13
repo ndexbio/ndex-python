@@ -1,11 +1,13 @@
 import networkx as nx
 from networkx.classes.multidigraph import MultiDiGraph
-import create_aspect
+import ndex.create_aspect as ca
 import io
 import json
 import copy
 import ndex.client as nc
 from time import time
+from six import string_types
+import sys
 
 #NDEXGRAPH_RESERVED_ATTRIBUTES = [
 #    "subnetwork_id"
@@ -499,7 +501,7 @@ class NdexGraph (MultiDiGraph):
                 n2 = self.add_new_node(name2)
                 node_names_added[name2] = n2
 
-            edge_interaction = interaction if isinstance(interaction,basestring) else interaction[i]
+            edge_interaction = interaction if isinstance(interaction,string_types) else interaction[i]
             self.add_edge_between(n1,n2,edge_interaction)
 
     #------------------------------------------
@@ -591,57 +593,57 @@ class NdexGraph (MultiDiGraph):
 
         G = self
         cx = []
-        cx += create_aspect.number_verification()
-        cx += self.generate_metadata(G, self.unclassified_cx) #create_aspect.metadata(metadata_dict=md_dict)
+        cx += ca.number_verification()
+        cx += self.generate_metadata(G, self.unclassified_cx) #ca.metadata(metadata_dict=md_dict)
 
         #always add context first.
         if self.namespaces:
-            cx += create_aspect.namespaces(G)
+            cx += ca.namespaces(G)
 
-        network_attributes = create_aspect.network_attributes(G, has_single_subnetwork)
+        network_attributes = ca.network_attributes(G, has_single_subnetwork)
         cx += network_attributes
 
         if has_single_subnetwork:
-            cx += create_aspect.subnetworks(G, self.subnetwork_id, self.view_id)
+            cx += ca.subnetworks(G, self.subnetwork_id, self.view_id)
         # - don't output subnetworks if the NdexGraph doesn't know about them.
         # - All operations that add aspects for visual properties, cartesian coordinates,
         #   or otherwise refer to subnetworks must ensure that subnetwork and view ids are set
         # else:
-        #     cx += create_aspect.subnetworks(G, 0, 0)
-        cx += create_aspect.nodes(G)
-        cx += create_aspect.edges(G)
-        node_att = create_aspect.node_attributes(G, has_single_subnetwork)
+        #     cx += ca.subnetworks(G, 0, 0)
+        cx += ca.nodes(G)
+        cx += ca.edges(G)
+        node_att = ca.node_attributes(G, has_single_subnetwork)
         if(node_att is not None):
             cx += node_att
 
-        edge_att = create_aspect.edge_attributes(G, has_single_subnetwork)
+        edge_att = ca.edge_attributes(G, has_single_subnetwork)
         if(edge_att is not None):
             cx += edge_att
 
         if self.pos and len(self.pos):
             if has_single_subnetwork:
-                cx += create_aspect.cartesian(G, self.view_id)
+                cx += ca.cartesian(G, self.view_id)
             else:
                 raise ValueError("NdexGraph positions (g.pos) set without setting view and subnetwork ids")
 
         if len(self.citation_map) > 0:
-            cx += create_aspect.citations(G)
+            cx += ca.citations(G)
         if len(self.node_citation_map) > 0:
-            cx += create_aspect.node_citations(G)
+            cx += ca.node_citations(G)
         if len(self.edge_citation_map) > 0:
-            cx += create_aspect.edge_citations(G)
+            cx += ca.edge_citations(G)
         if len(self.support_map) > 0:
-            cx += create_aspect.supports(G)
+            cx += ca.supports(G)
         if len(self.node_support_map) > 0:
-            cx += create_aspect.node_supports(G)
+            cx += ca.node_supports(G)
         if len(self.edge_support_map) > 0:
-            cx += create_aspect.edge_supports(G)
+            cx += ca.edge_supports(G)
         if len(self.function_term_map) > 0:
-            cx += create_aspect.function_terms(G)
+            cx += ca.function_terms(G)
         if len(self.reified_edges) > 0:
-            cx += create_aspect.reified_edges(G)
+            cx += ca.reified_edges(G)
         if self.provenance:
-            cx += create_aspect.provenance(G)
+            cx += ca.provenance(G)
 
         for fragment in self.unclassified_cx:
             # filter out redundant networkRelations
@@ -976,7 +978,11 @@ class NdexGraph (MultiDiGraph):
 
         """
         cx = self.to_cx(md_dict)
-        return io.BytesIO(json.dumps(cx))
+
+        if sys.version_info.major == 3:
+            return io.BytesIO(json.dumps(cx).encode('utf-8'))
+        else:
+            return io.BytesIO(json.dumps(cx))
 
     def write_to(self, filename):
         """Write this network as a CX file to the specified filename.

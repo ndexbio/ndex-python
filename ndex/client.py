@@ -36,7 +36,7 @@ class Ndex:
         self.version = 1.3
         self.status = {}
         self.username = username
-        self.passpord = password
+        self.password = password
         if "localhost" in host:
             self.host = "http://localhost:8080/ndexbio-rest"
         else:
@@ -204,7 +204,7 @@ class Ndex:
 #                   'Cache-Control': 'no-cache',
                    'User-Agent':userAgent
                    }
-        response = requests.put(url, data=multipart_data, headers=headers,auth=(self.username, self.passpord))
+        response = requests.put(url, data=multipart_data, headers=headers,auth=(self.username, self.password))
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
@@ -226,7 +226,7 @@ class Ndex:
  #                  'Cache-Control': 'no-cache',
                    'User-Agent': userAgent,
                    }
-        response = requests.post(url, data=multipart_data, headers=headers, auth=(self.username, self.passpord))
+        response = requests.post(url, data=multipart_data, headers=headers, auth=(self.username, self.password))
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
@@ -250,7 +250,10 @@ class Ndex:
                         # STATUS element found, but the status was empty
                         cx[len(cx) - 1].get('status').append({"error" : "","success" : True})
 
-            stream = io.BytesIO(json.dumps(cx))
+            if sys.version_info.major == 3:
+                stream = io.BytesIO(json.dumps(cx).encode('utf-8'))
+            else:
+                stream = io.BytesIO(json.dumps(cx))
 
             return self.save_cx_stream_as_new_network(stream)
         else:

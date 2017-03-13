@@ -1,3 +1,8 @@
+from six import string_types, integer_types
+from sys import version_info
+PY3 = version_info > (3,)
+
+
 def number_verification():
     return [{'numberVerification': [{'longNumber': 281474976710655}]}]
 
@@ -53,7 +58,7 @@ def network_attributes(G, has_single_subnetwork):
     for attribute in G.graph:
         value = G.graph[attribute]
         element = {'n': attribute, 'v': value}
-        if not isinstance(value, basestring):
+        if not isinstance(value, string_types):
             d = domain(value)
             element["d"] = d
         if has_single_subnetwork:
@@ -62,7 +67,7 @@ def network_attributes(G, has_single_subnetwork):
     return [{'networkAttributes': elements}]
 
     # return [{'networkAttributes': [
-    #     {'n': k, 'v': G.graph[k]} if isinstance(G.graph[k], basestring) else
+    #     {'n': k, 'v': G.graph[k]} if isinstance(G.graph[k], string_types) else
     #     {'n': k, 'v': cv(G.graph[k]), 'd': domain(G.graph[k])}
     #     for k in G.graph]}]
 
@@ -76,7 +81,7 @@ def node_attributes(G, has_single_subnetwork):
                     attribute_value = attributes[attribute_name]
                     element = {'po': node_id, 'n': attribute_name, 'v': attribute_value}
 
-                    if not isinstance(attribute_value, basestring):
+                    if not isinstance(attribute_value, string_types):
                         element['d'] = domain(attribute_value)
 
                     if has_single_subnetwork:
@@ -89,11 +94,11 @@ def node_attributes(G, has_single_subnetwork):
             return [{"nodeAttributes": elements}]
 
     except Exception as e:
-        print e.message
+        print(e.message)
 
 
     # return [{'nodeAttributes': [
-    #     {'po': n[0], 'n': k, 'v': n[1][k]} if isinstance(n[1][k], basestring) else
+    #     {'po': n[0], 'n': k, 'v': n[1][k]} if isinstance(n[1][k], string_types) else
     #     {'po': n[0], 'n': k, 'v': cv(n[1][k]), 'd': domain(n[1][k])}
     #     for k in n[1] if k != 'name' and k != 'represents']} for n in G.nodes_iter(data=True)
     #         if ('name' in n[1] and 'represents' in n[1] and len(n[1]) > 2) or
@@ -111,7 +116,7 @@ def edge_attributes(G, has_single_subnetwork):
             attribute_value = attributes[attribute_name]
             element = {'po': edge_id, 'n': attribute_name, 'v': attribute_value}
 
-            if not isinstance(attribute_value, basestring):
+            if not isinstance(attribute_value, string_types):
                 element['d'] = domain(attribute_value)
 
             if has_single_subnetwork:
@@ -125,7 +130,7 @@ def edge_attributes(G, has_single_subnetwork):
         return [{"edgeAttributes": elements}]
 
     # return [{'edgeAttributes': [
-    #     {'po': e[2], 'n': k, 'v': e[3][k]} if isinstance(e[3][k], basestring) else
+    #     {'po': e[2], 'n': k, 'v': e[3][k]} if isinstance(e[3][k], string_types) else
     #     {'po': e[2], 'n': k, 'v': cv(e[3][k]), 'd': domain(e[3][k])}
     #     for k in e[3]]} for e in G.edges_iter(data=True, keys=True) if e[3]]
 
@@ -217,27 +222,37 @@ def cv(val):
 
 def domain(val):
     if type(val) is list:
-        if isinstance(val[0], basestring):
+        if isinstance(val[0], string_types):
             return 'list_of_string'
         elif type(val[0]) is bool:
             return 'list_of_boolean'
-        elif type(val[0]) is int:
-            return 'list_of_integer'
-        elif type(val[0]) is long:
-            return 'list_of_long'
+        elif isinstance(val[0], integer_types):
+            if PY3:
+                return 'list_of_integer'
+            else:
+                if type(val[0]) is int:
+                    return 'list_of_integer'
+                else:
+                    return 'list_of_long'
         elif type(val[0]) is float:
             return 'list_of_double'
         else:
             return 'list_of_unknown'
 
-    if isinstance(val, basestring):
+    if isinstance(val, string_types):
         return 'string'
     elif type(val) is bool:
         return 'boolean'
     elif type(val) is int:
         return 'integer'
-    elif type(val) is long:
-        return 'long'
+    elif isinstance(val, integer_types):
+        if PY3:
+                return 'integer'
+        else:
+            if type(val) is int:
+                return 'integer'
+            else:
+                return 'long'
     elif type(val) is float:
         return 'double'
     else:
