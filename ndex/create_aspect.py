@@ -42,8 +42,10 @@ def nodes(G):
 
 def edges(G):
     return [
+        {'edges': [{'i': e[3]['interaction'], 'k': e[3]['keep'], 's': e[0], '@id': e[2], 't': e[1]}]}
+        if 'interaction' in e[3] and 'keep' in e[3] else
         {'edges': [{'i': e[3]['interaction'], 's': e[0], '@id': e[2], 't': e[1]}]}
-        if 'interaction' in e[3] else
+        if 'interaction' in e[3] and 'keep' not in e[3] else
         {'edges': [{'s': e[0], '@id': e[2], 't': e[1]}]}
         for e in G.edges_iter(data=True, keys=True)]
 
