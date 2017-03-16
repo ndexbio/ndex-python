@@ -1,31 +1,33 @@
 import networkx as nx
 from networkx.classes.multidigraph import MultiDiGraph
-import create_aspect
+import ndex.create_aspect as ca
 import io
 import json
 import copy
 import ndex.client as nc
 from time import time
+from six import string_types
+import sys
 
-NDEXGRAPH_RESERVED_ATTRIBUTES = [
-    "subnetwork_id"
-    "view_id",
-    "max_node_id",
-    "max_edge_id",
-    "max_citation_id",
-    "max_support_id",
-    "pos",
-    "unclassified_cx",
-    "metadata_original",
-    "status",
-    "citation_map",
-    "node_citation_map",
-    "edge_citation_map",
-    "support_map",
-    "node_support_map",
-    "edge_support_map",
-    "self.edgemap"
-]
+#NDEXGRAPH_RESERVED_ATTRIBUTES = [
+#    "subnetwork_id"
+#    "view_id",
+#    "max_node_id",
+#    "max_edge_id",
+#    "max_citation_id",
+#    "max_support_id",
+#    "pos",
+#    "unclassified_cx",
+#    "metadata_original",
+#    "status",
+#    "citation_map",
+#    "node_citation_map",
+#    "edge_citation_map",
+#    "support_map",
+#    "node_support_map",
+#    "edge_support_map",
+#    "self.edgemap"
+#]
 
 
 def parse_attribute(attribute):
@@ -128,9 +130,12 @@ class NdexGraph (MultiDiGraph):
         self.reified_edges = {}
         self.provenance = None
         self.namespaces = {}
+     #   self.edge_type_map = {}  # stores the mapping from cx edgeId to its 'i' attribute
+     #   self.node_prepresent_map ={} #stores the mapping from cx nodeId to its represents
 
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
+
 
         if networkx_G is not None:
             for node_id, data in networkx_G.nodes_iter(data=True):
@@ -241,11 +246,11 @@ class NdexGraph (MultiDiGraph):
                 for networkAttribute in aspect['networkAttributes']:
                     name = networkAttribute['n']
                     # special: ignore selected
-                    if name == 'selected':
-                        continue
+           #         if name == 'selected':
+           #             continue
                     value = parse_attribute(networkAttribute)
                     value = networkAttribute['v']
-                    if value:
+                    if value is not None:
                         if 's' in networkAttribute or name not in self.graph:
                             self.graph[name] = value
 
@@ -253,11 +258,8 @@ class NdexGraph (MultiDiGraph):
                 for nodeAttribute in aspect['nodeAttributes']:
                     id = nodeAttribute['po']
                     name = nodeAttribute['n']
-                    # special: ignore selected
-                    if name == 'selected':
-                        continue
                     value = parse_attribute(nodeAttribute)
-                    if value:
+                    if value is not None:
                         if 's' in nodeAttribute or name not in self.node[id]:
                             self.node[id][name] = value
 
@@ -266,11 +268,8 @@ class NdexGraph (MultiDiGraph):
                     id = edgeAttribute['po']
                     s, t = self.edgemap[id]
                     name = edgeAttribute['n']
-                    # special: ignore selected and shared_name columns
-                    if name == 'selected' or name == 'shared name':
-                        continue
                     value = parse_attribute(edgeAttribute)
-                    if value:
+                    if value is not None:
                         if 's' in edgeAttribute or name not in self[s][t][id]:
                             self[s][t][id][name] = value
             else:
@@ -502,7 +501,7 @@ class NdexGraph (MultiDiGraph):
                 n2 = self.add_new_node(name2)
                 node_names_added[name2] = n2
 
-            edge_interaction = interaction if isinstance(interaction,basestring) else interaction[i]
+            edge_interaction = interaction if isinstance(interaction,string_types) else interaction[i]
             self.add_edge_between(n1,n2,edge_interaction)
 
     #------------------------------------------
@@ -541,8 +540,8 @@ class NdexGraph (MultiDiGraph):
         self.graph['name'] = name
 
     def set_network_attribute(self, name, value):
-        if name in NDEXGRAPH_RESERVED_ATTRIBUTES:
-            raise ValueError(str(name) + " is a reserved network attribute name and may not be set by this method")
+    #    if name in NDEXGRAPH_RESERVED_ATTRIBUTES:
+    #        raise ValueError(str(name) + " is a reserved network attribute name and may not be set by this method")
         self.graph[name] = value
 
     def get_name(self):
@@ -561,8 +560,8 @@ class NdexGraph (MultiDiGraph):
 
     def show_stats(self):
         """Show the number of nodes and edges."""
-        print "Nodes: %d" % self.number_of_nodes()
-        print "Edges: %d" % self.number_of_edges()
+        print("Nodes: %d" % self.number_of_nodes())
+        print("Edges: %d" % self.number_of_edges())
 
     def set_edgemap(self, edgemap):
         self.edgemap = edgemap
@@ -594,57 +593,57 @@ class NdexGraph (MultiDiGraph):
 
         G = self
         cx = []
-        cx += create_aspect.number_verification()
-        cx += self.generate_metadata(G, self.unclassified_cx) #create_aspect.metadata(metadata_dict=md_dict)
+        cx += ca.number_verification()
+        cx += self.generate_metadata(G, self.unclassified_cx) #ca.metadata(metadata_dict=md_dict)
 
         #always add context first.
         if self.namespaces:
-            cx += create_aspect.namespaces(G)
+            cx += ca.namespaces(G)
 
-        network_attributes = create_aspect.network_attributes(G, has_single_subnetwork)
+        network_attributes = ca.network_attributes(G, has_single_subnetwork)
         cx += network_attributes
 
         if has_single_subnetwork:
-            cx += create_aspect.subnetworks(G, self.subnetwork_id, self.view_id)
+            cx += ca.subnetworks(G, self.subnetwork_id, self.view_id)
         # - don't output subnetworks if the NdexGraph doesn't know about them.
         # - All operations that add aspects for visual properties, cartesian coordinates,
         #   or otherwise refer to subnetworks must ensure that subnetwork and view ids are set
         # else:
-        #     cx += create_aspect.subnetworks(G, 0, 0)
-        cx += create_aspect.nodes(G)
-        cx += create_aspect.edges(G)
-        node_att = create_aspect.node_attributes(G, has_single_subnetwork)
+        #     cx += ca.subnetworks(G, 0, 0)
+        cx += ca.nodes(G)
+        cx += ca.edges(G)
+        node_att = ca.node_attributes(G, has_single_subnetwork)
         if(node_att is not None):
             cx += node_att
 
-        edge_att = create_aspect.edge_attributes(G, has_single_subnetwork)
+        edge_att = ca.edge_attributes(G, has_single_subnetwork)
         if(edge_att is not None):
             cx += edge_att
 
         if self.pos and len(self.pos):
             if has_single_subnetwork:
-                cx += create_aspect.cartesian(G, self.view_id)
+                cx += ca.cartesian(G, self.view_id)
             else:
                 raise ValueError("NdexGraph positions (g.pos) set without setting view and subnetwork ids")
 
         if len(self.citation_map) > 0:
-            cx += create_aspect.citations(G)
+            cx += ca.citations(G)
         if len(self.node_citation_map) > 0:
-            cx += create_aspect.node_citations(G)
+            cx += ca.node_citations(G)
         if len(self.edge_citation_map) > 0:
-            cx += create_aspect.edge_citations(G)
+            cx += ca.edge_citations(G)
         if len(self.support_map) > 0:
-            cx += create_aspect.supports(G)
+            cx += ca.supports(G)
         if len(self.node_support_map) > 0:
-            cx += create_aspect.node_supports(G)
+            cx += ca.node_supports(G)
         if len(self.edge_support_map) > 0:
-            cx += create_aspect.edge_supports(G)
+            cx += ca.edge_supports(G)
         if len(self.function_term_map) > 0:
-            cx += create_aspect.function_terms(G)
+            cx += ca.function_terms(G)
         if len(self.reified_edges) > 0:
-            cx += create_aspect.reified_edges(G)
+            cx += ca.reified_edges(G)
         if self.provenance:
-            cx += create_aspect.provenance(G)
+            cx += ca.provenance(G)
 
         for fragment in self.unclassified_cx:
             # filter out redundant networkRelations
@@ -672,8 +671,21 @@ class NdexGraph (MultiDiGraph):
 
             consistency_group += 1 # bump the consistency group up by one
 
-            print "consistency group max: " + str(consistency_group)
+            print("consistency group max: " + str(consistency_group))
 
+        # ========================
+        # @context metadata
+        # ========================
+        if  self.namespaces:
+            return_metadata.append(
+                {
+                    "consistencyGroup": consistency_group,
+                    "elementCount": 1,
+                    "name": "@context",
+                    "properties": [],
+                    "version": "1.0"
+                }
+            )
 
         #========================
         # Nodes metadata
@@ -762,7 +774,10 @@ class NdexGraph (MultiDiGraph):
         attr_count = 0
         for s, t, id, a in G.edges(data=True, keys=True):
             if(bool(a)):
-                attr_count += len(a.keys())
+                for attribute_name in a:
+                    if attribute_name != "interaction":
+                        attr_count += 1
+                #attr_count += len(a.keys())
 
             # if(id > id_max):
             #     id_max = id
@@ -947,7 +962,7 @@ class NdexGraph (MultiDiGraph):
                          }
                     )
             except Exception as e:
-                print e.message
+                print(e.message)
 
 
         #print {'metaData': return_metadata}
@@ -963,7 +978,11 @@ class NdexGraph (MultiDiGraph):
 
         """
         cx = self.to_cx(md_dict)
-        return io.BytesIO(json.dumps(cx))
+
+        if sys.version_info.major == 3:
+            return io.BytesIO(json.dumps(cx).encode('utf-8'))
+        else:
+            return io.BytesIO(json.dumps(cx))
 
     def write_to(self, filename):
         """Write this network as a CX file to the specified filename.

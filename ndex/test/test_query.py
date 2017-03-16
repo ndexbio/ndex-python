@@ -3,7 +3,7 @@ import unittest
 import ndex.client as nc
 
 import json
-import ndex.test.testNdexClient as tt
+import ndex.test.test_NdexClient as tt
 
 
 # Python Client APIs tested:

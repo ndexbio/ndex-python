@@ -6,9 +6,14 @@ import ndex
 from requests_toolbelt import MultipartEncoder
 import os
 import io
-from urlparse import urljoin
-from requests import exceptions as req_except
 import sys
+
+if sys.version_info.major == 3:
+    from urllib.parse import urljoin
+else:
+    from urlparse import urljoin
+
+from requests import exceptions as req_except
 import time
 
 userAgent = 'NDEx-Python/2.0'
@@ -31,7 +36,7 @@ class Ndex:
         self.version = 1.3
         self.status = {}
         self.username = username
-        self.passpord = password
+        self.password = password
         if "localhost" in host:
             self.host = "http://localhost:8080/ndexbio-rest"
         else:
@@ -199,7 +204,7 @@ class Ndex:
 #                   'Cache-Control': 'no-cache',
                    'User-Agent':userAgent
                    }
-        response = requests.put(url, data=multipart_data, headers=headers,auth=(self.username, self.passpord))
+        response = requests.put(url, data=multipart_data, headers=headers,auth=(self.username, self.password))
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
@@ -221,7 +226,7 @@ class Ndex:
  #                  'Cache-Control': 'no-cache',
                    'User-Agent': userAgent,
                    }
-        response = requests.post(url, data=multipart_data, headers=headers, auth=(self.username, self.passpord))
+        response = requests.post(url, data=multipart_data, headers=headers, auth=(self.username, self.password))
         self.debug_response(response)
         response.raise_for_status()
         if response.status_code == 204:
@@ -245,7 +250,10 @@ class Ndex:
                         # STATUS element found, but the status was empty
                         cx[len(cx) - 1].get('status').append({"error" : "","success" : True})
 
-            stream = io.BytesIO(json.dumps(cx))
+            if sys.version_info.major == 3:
+                stream = io.BytesIO(json.dumps(cx).encode('utf-8'))
+            else:
+                stream = io.BytesIO(json.dumps(cx))
 
             return self.save_cx_stream_as_new_network(stream)
         else:
@@ -257,7 +265,6 @@ class Ndex:
         ''' Create a new network from a CX stream, optionally providing a provenance history object to be included in the new network.
 
         :param cx_stream: The network stream.
-        :param provenance: The desired provenance history associated with the network.
         :return: The response.
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
         '''
@@ -275,22 +282,15 @@ class Ndex:
                 'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
             }
 
-   #     if provenance:
-   #         if isinstance(provenance, dict):
-   #             fields['provenance'] = json.dumps(provenance)
-   #         else:
-   #             fields['provenance'] = provenance
-
         return self.post_multipart(route, fields)
 
     # Create a network based on a JSON string or Dict in CX format
-    def update_cx_network(self, cx_stream, network_id, provenance=None):
+    def update_cx_network(self, cx_stream, network_id):
         '''Update the network specified by UUID network_id using the CX stream cx_stream.
 
         :param cx_stream: The network stream.
         :param network_id: The UUID of the network.
         :type network_id: str
-        :param provenance: The desired provenance history associated with the network.
         :return: The response.
         :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
 
@@ -299,11 +299,6 @@ class Ndex:
         fields = {
             'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
         }
-        if provenance:
-            if isinstance(provenance, dict):
-                fields['provenance'] = json.dumps(provenance)
-            else:
-                fields['provenance'] = provenance
 
         if(self.version == "2.0"):
             route = "/network/%s" % (network_id)
@@ -374,6 +369,9 @@ class Ndex:
         response = self.get_neighborhood_as_cx_stream(network_id, search_string, search_depth=search_depth, edge_limit=edge_limit)
 
         if(self.version == "2.0"):
+            #response_in_json = response.json()
+            #data =  response_in_json["data"]
+            #return data
             return response.json()["data"]
         else:
             raise Exception("get_neighborhood is not supported for versions prior to 2.0, use get_neighborhood_as_cx_stream")
@@ -492,7 +490,7 @@ class Ndex:
             except Exception as inst:
                 d = json.loads(inst.response.content)
                 if d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
-                    print "retry deleting network in 1 second(" + str(count) + ")"
+                    print("retry deleting network in 1 second(" + str(count) + ")")
                     count += 1
                     time.sleep(1)
                 else:
@@ -618,10 +616,19 @@ class Ndex:
         return self.get(route)
 
     def get_network_summaries_for_user(self, username):
-        return self.search_networks("", username, size=1000)
+        network_summaries = self.search_networks("", username, size=1000)
+
+        if (network_summaries and network_summaries['networks']):
+            network_summaries_list = network_summaries['networks']
+        else:
+            network_summaries_list = []
+
+        return network_summaries_list
 
     def get_network_ids_for_user(self, username):
-        return self.network_summaries_to_ids(self.get_network_summaries_for_user(username))
+        network_summaries_list = self.get_network_summaries_for_user(username)
+
+        return self.network_summaries_to_ids(network_summaries_list)
 
     def grant_network_to_user_by_username(self, username, network_id, permission):
         user = self.get_user_by_username(username).json

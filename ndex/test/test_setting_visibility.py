@@ -6,7 +6,7 @@ import ndex.client as nc
 import uuid
 import time
 import json
-import ndex.test.testNdexClient as tt
+import ndex.test.test_NdexClient as tt
 
 class NdexClientTestCase4(tt.NdexClientRASMachineTestCase):
 
@@ -23,7 +23,7 @@ class NdexClientTestCase4(tt.NdexClientRASMachineTestCase):
             except Exception as inst :
                 d = json.loads(inst.response.content)
                 if d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
-                    print "retry in 5 seconds(" + str(count) + ")"
+                    print("retry in 5 seconds(" + str(count) + ")")
                     count += 1
                     time.sleep(5)
                 else :
@@ -31,7 +31,7 @@ class NdexClientTestCase4(tt.NdexClientRASMachineTestCase):
 
         summary = ndex2.get_network_summary(self._networkId)
         self.assertEqual(summary.get(u'externalId'), self._networkId)
-        print "make_network_public() passed."
+        print("make_network_public() passed.")
 
         time.sleep(1)
 
@@ -44,7 +44,7 @@ class NdexClientTestCase4(tt.NdexClientRASMachineTestCase):
             except Exception as inst:
                 d = json.loads(inst.response.content)
                 if d.get('errorCode').startswith("NDEx_Concurrent_Modification"):
-                    print "retry in 5 seconds(" + str(count) + ")"
+                    print("retry in 5 seconds(" + str(count) + ")")
                     count += 1
                     time.sleep(5)
                 else:
@@ -52,7 +52,7 @@ class NdexClientTestCase4(tt.NdexClientRASMachineTestCase):
 
         with self.assertRaises(Exception) as context:
             ndex2.get_network_summary(self._networkId)
-        print "make_network_private() passed."
+        print("make_network_private() passed.")
 
 if __name__ == '__main__':
     unittest.main()
