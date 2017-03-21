@@ -1,0 +1,25 @@
+sudo: false  # means that the build doesn't need super user privileges
+cache: pip  # means that packages can be cached from pip
+
+language: python
+
+python:
+    - "2.7"
+    - "3.6"
+env:
+    - TOXENV=manifest
+
+matrix:
+    include:
+        - python: "2.7"
+          env: TOXENV=py27
+        - python: "3.6"
+          env: TOXENV=py36
+    allow_failures:
+        - python: "3.6"
+
+install:
+    - pip install tox
+
+script:
+    - tox
