@@ -1280,10 +1280,15 @@ class NdexGraph (MultiDiGraph):
 
         # remove edge from edge map
         self.edgemap.pop(edge_id, None)
+        pop_these_reified_edges = []
 
         for n,re in self.reified_edges.iteritems():
             if(re["edge"] == edge_id):
-                self.reified_edges.pop(n,None)
+                pop_these_reified_edges.append(n)
+                # This causes problems when editing the dictionary while iterating over it --> self.reified_edges.pop(n,None)
+
+        for n in pop_these_reified_edges:
+            self.reified_edges.pop(n,None)
 
         #self.edge_citation_map.pop(edge_id, None)
         #self.edge_support_map.pop(edge_id, None)
