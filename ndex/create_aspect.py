@@ -62,6 +62,10 @@ def network_attributes(G, has_single_subnetwork):
         element = {'n': attribute, 'v': value}
         if not isinstance(value, string_types):
             d = domain(value)
+            if d == "unknown":
+                if isinstance(value, dict):
+                    d = "dict"
+
             element["d"] = d
         if has_single_subnetwork:
             element["s"] = G.subnetwork_id
@@ -201,7 +205,7 @@ def function_terms(G):
 
 def reified_edges(G):
     reified_edges = []
-    for n,re in G.reified_edges.iteritems:
+    for n,re in G.reified_edges.iteritems():
         reified_edges.append(re)
     return [{"reifiedEdges": reified_edges}]
 
