@@ -1013,6 +1013,43 @@ class NdexGraph (MultiDiGraph):
         ndex = nc.Ndex(server,username,password)
         return ndex.save_new_network(self.to_cx())
 
+    def update_to(self, uuid, server, username, password):
+        """ Upload this network to the specified server to the account specified by username and password.
+
+        :param server: The NDEx server to upload the network to.
+        :type server: str
+        :param username: The username of the account to store the network.
+        :type username: str
+        :param password: The password for the account.
+        :type password: str
+        :return: The UUID of the network on NDEx.
+        :rtype: str
+
+        Example:
+            ndexGraph.upload_to('http://test.ndexbio.org', 'myusername', 'mypassword')
+        """
+        cx = self.to_cx()
+        ndex = nc.Ndex(server,username,password)
+
+        if(len(cx) > 0):
+            if(cx[len(cx) - 1] is not None):
+                if(cx[len(cx) - 1].get('status') is None):
+                    # No STATUS element in the array.  Append a new status
+                    cx.append({"status" : [ {"error" : "","success" : True} ]})
+                else:
+                    if(len(cx[len(cx) - 1].get('status')) < 1):
+                        # STATUS element found, but the status was empty
+                        cx[len(cx) - 1].get('status').append({"error" : "","success" : True})
+
+            if sys.version_info.major == 3:
+                stream = io.BytesIO(json.dumps(cx).encode('utf-8'))
+            else:
+                stream = io.BytesIO(json.dumps(cx))
+
+            return ndex.update_cx_network(stream, uuid)
+        else:
+            raise IndexError("Cannot save empty CX.  Please provide a non-empty CX document.")
+
     #------------------------------------------
     #       NODES
     #------------------------------------------
