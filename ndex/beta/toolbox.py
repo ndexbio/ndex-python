@@ -142,7 +142,7 @@ def apply_source_target_layout(G, category_name='st_layout'):
     forward = G.get_node_ids('Forward', category_name)
     reverse = G.get_node_ids('Reverse', category_name)
 
-    print G.node
+    print(G.node)
     fa = []
     for i in range(1):
         fa_n = G.add_new_node()

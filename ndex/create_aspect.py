@@ -47,8 +47,10 @@ def nodes(G):
 
 def edges(G):
     return [
+        {'edges': [{'i': e[3]['interaction'], 'k': e[3]['keep'], 's': e[0], '@id': e[2], 't': e[1]}]}
+        if 'interaction' in e[3] and 'keep' in e[3] else
         {'edges': [{'i': e[3]['interaction'], 's': e[0], '@id': e[2], 't': e[1]}]}
-        if 'interaction' in e[3] else
+        if 'interaction' in e[3] and 'keep' not in e[3] else
         {'edges': [{'s': e[0], '@id': e[2], 't': e[1]}]}
         for e in G.edges_iter(data=True, keys=True)]
 
@@ -60,6 +62,10 @@ def network_attributes(G, has_single_subnetwork):
         element = {'n': attribute, 'v': value}
         if not isinstance(value, string_types):
             d = domain(value)
+            if d == "unknown":
+                if isinstance(value, dict):
+                    d = "dict"
+
             element["d"] = d
         if has_single_subnetwork:
             element["s"] = G.subnetwork_id
@@ -199,7 +205,7 @@ def function_terms(G):
 
 def reified_edges(G):
     reified_edges = []
-    for n,re in G.reified_edges.iteritems:
+    for n,re in G.reified_edges.iteritems():
         reified_edges.append(re)
     return [{"reifiedEdges": reified_edges}]
 
