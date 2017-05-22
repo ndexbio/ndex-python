@@ -113,8 +113,8 @@ def apply_directed_flow_layout(g, directed_edge_types=None, node_width=25, itera
     attractor_map = []
     random.seed()
     if not g.subnetwork_id and not g.view_id:
-        g.subnetwork_id = 0,
-        g.view_id = 0
+        g.subnetwork_id = 1
+        g.view_id = 1
 
     for node_id in g.nodes():
         out_count = 0

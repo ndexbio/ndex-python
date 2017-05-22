@@ -1026,15 +1026,12 @@ class NdexGraph (MultiDiGraph):
             return_bytes = None
             try:
                 return_bytes = io.BytesIO(json.dumps(cx))
+            except UnicodeDecodeError as err1:
+                print "Detected invalid encoding. Trying latin-1 encoding."
+                return_bytes = io.BytesIO(json.dumps(cx, encoding="latin-1"))
+                print "Success"
             except Exception as err2:
-                if err2.reason == 'invalid continuation byte':
-                    print "Detected invalid encoding.  Trying latin-1 encoding."
-                    return_bytes = io.BytesIO(json.dumps(cx, encoding="latin-1"))
-                    print "Success"
-                else:
-                    print "Detected invalid encoding.  latin-1 did not work.  Trying utf-8"
-                    return_bytes = io.BytesIO(json.dumps(cx, encoding="utf-8"))
-                    print "Success"
+                print err2.message
 
             return return_bytes
 
