@@ -57,6 +57,9 @@ class ndexGraphBuilder:
             self.ndexGraph.add_edge(src_id, tgt_id, key=id, attr_dict = attributes)
 
         self.edgeIdCounter +=1
+
+        self.ndexGraph.edgemap[id] = (src_id, tgt_id)
+
         return id
 
 

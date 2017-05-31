@@ -108,18 +108,20 @@ def apply_template(G, template_id, server='http://public.ndexbio.org', username=
 
 
 def apply_network_as_template(G, T):
-    G.subnetwork_id = T.subnetwork_id
-    G.view_id = T.view_id
+#    G.subnetwork_id = T.subnetwork_id
+#    G.view_id = T.view_id
 
     vp = []
     for cx in T.unclassified_cx:
         if 'visualProperties' in cx:
             vp.append(cx)
-        if 'networkRelations' in cx:
+        if 'cyVisualProperties' in cx:
             vp.append(cx)
+  #      if 'networkRelations' in cx:
+  #          vp.append(cx)
 
     G.unclassified_cx = [cx for cx in G.unclassified_cx if
-                         'visualProperties' not in cx and 'networkRelations' not in cx]
+                         ('visualProperties' not in cx and 'networkRelations' not in cx) or 'cyVisualProperties' not in cx]
     G.unclassified_cx = G.unclassified_cx + vp
 
 

@@ -665,7 +665,8 @@ class NdexGraph (MultiDiGraph):
             if has_single_subnetwork:
                 cx += ca.cartesian(G, self.view_id)
             else:
-                raise ValueError("NdexGraph positions (g.pos) set without setting view and subnetwork ids")
+                cx += ca.cartesian(G)
+                #raise ValueError("NdexGraph positions (g.pos) set without setting view and subnetwork ids")
 
         if len(self.citation_map) > 0:
             cx += ca.citations(G)

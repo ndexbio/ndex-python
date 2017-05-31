@@ -147,6 +147,11 @@ def cartesian(G, id):
         for n in G.pos
         ]}]
 
+def cartesian(G):
+    return [{'cartesianLayout': [
+        {'node': n, 'x': float(G.pos[n][0]), 'y': float(G.pos[n][1])}
+        for n in G.pos
+        ]}]
 
 def citations(G):
     citations = []
