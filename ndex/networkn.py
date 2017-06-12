@@ -400,8 +400,8 @@ class NdexGraph (MultiDiGraph):
 
         if hasattr(networkx_G, 'pos'):
             G.pos = {node_dict[a] : b for a, b in networkx_G.pos.items()}
-            G.subnetwork_id = 1
-            G.view_id = 1
+            #G.subnetwork_id = 1
+            #G.view_id = 1
 
         return G
 
@@ -663,7 +663,7 @@ class NdexGraph (MultiDiGraph):
 
         if self.pos and len(self.pos):
             if has_single_subnetwork:
-                cx += ca.cartesian(G, self.view_id)
+                cx += ca.cartesian(G)#, self.view_id)
             else:
                 cx += ca.cartesian(G)
                 #raise ValueError("NdexGraph positions (g.pos) set without setting view and subnetwork ids")
