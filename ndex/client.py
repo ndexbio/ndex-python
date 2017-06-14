@@ -325,6 +325,25 @@ class Ndex:
 
         return self.get_stream(route)
 
+    # Get a CX stream for a aspect of a network
+    def get_network_aspect_as_cx_stream(self, network_id, aspect_name):
+        '''Get the specified aspect of the existing network with UUID network_id from the NDEx connection as a CX stream.
+
+        :param network_id: The UUID of the network.
+        :param aspect_name: The aspect NAME.
+        :type network_id: str
+        :return: The response.
+        :rtype: `response object <http://docs.python-requests.org/en/master/user/quickstart/#response-content>`_
+
+        '''
+        route = ""
+        if(self.version == "2.0"):
+            route = "/network/%s/aspect/%s" % (network_id, aspect_name)
+        else:
+            route = "/network/%s/asCX" % (network_id)
+
+        return self.get_stream(route)
+
     def get_neighborhood_as_cx_stream(self, network_id, search_string, search_depth=1, edge_limit=2500):
         ''' Get a CX stream for a subnetwork of the network specified by UUID network_id and a traversal of search_depth steps around the nodes found by search_string.
 
