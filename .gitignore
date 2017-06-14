@@ -2,7 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+logs
+*.pyc
+app/*.pyc
 # C extensions
 *.so
 
@@ -92,3 +94,4 @@ ENV/
 .idea/*
 
 ndex/test/temp_test_type.cx
+

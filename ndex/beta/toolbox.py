@@ -134,7 +134,6 @@ def apply_network_as_template(G, T):
                 unclassified.append(fragment)
         G.unclassified_cx = unclassified + vp
 
-
 def _create_edge_tuples(attractor, target):
     return [(a, t) for a in attractor for t in target]
 

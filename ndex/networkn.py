@@ -136,10 +136,26 @@ class NdexGraph (MultiDiGraph):
         # Maps edge ids to node ids. e.g. { edge1: (source_node, target_node), edge2: (source_node, target_node) }
         self.edgemap = {}
 
-
         if networkx_G is not None:
-            for node_id, data in networkx_G.nodes_iter(data=True):
-                self.add_node(node_id, data)
+            node_id_x = 0
+            node_dict_x = {}
+            self.max_edge_id = 0
+            for node_name, node_attr in networkx_G.nodes_iter(data=True):
+                if node_attr.has_key('name'):
+                    self.add_node(node_id_x, node_attr)
+                else:
+                    self.add_node(node_id_x, node_attr, name=node_name)
+                node_dict_x[node_name] = node_id_x
+                node_id_x += 1
+            for s, t, edge_attr in networkx_G.edges_iter(data=True):
+                self.add_edge(node_dict_x[s], node_dict_x[t], self.max_edge_id, edge_attr)
+                self.max_edge_id += 1
+
+            if hasattr(networkx_G, 'pos'):
+                self.pos = {node_dict_x[a] : b for a, b in networkx_G.pos.items()}
+                self.subnetwork_id = 1
+                self.view_id = 1
+
             if isinstance(networkx_G, nx.MultiGraph):
                 for s, t, key, data in networkx_G.edges_iter(keys=True, data=True):
                     self.add_edge(s, t, key, data)
@@ -363,6 +379,31 @@ class NdexGraph (MultiDiGraph):
                     self.reified_edges [reified_edge['node']] = reified_edge
             else:
                 self.unclassified_cx.append(aspect)
+
+    def networkx_to_NdexGraph(networkx_G):
+        """Converts a NetworkX into a NdexGraph object"""
+
+        G = NdexGraph()
+        node_id = 0
+        node_dict = {}
+        G.max_edge_id = 0
+        for node_name, node_attr in networkx_G.nodes_iter(data=True):
+            if node_attr.has_key('name'):
+                G.add_node(node_id, node_attr)
+            else:
+                G.add_node(node_id, node_attr, name=node_name)
+            node_dict[node_name] = node_id
+            node_id += 1
+        for s, t, edge_attr in networkx_G.edges_iter(data=True):
+            G.add_edge(node_dict[s], node_dict[t], G.max_edge_id, edge_attr)
+            G.max_edge_id += 1
+
+        if hasattr(networkx_G, 'pos'):
+            G.pos = {node_dict[a] : b for a, b in networkx_G.pos.items()}
+            #G.subnetwork_id = 1
+            #G.view_id = 1
+
+        return G
 
 
     def create_from_aspects(self, aspect, aspect_type):
@@ -622,9 +663,10 @@ class NdexGraph (MultiDiGraph):
 
         if self.pos and len(self.pos):
             if has_single_subnetwork:
-                cx += ca.cartesian(G, self.view_id)
+                cx += ca.cartesian(G)#, self.view_id)
             else:
-                raise ValueError("NdexGraph positions (g.pos) set without setting view and subnetwork ids")
+                cx += ca.cartesian(G)
+                #raise ValueError("NdexGraph positions (g.pos) set without setting view and subnetwork ids")
 
         if len(self.citation_map) > 0:
             cx += ca.citations(G)
@@ -982,7 +1024,17 @@ class NdexGraph (MultiDiGraph):
         if sys.version_info.major == 3:
             return io.BytesIO(json.dumps(cx).encode('utf-8'))
         else:
-            return io.BytesIO(json.dumps(cx))
+            return_bytes = None
+            try:
+                return_bytes = io.BytesIO(json.dumps(cx))
+            except UnicodeDecodeError as err1:
+                print "Detected invalid encoding. Trying latin-1 encoding."
+                return_bytes = io.BytesIO(json.dumps(cx, encoding="latin-1"))
+                print "Success"
+            except Exception as err2:
+                print err2.message
+
+            return return_bytes
 
     def write_to(self, filename):
         """Write this network as a CX file to the specified filename.
@@ -1012,6 +1064,43 @@ class NdexGraph (MultiDiGraph):
 
         ndex = nc.Ndex(server,username,password)
         return ndex.save_new_network(self.to_cx())
+
+    def update_to(self, uuid, server, username, password):
+        """ Upload this network to the specified server to the account specified by username and password.
+
+        :param server: The NDEx server to upload the network to.
+        :type server: str
+        :param username: The username of the account to store the network.
+        :type username: str
+        :param password: The password for the account.
+        :type password: str
+        :return: The UUID of the network on NDEx.
+        :rtype: str
+
+        Example:
+            ndexGraph.upload_to('http://test.ndexbio.org', 'myusername', 'mypassword')
+        """
+        cx = self.to_cx()
+        ndex = nc.Ndex(server,username,password)
+
+        if(len(cx) > 0):
+            if(cx[len(cx) - 1] is not None):
+                if(cx[len(cx) - 1].get('status') is None):
+                    # No STATUS element in the array.  Append a new status
+                    cx.append({"status" : [ {"error" : "","success" : True} ]})
+                else:
+                    if(len(cx[len(cx) - 1].get('status')) < 1):
+                        # STATUS element found, but the status was empty
+                        cx[len(cx) - 1].get('status').append({"error" : "","success" : True})
+
+            if sys.version_info.major == 3:
+                stream = io.BytesIO(json.dumps(cx).encode('utf-8'))
+            else:
+                stream = io.BytesIO(json.dumps(cx))
+
+            return ndex.update_cx_network(stream, uuid)
+        else:
+            raise IndexError("Cannot save empty CX.  Please provide a non-empty CX document.")
 
     #------------------------------------------
     #       NODES
@@ -1280,10 +1369,15 @@ class NdexGraph (MultiDiGraph):
 
         # remove edge from edge map
         self.edgemap.pop(edge_id, None)
+        pop_these_reified_edges = []
 
         for n,re in self.reified_edges.iteritems():
             if(re["edge"] == edge_id):
-                self.reified_edges.pop(n,None)
+                pop_these_reified_edges.append(n)
+                # This causes problems when editing the dictionary while iterating over it --> self.reified_edges.pop(n,None)
+
+        for n in pop_these_reified_edges:
+            self.reified_edges.pop(n,None)
 
         #self.edge_citation_map.pop(edge_id, None)
         #self.edge_support_map.pop(edge_id, None)
