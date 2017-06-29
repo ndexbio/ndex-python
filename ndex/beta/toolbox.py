@@ -108,26 +108,31 @@ def apply_template(G, template_id, server='http://public.ndexbio.org', username=
 
 
 def apply_network_as_template(G, T):
-#    G.subnetwork_id = T.subnetwork_id
-#    G.view_id = T.view_id
+    if T.subnetwork_id:
+        # NdexGraphs should no longer have subnetworks, this is a temporary conditional
+        G.subnetwork_id = T.subnetwork_id
+        G.view_id = T.view_id
 
-    vp = []
-    for cx in T.unclassified_cx:
-        if 'visualProperties' in cx:
-            for k in cx.get('visualProperties'):
-                k.pop('view', None)
-            vp.append(cx)
-        if 'cyVisualProperties' in cx:
-            for k in cx.get('cyVisualProperties'):
-                k.pop('view', None)
-            vp.append(cx)
-  #      if 'networkRelations' in cx:
-  #          vp.append(cx)
+        vp = []
+        for cx in T.unclassified_cx:
+            if 'visualProperties' in cx:
+                vp.append(cx)
+            if 'networkRelations' in cx:
+                vp.append(cx)
 
-    G.unclassified_cx = [cx for cx in G.unclassified_cx if
-                         ('visualProperties' not in cx and 'networkRelations' not in cx) or 'cyVisualProperties' not in cx]
-    G.unclassified_cx = G.unclassified_cx + vp
-
+        G.unclassified_cx = [cx for cx in G.unclassified_cx if
+                             'visualProperties' not in cx and 'networkRelations' not in cx]
+        G.unclassified_cx = G.unclassified_cx + vp
+    else:
+        vp = []
+        for fragment in T.unclassified_cx:
+            if 'cyVisualProperties' in fragment:
+                vp.append(fragment)
+        unclassified = []
+        for fragment in G.unclassified_cx:
+            if not 'cyVisualProperties' in fragment and not 'visualProperties' in fragment:
+                unclassified.append(fragment)
+        G.unclassified_cx = unclassified + vp
 
 def _create_edge_tuples(attractor, target):
     return [(a, t) for a in attractor for t in target]
