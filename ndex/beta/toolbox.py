@@ -114,8 +114,12 @@ def apply_network_as_template(G, T):
     vp = []
     for cx in T.unclassified_cx:
         if 'visualProperties' in cx:
+            for k in cx.get('visualProperties'):
+                k.pop('view', None)
             vp.append(cx)
         if 'cyVisualProperties' in cx:
+            for k in cx.get('cyVisualProperties'):
+                k.pop('view', None)
             vp.append(cx)
   #      if 'networkRelations' in cx:
   #          vp.append(cx)

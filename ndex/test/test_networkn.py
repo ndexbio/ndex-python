@@ -2,7 +2,8 @@ __author__ = 'aarongary'
 
 import unittest
 import ndex
-from ndex.networkn import  FilterSub
+from ndex.networkn import  FilterSub, NdexGraph
+import json
 
 class NetworkNTests(unittest.TestCase):
     #==============================
@@ -36,6 +37,22 @@ class NetworkNTests(unittest.TestCase):
 
         list_of_string = ndex.networkn.data_to_type(['abc'],'list_of_string')
         print(list_of_string)
+
+    def test_edge_float_type(self):
+        G = NdexGraph()
+        n_a = G.add_new_node(name='A')
+        n_b = G.add_new_node(name='B')
+        n_c = G.add_new_node(name='C')
+        n_d = G.add_new_node(name='D')
+
+        e_1 = G.add_edge(n_a, n_b, 10, {'weight': 1.234})
+        e_2 = G.add_edge(n_a, n_c, 11, {'weight': 2.554})
+        e_3 = G.add_edge(n_a, n_d, 12, {'weight': 5.789})
+        e_4 = G.add_edge(n_b, n_c, 13, {'weight': 2.011})
+        e_5 = G.add_edge(n_b, n_d, 14, {'weight': 7.788})
+
+        print json.dumps(G.to_cx())
+        G.upload_to('http://dev.ndexbio.org', 'scratch', 'scratch')
 
 
 if __name__ == '__main__':
