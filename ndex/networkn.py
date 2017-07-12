@@ -219,6 +219,7 @@ class NdexGraph (MultiDiGraph):
                         raise RuntimeError('@context aspect can only have one element')
                     else :
                         self.namespaces = elements[0]
+            # TODO elif if it's an aspect we want to keep out we put an elif for that aspect
             else:
                 self.unclassified_cx.append(aspect)
 
@@ -350,11 +351,23 @@ class NdexGraph (MultiDiGraph):
             elif 'edgeCitations' in aspect:
                 for edge_citation in aspect['edgeCitations']:
                     for edge in edge_citation["po"]:
-                        self.edge_citation_map[edge] = edge_citation["citations"]
+                        edge_citation_added = False
                         for citation_id in edge_citation["citations"]:
+                            citation_tmp = self.citation_map.get(citation_id)
+                            if citation_tmp is not None and isinstance(citation_tmp, dict):
+                                self.add_citation_to_edge(edge, citation_tmp.get('dc:identifier'))
+                                edge_citation_added = True
+                            if citation_tmp is not None and isinstance(citation_tmp, basestring):
+                                self.add_citation_to_edge(edge, citation_tmp)
+                                edge_citation_added = True
+
                             cit_ref = self.citation_reference_map.get(citation_id)
                             if(cit_ref is not None):
                                 self.citation_reference_map[citation_id] += 1
+
+                        if not edge_citation_added:
+                            self.edge_citation_map[edge] = edge_citation["citations"]
+
             elif 'nodeSupports' in aspect:
                 for node_support in aspect['nodeSupports']:
                     for node_sup_po in node_support["po"]:
@@ -377,6 +390,14 @@ class NdexGraph (MultiDiGraph):
             elif 'reifiedEdges' in aspect:
                 for reified_edge in aspect["reifiedEdges"]:
                     self.reified_edges [reified_edge['node']] = reified_edge
+            elif 'visualProperties' in aspect:
+                # remove all references to view id
+                for visual_properties in aspect["visualProperties"]:
+                    visual_properties.pop('view', None)
+            elif 'cyVisualProperties' in aspect:
+                # remove all references to view id
+                for visual_properties in aspect["cyVisualProperties"]:
+                    visual_properties.pop('view', None)
             else:
                 self.unclassified_cx.append(aspect)
 
@@ -626,6 +647,9 @@ class NdexGraph (MultiDiGraph):
         :return: The cx dictionary that represents this network.
         :rtype: dict
         """
+        self.subnetwork_id = None
+        self.view_id = None
+
         has_single_subnetwork = False
         if self.subnetwork_id and self.view_id:
             has_single_subnetwork = True
@@ -1607,7 +1631,23 @@ class NdexGraph (MultiDiGraph):
             citation_ids = [citation_id]
             self.node_citation_map[node_id] = citation_ids
 
-    def add_edge_citation_ref(self, edge_id, citation_id):
+    def add_citation_to_edge(self, edge_id, citation_string):
+        #TODO check edge attriutes for ndex:citation.  Add list if not exist otherwise append.  No duplicates
+        #self.set_edge_attribute(edge_id, 'ndex:citation', citation_string)
+
+        source_id, target_id = self.get_node_ids_by_edge_id(edge_id)
+        if self.edge[source_id][target_id][edge_id].get('ndex:citation') is None:
+            self.edge[source_id][target_id][edge_id]['ndex:citation'] = [citation_string]
+        else:
+            self.edge[source_id][target_id][edge_id]['ndex:citation'].append(citation_string)
+
+
+    def add_edge_citation_ref(self, edge_id, citation_id, override=None):
+        if override is None:
+            raise Exception("This method has been deprecated because it is incompatible with Cytoscape. "
+                            "Use add_citation_to_edge() instead. You can still use this method if you set "
+                            "override=True in the parameters.")
+
         if edge_id in self.edge_citation_map:
             citation_ids = self.edge_citation_map[edge_id]
             if citation_id not in citation_ids:
