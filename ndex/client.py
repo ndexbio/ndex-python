@@ -115,7 +115,10 @@ class Ndex:
         response.raise_for_status()
         if response.status_code == 204:
             return ""
-        return response.json()
+        if response.headers['content-type'] == 'application/json':
+            return response.json()
+        else :
+            return response.text
 
 
     def post(self, route, post_json):
@@ -124,7 +127,7 @@ class Ndex:
             print("POST route: " + url)
             print("POST json: " + post_json)
         headers = {'Content-Type': 'application/json',
-                   'Accept': 'application/json',
+                   'Accept': 'application/json,text/plain',
                    'Cache-Control': 'no-cache',
                    'User-Agent':  userAgent,
                    }
@@ -133,7 +136,10 @@ class Ndex:
         response.raise_for_status()
         if response.status_code == 204:
             return ""
-        return response.json()
+        if response.headers['content-type'] == 'application/json':
+            return response.json()
+        else :
+            return response.text
 
     def delete(self, route):
         url = self.host + route
@@ -662,6 +668,15 @@ class Ndex:
     def update_status(self):
         route = "/admin/status"
         self.status = self.get(route)
+
+    # network set
+
+    def create_networkset (self, name, description):
+        route = "/networkset"
+        return self.post(route, json.dumps( { "name": name, "description": description}))
+
+
+
 
 
 
