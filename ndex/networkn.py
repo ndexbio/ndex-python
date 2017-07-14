@@ -394,12 +394,15 @@ class NdexGraph (MultiDiGraph):
                 # remove all references to view id
                 for visual_properties in aspect["visualProperties"]:
                     visual_properties.pop('view', None)
+                self.unclassified_cx.append(aspect)
             elif 'cyVisualProperties' in aspect:
                 # remove all references to view id
                 for visual_properties in aspect["cyVisualProperties"]:
                     visual_properties.pop('view', None)
+                self.unclassified_cx.append(aspect)
             else:
                 self.unclassified_cx.append(aspect)
+        print ''
 
     def networkx_to_NdexGraph(networkx_G):
         """Converts a NetworkX into a NdexGraph object"""
