@@ -556,6 +556,18 @@ class Ndex:
             raise Exception("network_properties must be a string or a list of NdexPropertyValuePair objects")
         return self.put(route, putJson)
 
+
+    def get_sample_network(self, network_id):
+        route = "/network/%s/sample" % (network_id)
+        return self.get(route)
+
+
+    def set_network_sample(self, network_id, sample_cx_network_str):
+        self.require_auth()
+        route = "/network/%s/sample" % (network_id)
+    #    putJson = json.dumps(sample_cx_network_str)
+        return self.put(route, sample_cx_network_str)
+
     def set_network_system_properties(self, network_id, network_properties):
         self.require_auth()
         route = "/network/%s/systemproperty" % (network_id)
