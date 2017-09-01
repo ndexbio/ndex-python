@@ -9,6 +9,11 @@ from time import time
 from six import string_types
 import sys
 
+try:
+    basestring
+except:
+    basestring = str
+
 #NDEXGRAPH_RESERVED_ATTRIBUTES = [
 #    "subnetwork_id"
 #    "view_id",
@@ -402,7 +407,7 @@ class NdexGraph (MultiDiGraph):
                 self.unclassified_cx.append(aspect)
             else:
                 self.unclassified_cx.append(aspect)
-        print ''
+        print('')
 
     def networkx_to_NdexGraph(networkx_G):
         """Converts a NetworkX into a NdexGraph object"""
@@ -1055,11 +1060,11 @@ class NdexGraph (MultiDiGraph):
             try:
                 return_bytes = io.BytesIO(json.dumps(cx))
             except UnicodeDecodeError as err1:
-                print "Detected invalid encoding. Trying latin-1 encoding."
+                print("Detected invalid encoding. Trying latin-1 encoding.")
                 return_bytes = io.BytesIO(json.dumps(cx, encoding="latin-1"))
-                print "Success"
+                print("Success")
             except Exception as err2:
-                print err2.message
+                print(err2.message)
 
             return return_bytes
 

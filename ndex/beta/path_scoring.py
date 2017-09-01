@@ -193,7 +193,7 @@ class EdgeRanking:
 
     def print_edge_types(self):
         for et in self.edge_types:
-            print et
+            print(et)
 
 #==================================
 # Enum Classes
