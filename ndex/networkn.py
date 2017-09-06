@@ -146,7 +146,7 @@ class NdexGraph (MultiDiGraph):
             node_dict_x = {}
             self.max_edge_id = 0
             for node_name, node_attr in networkx_G.nodes_iter(data=True):
-                if node_attr.has_key('name'):
+                if 'name' in node_attr:
                     self.add_node(node_id_x, node_attr)
                 else:
                     self.add_node(node_id_x, node_attr, name=node_name)
@@ -176,7 +176,7 @@ class NdexGraph (MultiDiGraph):
             if not cx:
                 raise RuntimeError("Failed to retrieve network with uuid " + uuid + " from " + server)
             else:
-                metadata_temp = (item for item in cx if item.get("metaData") is not None).next()
+                metadata_temp = next((item for item in cx if item.get("metaData") is not None))
                 if(metadata_temp is not None):
                     self.metadata_original = metadata_temp["metaData"]
 
@@ -417,7 +417,7 @@ class NdexGraph (MultiDiGraph):
         node_dict = {}
         G.max_edge_id = 0
         for node_name, node_attr in networkx_G.nodes_iter(data=True):
-            if node_attr.has_key('name'):
+            if 'name' in node_attr:
                 G.add_node(node_id, node_attr)
             else:
                 G.add_node(node_id, node_attr, name=node_name)
@@ -1023,7 +1023,7 @@ class NdexGraph (MultiDiGraph):
         #===========================
         for asp in self.unclassified_cx:
             try:
-                aspect_type = asp.iterkeys().next()
+                aspect_type = next(iter(asp.keys()))
                 if(aspect_type == "visualProperties"
                    or aspect_type == "cyVisualProperties"
                    or aspect_type == "@context"):
@@ -1191,7 +1191,7 @@ class NdexGraph (MultiDiGraph):
     def remove_citation_and_support_node_references(self, node_id):
 
         # remove support to edge references
-        if self.node_support_map.has_key(node_id):
+        if node_id in self.node_support_map:
             # get the supports that reference the edge
             support_ids = self.node_support_map[node_id]
             # remove the edge entry from the edge_support_map
@@ -1215,7 +1215,7 @@ class NdexGraph (MultiDiGraph):
 
 
         # remove support to edge references
-        if self.node_citation_map.has_key(node_id):
+        if node_id in self.node_citation_map:
             #=====================================================
             # Check the "citations" reference map. Decrement the
             # reference value and if it reaches 0 remove from map
@@ -1334,7 +1334,7 @@ class NdexGraph (MultiDiGraph):
         """
         keys = set()
         for _, attributes in self.nodes_iter(data=True):
-            for key, value in attributes.iteritems():
+            for key, value in attributes.items():
                 keys.add(key)
         return list(keys)
 
@@ -1358,7 +1358,7 @@ class NdexGraph (MultiDiGraph):
         for s in source_node_ids:
             for t in target_node_ids:
                 if s in self and t in self[s]:
-                    edge_keys += self[s][t].keys()
+                    edge_keys += list(self[s][t].keys())
         return edge_keys
 
     def add_edge_between(self, source_node_id, target_node_id, interaction='interacts_with', attr_dict=None, **attr):
@@ -1403,7 +1403,7 @@ class NdexGraph (MultiDiGraph):
         self.edgemap.pop(edge_id, None)
         pop_these_reified_edges = []
 
-        for n,re in self.reified_edges.iteritems():
+        for n,re in self.reified_edges.items():
             if(re["edge"] == edge_id):
                 pop_these_reified_edges.append(n)
                 # This causes problems when editing the dictionary while iterating over it --> self.reified_edges.pop(n,None)
@@ -1425,7 +1425,7 @@ class NdexGraph (MultiDiGraph):
         support_ids = None
 
         # remove support to edge references
-        if self.edge_support_map.has_key(edge_id):
+        if edge_id in self.edge_support_map:
             # get the supports that reference the edge
             support_ids = self.edge_support_map[edge_id]
             # remove the edge entry from the edge_support_map
@@ -1449,7 +1449,7 @@ class NdexGraph (MultiDiGraph):
 
 
         # remove support to edge references
-        if self.edge_citation_map.has_key(edge_id):
+        if edge_id in self.edge_citation_map:
             #=====================================================
             # Check the "citations" reference map. Decrement the
             # reference value and if it reaches 0 remove from map
@@ -1589,7 +1589,7 @@ class NdexGraph (MultiDiGraph):
             raise ValueError("the attribute name " + str(attribute_key) + " is not used ANYWHERE in the network.")
         
         return [self[v[0]][v[1]][k][attribute_key] if attribute_key in self[v[0]][v[1]][k] else None for k, v in
-                edge_keys.iteritems()]
+                edge_keys.items()]
 
     def get_all_edge_attribute_keys(self):
         """Get the unique list of all attribute keys used in at least one edge in the network.
@@ -1600,7 +1600,7 @@ class NdexGraph (MultiDiGraph):
         """
         keys = set()
         for _, _, attributes in self.edges_iter(data=True):
-            for key, value in attributes.iteritems():
+            for key, value in attributes.items():
                 keys.add(key)
         return list(keys)
 
