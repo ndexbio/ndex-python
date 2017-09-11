@@ -73,7 +73,7 @@ def test_layout():
 
 def test_filter_sub():
     repo_directory = '/Users/aarongary/Development/DataSets/NDEx/server2/data/'
-    print inspect.getfile(FilterSub)
+    print(inspect.getfile(FilterSub))
     read_this_aspect = os.path.join(repo_directory, 'NCI_Style.cx') #'Diffusion1.cx') #'subnetwork_ex1.cx')
 
     with open(read_this_aspect, 'rt') as fid:
@@ -81,7 +81,7 @@ def test_filter_sub():
         if(data is not None):
             my_filter_sub = FilterSub(data, subnet_index=0)
             ndexGraph = NdexGraph(my_filter_sub.get_cx())
-            print ndexGraph.to_cx()
+            print(ndexGraph.to_cx())
 
 
 def scratch_test():

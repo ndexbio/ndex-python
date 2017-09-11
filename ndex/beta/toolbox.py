@@ -78,7 +78,7 @@ def annotate(G, filename):
         dialect = csv.Sniffer().sniff(tsvfile.read(1024))
         tsvfile.seek(0)
         reader = csv.reader(tsvfile, dialect)
-        header = reader.next()
+        header = next(reader)
         query_key = header[0]
         header = header[1:]
         # Trackes values that have been annotated to ensure that the same value

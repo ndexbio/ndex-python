@@ -41,7 +41,7 @@ class ndexGraphBuilder:
 
                                                                                  "' in node '" + ext_id + "'")
              if attributes:
-                 for key, value in attributes.iteritems():
+                 for key, value in attributes.items():
                      if n.get(key) and n.get(key) != value:
                          value_str = str(value)
                          raise RuntimeError("Node attribute " + key + " mismatches between '" +
