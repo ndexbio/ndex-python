@@ -59,7 +59,7 @@ def network_attributes(G, has_single_subnetwork):
     elements = []
     for attribute in G.graph:
         value = G.graph[attribute]
-        element = {'n': attribute, 'v': value}
+        element = {'n': attribute, 'v': string(value)}
         if not isinstance(value, string_types):
             d = domain(value)
             if d == "unknown":
@@ -85,7 +85,7 @@ def node_attributes(G, has_single_subnetwork):
             for attribute_name in attributes:
                 if attribute_name != "name" and attribute_name != "represents":
                     attribute_value = attributes[attribute_name]
-                    element = {'po': node_id, 'n': attribute_name, 'v': attribute_value}
+                    element = {'po': node_id, 'n': attribute_name, 'v': string(attribute_value)}
 
                     if not isinstance(attribute_value, string_types):
                         element['d'] = domain(attribute_value)
@@ -120,7 +120,7 @@ def edge_attributes(G, has_single_subnetwork):
             if attribute_name == 'interaction':
                 continue
             attribute_value = attributes[attribute_name]
-            element = {'po': edge_id, 'n': attribute_name, 'v': attribute_value}
+            element = {'po': edge_id, 'n': attribute_name, 'v': string(attribute_value)}
 
             if not isinstance(attribute_value, string_types):
                 element['d'] = domain(attribute_value)
