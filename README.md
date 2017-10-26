@@ -1,52 +1,18 @@
-# ndex-python
-This repository stores all of the code we are going to release under the name 'ndex' on PyPi.
+# **NDEx Python Client v3.0**
 
-API documention can be found here: http://ndexbio.github.io/ndex-python/index.html
-# **NDEx Python Client Tutorial v3.0**
+## **Overview**
 
-*Last updated: October 23, 2017*
+*NDEx Python Client v3.0 has been superseded by the NDEx2 Client. This is the last version of the NDEx Python Client. It will be maintained as a pip installable module to support current users, but we recommend migration to NDEx2.*
 
-### **Overview**
+The NDEx Python Client module provides methods to access NDEx via the NDEx Server API. It also provides methods for common operations on networks. It includes the NetworkN module and its NdexGraph network object class for convenient NDEx access and a data model for applications.
 
-The NDEx Python Client is a module that simplifies access to the NDEx Server API and provides convenience methods for common operations on networks. 
-
-Contents
-
-1. Requirements
-
-2. Installation
-
-3. The Client Obje
-
-    1. Functions
-
-    2. Basic NDEx Client
-
-4. The NiceCX Network Data Model
-
-    3. Functions
-
-    4. Basic NiceCX
-
-    5. Working with NetworkX and NiceCX
-
-    6. Working with Pandas and NiceCX
-
-This tutorial is composed of 2 sections: [section 1](http://www.home.ndexbio.org/ndex-python-client-tutorial/#section1) shows how to install the NDEx Python Client module and perform some basic operations on networks stored in an NDEx server. [Section 2](http://www.home.ndexbio.org/ndex-python-client-tutorial/#section2) provides details about all the API functions available.
+*Note that NDEx2 client does not support NetworkN, replacing it with the NiceCX object class.*
 
 ### **Requirements**
 
 The **NDEx Python Client 3.0** requires Python 2.7.9 and the latest version of the PIP Python package manager for installation. [Click here](https://pypi.python.org/pypi/pip) to download the PIP Python package.
 
-The **NDEx Python Client 3.0** is undergoing beta testing for Python 3 compatibility: we encourage you to use it in Python 3 and [report any issues](https://github.com/ndexbio/ndex-python) you may find.
-
-### Finally, the tutorial requires that you first create a personal account on the [NDEx Public Server](http://www.ndexbio.org/).
-
-### **The NDEx Client**
-
-The NDEx Python Client provides an interface to an NDEx server that is managed via a client object class. An NDEx Client object can be used to access an NDEx server either anonymously or using a specific user account. For each NDEx server and user account that you want to use in your script or application, you create an instance of the NDEx Client.
-
-### **Section 1 - Installing the NDEx Python Client Module**
+### **Installing the NDEx Python Client Module**
 
 The Python NDEx 3.0 module can be installed from the Python Package Index (PyPI) repository using PIP. This tutorial requires the 3.0 release (or higher) of the ndex module. To install this module to your computer using PIP:
 
@@ -56,212 +22,12 @@ If you already have an older version of this module installed, you can use this 
 
 >>> pip install --upgrade ndex2
 
-### **Setting up NDEx Clients**
 
-In this section you will configure two client objects to access the public NDEx server. The first will enable you to make anonymous requests. The second will enable you to perform operations requiring authentication, such as saving networks to your account.
+### **NDEx Python Client v3.0 API**
 
-With the ndex module installed, start Python and import ndex.client:
+The NDEx Python Client provides an interface to an NDEx server that is managed via a client object class. An NDEx Client object can be used to access an NDEx server either anonymously or using a specific user account. For each NDEx server and user account that you want to use in your script or application, you create an NDEx Client instance.
 
->>> python
-
->>> import ndex2.client as nc
-
-#### **Anonymous Clients**
-
-The following code creates an NDEx client object to access the NDEx public server anonymously, then tests the client by getting the current server status.
-
->>> anon_ndex=nc.Ndex("http://public.ndexbio.org")
->>> anon_ndex.update_status()
->>> networks = anon_ndex.status.get("networkCount")
->>> users = anon_ndex.status.get("userCount")
->>> groups = anon_ndex.status.get("groupCount")
->>> print("anon client: %s networks, %s users, %s groups" % (networks, users, groups))
-anon client: 3097 networks, 672 users, 26 groups
->>>
-
-#### **Personal Clients**
-
-A personal client enables you to perform operations requiring authentication, such as saving networks to your account. The following code creates an NDEx client object to access your account on the NDEx Public Server, then tests the client by getting the current server status.
-
-**Note: you must first create an account on the NDEx Public Server in order to create a personal client object.**
-
-For convenience and clarity, this example uses the variables ‘my_account’ and ‘my_password’ to hold the strings for your account name and password. Substitute the values for your account and password.
-
->>> my_account="your account"
->>> my_password="your password"
->>> my_ndex=nc.Ndex("http://public.ndexbio.org", my_account, my_password)
->>> my_ndex.update_status()
->>> networks = my_ndex.status.get("networkCount")
->>> users = my_ndex.status.get("userCount")
->>> groups = my_ndex.status.get("groupCount")
->>> print("my_ndex client: %s networks, %s users, %s groups" % (networks, users, groups))
-my_ndex client: 3097 networks, 672 users, 26 groups
->>> 
-
-### **Working with NDEx Networks Using the Anonymous Client**
-
-#### **Get Network Information by Accession**
-
-You can access a network by its accession ID, which is a universally unique identifier (UUID) assigned to the network by the NDEx server. All networks have a UUID and they are unique across all servers - no two networks will share the same UUID.
-
-In this step, you will get basic information about the network, retrieving a NetworkSummary structure. The ‘Metabolism of RNA’ network is in the NDEx Tutorials account on the public NDEx server; its UUID is ‘9ed0cd55-9ac0-11e4-9499-000c29202374’
-
-**Method: get_network_summary(network_id)**
-
-Returns: a NetworkSummary as a dict
-
->>> ns = anon_ndex.get_network_summary('9ed0cd55-9ac0-11e4-9499-000c29202374')
->>> print("network name is %s." % ns.get('name'))
-network name is Metabolism of RNA.
-
->>> print("network has %s edges and %s nodes." % (ns.get('edgeCount'), ns.get('nodeCount')))
-network has 4344 edges and 361 nodes.
->>>
-
-#### **Find Networks by Search**
-
-You can search for networks by the text in their name and description as well as the names and controlled vocabulary terms associated with their nodes. The input is a search string that conforms to Lucene search string syntax, but in its simplest form is one or more search terms separated by spaces.
-
-**Method: search_networks(search_string="", account_name=None, start=0, size=100, include_groups=False):**
-
-Returns: list of NetworkSummary dicts
-
-##### **Search and print the number of networks found:**
-
->>> metabolic_networks=anon_ndex.search_networks('metabo*')
->>> print("%s networks found." % (len(metabolic_networks['networks'])))
-68 networks found.
->>>
-
-##### **The search can also be limited to a specific account and to a number of search results:**
-
->>> metabolic_networks=anon_ndex.search_networks('metabo* userAdmin:ndextutorials', size=2)
->>> print("%s networks found" % (len(metabolic_networks['networks'])))
-2 networks found
-
->>>for ns in metabolic_networks['networks']: print(" %s" % ns.get('name'))
-Metabolism
-Metabolism of proteins
-
-#### **Get a Network**
-
-You can obtain an entire network as a CX stream, which is an NDEx format that is optimized for streaming networks. This is performed as a monolithic operation, so care should be taken when requesting very large networks. Applications can use the get_network_summary method to check the node and edge counts for a network before attempting to use get_network_as_cx_stream. The stream is contained in a Response object from the [Python requests library](http://docs.python-requests.org/en/master/).
-
-**Method: get_network_as_cx_stream(network_id)**
-
-Returns: Response object (from Python requests library)
-
->>> response=anon_ndex.get_network_as_cx_stream('9ed0cd55-9ac0-11e4-9499-000c29202374')
->>> print("Received %s characters of CX" % len(response.content))
-Received 665511 characters of CX
-
-#### **Query a Network – Neighborhood Query**
-
-You can retrieve a 'neighborhood' subnetwork of a network as CX stream. The query finds the subnetwork by first identifying nodes that are associated with identifiers in the search_string, then traversing search_depth number of steps from those nodes. The search_depth parameter controls the search, defaults to 1 edge and can be no more than 3 edges.
-
-**Method: get_neighborhood(network_id, search_string, search_depth=1, edge_limit=2500)**
-
-Returns: Subnetwork of a network as a CX Python dict
-
->>> query_result_cx=anon_ndex.get_neighborhood('9ed0cd55-9ac0-11e4-9499-000c29202374', 'XRN1')
->>> 
->>> def getNumberOfNodesAndEdgesFromCX(cx):
-... numberOfEdges = numberOfNodes = 0;
-... for aspect in cx:
-... if 'metaData' in aspect:
-... metaData = aspect['metaData']
-... for element in metaData:
-... if (('name' in element) and (element['name'] == 'nodes')):
-... numberOfNodes = element['elementCount']
-... if (('name' in element) and (element['name'] == 'edges')):
-... numberOfEdges = element['elementCount']
-... break
-... return numberOfNodes, numberOfEdges
-... 
->>> 
->>> nodes, edges = getNumberOfNodesAndEdgesFromCX(query_result_cx)
->>> 
->>> print("Query result network contains %s nodes and %s edges." % (nodes, edges))
-Query result network contains 20 nodes and 26 edges.
->>>
-
-### **Working with the NDEx Network Using Your Personal Client**
-
-#### **Create a Network**
-
-You can create a new network on an NDEx server if you have a CX stream. The network is created in the user account associated with the client object. All methods that create or modify content on the NDEx server require authentication, so you will use the my_ndex client object that you set up at the start of the tutorial and will create a network in your account.
-
-In the previous section, your neighborhood query retrieved a small network (26 edges) which was bound to the variable **query_result_cx**.
-
-We will now save this network to your account using **save_new_network(network)** and receive the URI for the new network. The URI includes the network UUID.
-
-**Method: save_new_network(network)**
-
-Returns: URI of new network
-
->>> uri = my_ndex.save_new_network(query_result_cx)
->>> uuid = uri.rpartition('/')[-1]
->>> print("URI of the newly created network %s is %s" % (uuid, uri))
-URI of the newly created network 62ccfcce-042d-11e7-aba2-0ac135e8bacf is http://public.ndexbio.org/v2/network/62ccfcce-042d-11e7-aba2-0ac135e8bacf
-
-#### **Update Network Profile**
-
-With the network UUID, you can update the name, description and version of the new network using the method **update_network_profile(network_id, network_profile)**.
-
-**Method: update_network_profile(network_id, network_profile)**
-
-Returns: nothing (empty string)
-
->>> >>> network_profile={"name":"Renamed Network", "description":"New Description", "version":"2.0"}
->>> my_ndex.update_network_profile(uuid, network_profile)
-''
->>> new_summary = my_ndex.get_network_summary(uuid)
->>> print("new name = %s" % new_summary.get('name'))
-new name = Renamed Network
->>> print("new description = %s" % new_summary.get('description'))
-new description = New Description
->>> print("new version = %s" % new_summary.get('version'))
-new version = 2.0
->>>
-
-#### **Set Read-Only**
-
-The new network can be set to read-only using the **set_read_only(network_id, boolean)** method, preventing unintended modification. The read-only networks can also be retrieved more quickly by others. Please note that a read only network cannot be edited or deleted, so you will need to revert it to its original state prior to proceeding with the final step in this tutorial.
-
-**Method: set_read_only(network_id, boolean)**
-
-Returns: Nothing (empty string)
-
->>> my_ndex.set_read_only(uuid, True)
-''
->>> new_summary = my_ndex.get_network_summary(uuid)
->>> print("The read only status is %s" % new_summary.get('isReadOnly'))
-The read only status is True
->>>
-
-##### **The network is then reverted to read/write thus enabling modification.**
-
->>> my_ndex.set_read_only(uuid, False)
-''
->>> new_summary = my_ndex.get_network_summary(uuid)
->>> print("The read only status has been reverted to %s" % new_summary.get('isReadOnly'))
-The read only status has been reverted to False
->>>
-
-#### **Delete a Network**
-
-Finally, the query result network is deleted using **delete_network(networkId)**. You can only delete networks that you own. **Be careful... There is no method to undo a deletion!**
-
-**Method: delete_network(networkId)**
-
-Returns: Nothing (empty string)
-
-##### **You can now delete the network that we saved to your account earlier on:**
-
->>> my_ndex.delete_network(uuid)
-''
-
-### **Section 2 - NDEx Python Client v3.0 API**
+This section describes the NDEx Client object methods:
 
 #### **User**
 
