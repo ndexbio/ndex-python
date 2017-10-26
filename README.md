@@ -8,6 +8,9 @@ The NDEx Python Client module provides methods to access NDEx via the NDEx Serve
 
 *Note that NDEx2 client does not support NetworkN, replacing it with the NiceCX object class.*
 
+### **Tutorial**
+A Jupyter Notebook tutorial on the basic use of the NDEx Python Client is at [NDEx Client v3.0 Tutorial](https://github.com/ndexbio/ndex-jupyter-notebooks/blob/master/notebooks/NDex%20Client%20tutorial.ipynb)
+
 ### **Requirements**
 
 The **NDEx Python Client 3.0** requires Python 2.7.9 and the latest version of the PIP Python package manager for installation. [Click here](https://pypi.python.org/pypi/pip) to download the PIP Python package.
@@ -269,7 +272,7 @@ This section describes the NDEx Client object methods:
 
 ##### **set_read_only(network_id, value)**
 
-* ets the read-only flag of the network specified by network_id to value.
+* Sets the read-only flag of the network specified by network_id to value.
 
 * The type of value is boolean (True or False).
 
