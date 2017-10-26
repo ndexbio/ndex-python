@@ -6,37 +6,52 @@
 
 The NDEx Python Client module provides methods to access NDEx via the NDEx Server API. It also provides methods for common operations on networks. It includes the NetworkN module and its NdexGraph network object class for convenient NDEx access and a data model for applications.
 
-*Note that NDEx2 client does not support NetworkN, replacing it with the NiceCX object class.*
+*Note that the NDEx2 client does not support NetworkN, replacing it with the NiceCX object class.*
 
-### **Tutorial**
+## **Tutorial**
 A Jupyter Notebook tutorial on the basic use of the NDEx Python Client is at [NDEx Client v3.0 Tutorial](https://github.com/ndexbio/ndex-jupyter-notebooks/blob/master/notebooks/NDex%20Client%20tutorial.ipynb)
 
-### **Requirements**
+## **Requirements**
 
 The **NDEx Python Client 3.0** requires Python 2.7.9 and the latest version of the PIP Python package manager for installation. [Click here](https://pypi.python.org/pypi/pip) to download the PIP Python package.
 
-### **Installing the NDEx Python Client Module**
+## **Installing the NDEx Python Client Module**
 
-The Python NDEx 3.0 module can be installed from the Python Package Index (PyPI) repository using PIP. This tutorial requires the 3.0 release (or higher) of the ndex module. To install this module to your computer using PIP:
+The Python NDEx 3.0 module can be installed from the Python Package Index (PyPI) repository using PIP:
 
->>> pip install ndex2
+> pip install ndex
 
-If you already have an older version of this module installed, you can use this command instead:
+If you already have an older version of the ndex module installed, you can use this command instead:
 
->>> pip install --upgrade ndex2
+> pip install --upgrade ndex
 
+## **NDEx Python Client Objects**
 
-### **NDEx Python Client v3.0 API**
+The NDEx Python Client provides an interface to an NDEx server that is managed via a client object class. An NDEx Client object can be used to access an NDEx server either anonymously or using a specific user account. For each NDEx server and user account that you want to use in your script or application, you create an NDEx Client instance. In this example, a client object is created to access the public NDEx server.
+'''
+import ndex.client
+anon_ndex=ndex.client.Ndex("http://public.ndexbio.org")
+'''
+A client object using a specific user account can perform operations requiring authentication, such as saving networks to that account.
+'''
+my_account="your account"
+my_password="your password"
+my_ndex=ndex.client.Ndex("http://public.ndexbio.org", my_account, my_password)
+'''
 
-The NDEx Python Client provides an interface to an NDEx server that is managed via a client object class. An NDEx Client object can be used to access an NDEx server either anonymously or using a specific user account. For each NDEx server and user account that you want to use in your script or application, you create an NDEx Client instance.
+### **NDEx Client Object Methods:**
 
-This section describes the NDEx Client object methods:
+#### **Status**
 
-#### **User**
+##### **update_status()**
+
+* Updates the client object *status* attribute with the status of the NDEx Server.
+
+#### **Users**
 
 ##### **get_user_by_username(username)**
 
-* Returns the user corresponding to the provided username
+* Returns a user object corresponding to the provided username
 
 * Error if this account is not found
 
