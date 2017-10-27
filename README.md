@@ -1,23 +1,23 @@
-# **NDEx Python Client v3.0**
+# **NDEx Python Client v3.1**
 
 ## **Overview**
 
-*NDEx Python Client v3.0 has been superseded by the NDEx2 Client. This is the last version of the NDEx Python Client. It will be maintained as a pip installable module to support current users, but we recommend migration to NDEx2.*
+*NDEx Python Client v3.1 has been superseded by the NDEx2 Client. This is the last version of the NDEx Python Client. It will be maintained as a pip installable module to support current users, but we recommend migration to NDEx2.*
 
 The NDEx Python Client module provides methods to access NDEx via the NDEx Server API. It also provides methods for common operations on networks. It includes the NetworkN module and its NdexGraph network object class for convenient NDEx access and a data model for applications.
 
 *Note that the NDEx2 client does not support NetworkN, replacing it with the NiceCX object class.*
 
 ## **Tutorial**
-A Jupyter Notebook tutorial on the basic use of the NDEx Python Client is at [NDEx Client v3.0 Tutorial](https://github.com/ndexbio/ndex-jupyter-notebooks/blob/master/notebooks/NDEx%20Python%20Client%203.0%20Tutorial.ipynb)
+A Jupyter Notebook tutorial on the basic use of the NDEx Python Client is at [NDEx Client v3.1 Tutorial](https://github.com/ndexbio/ndex-jupyter-notebooks/blob/master/notebooks/NDEx%20Python%20Client%203.1%20Tutorial.ipynb)
 
 ## **Requirements**
 
-The **NDEx Python Client 3.0** requires Python 2.7.9 and the latest version of the PIP Python package manager for installation. [Click here](https://pypi.python.org/pypi/pip) to download the PIP Python package.
+The **NDEx Python Client 3.1** requires Python 2.7.9 and the latest version of the PIP Python package manager for installation. [Click here](https://pypi.python.org/pypi/pip) to download the PIP Python package.
 
 ## **Installing the NDEx Python Client Module**
 
-The Python NDEx 3.0 module can be installed from the Python Package Index (PyPI) repository using PIP:
+The Python NDEx 3.1 module can be installed from the Python Package Index (PyPI) repository using PIP:
 
 > pip install ndex
 
