@@ -19,14 +19,17 @@ import time
 
 userAgent = 'NDEx-Python/2.0'
 
+#: The URL of the default public NDEx Server
+DEFAULT_SERVER = "http://public.ndexbio.org"
+
 class Ndex:
 
 
     '''A class to facilitate communication with an NDEx server.'''
-    def __init__(self, host = "http://public.ndexbio.org", username = None, password = None, update_status=False, debug = False):
+    def __init__(self, host = None, username = None, password = None, update_status=False, debug = False):
         '''Creates a connection to a particular NDEx server.
 
-                :param host: The URL of the server.
+                :param host: The URL of the server. Defaults to http://public.ndexbio.org.
                 :type host: string
                 :param username: The username of the NDEx account to use. (Optional)
                 :type username: string
@@ -38,6 +41,10 @@ class Ndex:
         self.status = {}
         self.username = username
         self.password = password
+        
+        if host is None:
+            host = DEFAULT_SERVER
+        
         if "localhost" in host:
             self.host = "http://localhost:8080/ndexbio-rest"
         else:
