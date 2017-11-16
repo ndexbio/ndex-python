@@ -223,8 +223,11 @@ class Ndex:
         return result
 
     # The Request is streamed, not the Response
-    def post_multipart(self, route, fields):
-        url = self.host + route
+    def post_multipart(self, route, fields, query_string=None):
+        if query_string:
+            url = self.host + route + '?' + query_string
+        else:
+            url = self.host + route
         multipart_data = MultipartEncoder(fields=fields)
         if self.debug:
             print("POST route: " + url)
@@ -246,7 +249,7 @@ class Ndex:
 
 # Network methods
 
-    def save_new_network (self, cx):
+    def save_new_network (self, cx, visibility=None, indexed_fields=None):
         if(len(cx) > 0):
             if(cx[len(cx) - 1] is not None):
                 if(cx[len(cx) - 1].get('status') is None):
@@ -262,13 +265,13 @@ class Ndex:
             else:
                 stream = io.BytesIO(json.dumps(cx))
 
-            return self.save_cx_stream_as_new_network(stream)
+            return self.save_cx_stream_as_new_network(stream, visibility=visibility, indexed_fields=indexed_fields)
         else:
             raise IndexError("Cannot save empty CX.  Please provide a non-empty CX document.")
 
     # CX Methods
     # Create a network based on a stream from a source CX format
-    def save_cx_stream_as_new_network (self, cx_stream):
+    def save_cx_stream_as_new_network (self, cx_stream, visibility=None, indexed_fields=None):
         ''' Create a new network from a CX stream, optionally providing a provenance history object to be included in the new network.
 
         :param cx_stream: The network stream.
@@ -278,6 +281,15 @@ class Ndex:
         self.require_auth()
         route = ''
         fields = {}
+        query_string = None
+        if indexed_fields:
+            if visibility:
+                query_string = 'indexedfields=' + ','.join(indexed_fields)
+            else:
+                query_string = 'visibility=' + visibility + '&indexedfields=' + ','.join(indexed_fields)
+        elif visibility:
+                query_string = 'visibility=' + visibility
+
         if(self.version == "2.0"):
             route = '/network'
             fields = {
@@ -289,7 +301,7 @@ class Ndex:
                 'CXNetworkStream': ('filename', cx_stream, 'application/octet-stream')
             }
 
-        return self.post_multipart(route, fields)
+        return self.post_multipart(route, fields, query_string=query_string)
 
     # Create a network based on a JSON string or Dict in CX format
     def update_cx_network(self, cx_stream, network_id):
@@ -430,6 +442,16 @@ class Ndex:
 
         if account_name:
             post_data["accountName"] = account_name
+        post_json = json.dumps(post_data)
+        return self.post(route, post_json)
+
+    def search_network_nodes(self, network_id, search_string='', account_name=None, limit=5):
+        post_data = {"searchString" : search_string}
+        if self.version == "2.0":
+            route = "/search/network/%s/nodes?limit=%s" % (network_id, limit)
+        else:
+            route = "/network/%s/nodes/%s" % (network_id, limit)
+
         post_json = json.dumps(post_data)
         return self.post(route, post_json)
 

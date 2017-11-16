@@ -1078,7 +1078,7 @@ class NdexGraph (MultiDiGraph):
         with open(filename, 'w') as outfile:
             json.dump(self.to_cx(), outfile, indent=4)
 
-    def upload_to(self, server, username, password):
+    def upload_to(self, server, username, password, visibility=None, indexed_fields=None):
         """ Upload this network to the specified server to the account specified by username and password.
 
         :param server: The NDEx server to upload the network to.
@@ -1095,7 +1095,7 @@ class NdexGraph (MultiDiGraph):
         """
 
         ndex = nc.Ndex(server,username,password)
-        return ndex.save_new_network(self.to_cx())
+        return ndex.save_new_network(self.to_cx(), visibility=visibility, indexed_fields=indexed_fields)
 
     def update_to(self, uuid, server, username, password):
         """ Upload this network to the specified server to the account specified by username and password.
