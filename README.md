@@ -11,6 +11,9 @@ The NDEx Python Client module provides methods to access NDEx via the NDEx Serve
 ## **Tutorial**
 A Jupyter Notebook tutorial on the basic use of the NDEx Python Client is at [NDEx Client v3.1 Tutorial](https://github.com/ndexbio/ndex-jupyter-notebooks/blob/master/notebooks/NDEx%20Python%20Client%203.1%20Tutorial.ipynb)
 
+To use this tutorial, clone the [ndex-jupyter-notebooks repository](https://github.com/ndexbio/ndex-jupyter-notebooks) to your local machine and start Jupyter Notebooks in the project directory.
+
+For information on installing and using Jupyter Notebooks, go to [jupyter.org](http://jupyter.org/)
 ## **Requirements**
 
 The **NDEx Python Client 3.1** requires Python 2.7.9 and the latest version of the PIP Python package manager for installation. [Click here](https://pypi.python.org/pypi/pip) to download the PIP Python package.
