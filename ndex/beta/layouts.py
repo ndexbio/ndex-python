@@ -51,7 +51,8 @@ def add_ndex_spring_layout_with_attractors(g, node_width, attractor_map, iterati
 
     cc = sorted(nx.connected_components(g_simple), key = len, reverse=True)
     if len(cc) > 1:
-        print("%s disconnected subgraphs: adding centerpoint attractor with edges to one of the least connected nodes in each subgraph" % len(cc))
+        print(str(len(cc)) + " disconnected subgraphs: adding centerpoint attractor with edges to "
+              "one of the least connected nodes in each subgraph")
         anchor_node_ids = []
         for c in cc:
             cl = list(c)
